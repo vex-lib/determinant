@@ -4,7 +4,7 @@
 
 The complete [constitution](https://gist.github.com/vex-graph/4132a6c45cb6d3797c3e8eff2e94035a)
 governs this repository. The binding law list is `gist.md`
-(`../../../metadata/gists/preferences/gist.md`); `../../../metadata/gists/preferences/PREFERENCES.md` is its full
+(`../../metadata/gists/preferences/gist.md`); `../../../metadata/gists/preferences/PREFERENCES.md` is its full
 rationale and is never ingested whole. Read the law first, then this document, the proof
 lawbook `../../../tests/test-preferences.md` (slice one law with
 `./tools/prefs test "<title>"`), the evidence ledger
@@ -14,15 +14,18 @@ lawbook `../../../tests/test-preferences.md` (slice one law with
 
 | Law Title | Scope | Enforcement |
 | :--- | :--- | :--- |
-| Terminal Ownership Boundary Law | R3 terminal rendering, widgets, parsing and input | Owner and dependency tests |
+| Terminal Ownership Boundary Law | R3 terminal rendering, compositing, widgets, parsing and input | Owner and dependency tests |
 | Resident Terminal and Swappable Module Law | Terminal lifetime and reload | Real module swap, rejection preservation and teardown tests |
 | Bare Output Separation Law | R2 print vs terminal application output | Quiet rendering and routed-output tests |
+| Uniform Terminal Composition Law | Canonical application frame, compositor, and host lifecycle | Contract composition and no-shadow-owner tests |
 
 ### Terminal Ownership Boundary Law
 
 Determinant is the R3 toolkit for reusable terminal-cell rendering, widgets,
-command parsing and caller-fed input. It borrows Vexspoke CPU and Relational
-Engine storage contracts, never R1/R4/R5/R6 implementation headers. An
+compositing, command parsing and caller-fed input. It borrows Vexspoke CPU and Relational
+Engine storage contracts, never R1/R4/R5/R6 implementation headers. Determinant owns
+the uniform presentation pipeline: cell geometry, region layouts, ANSI/VT escape
+generation, synchronized surface flushes, and self-rendering widgets. An
 R1/standalone host supervises terminal acquisition, bounded event driving and
 teardown through opaque handles/callbacks. Determinant owns no competing OS
 process, storage or provider implementation. Coordinates are cells, not
@@ -60,6 +63,16 @@ output through terminal presentation, never bare stdout over a managed screen.
 Diagnostic stderr is a separate cold channel, not widget rendering. Hotcwap's
 Console is the R1 lifecycle object, not the R2 printer or a Determinant widget.
 
+### Uniform Terminal Composition Law
+
+Determinant provides the canonical application frame (`TerminalFrame`), terminal
+compositor (`TerminalCompositor`), and host execution harness (`TerminalApp`)
+so consumers compose lower-tier contracts without re-implementing TTY raw mode,
+signal traps, device escape flushes, or shadow painters beside R3 (the Vertical
+Integration Law: Compose down, never rebuild). Terminal applications wire
+reusable views and run loops through Determinant contracts, never through ad-hoc
+host rendering scripts or unshared terminal drivers.
+
 ## Repo-Local Extensions (managed, per the Conflict Triage Law)
 
 ### Placement and Component Tree Extension
@@ -90,10 +103,18 @@ panel (container) and text (leaf).
   fresh grid against the last paint, emitting changed same-row runs only. Thus
   total repaint costs the host nothing on an unchanged frame. A refused run leaves
   the record unchanged, so next present redelivers that delta.
+- `TerminalCompositor` owns the output translation seam: it consumes `TerminalSurface`
+  delta runs, formats optimized ANSI/VT escape sequences into a bounded frame buffer,
+  and synchronizes atomic device flushes without consumer-side escape generation.
 - Child identity is slot + generation; retired slots report stale IDs, never
   address recycled children. Derived geometry/growth changes only via
   add/remove/detach/anchor, never a lifetime-forging setter. Cold growth doubles;
   refusals are counted and reported once per epoch.
+
+`TerminalFrame` is the canonical top-level responsive layout object. It divides
+the root canvas into header, left rail, centre, right rail, and footer regions.
+It provides the standard five-region workbench for interactables and superapps,
+coordinating with panels and anchors rather than duplicating geometry.
 
 `TerminalButton` is interactive text (hover, click, retained handler) and the
 only widget retaining a handler; every other widget returns an event and keeps
@@ -102,10 +123,12 @@ nothing.
 `TerminalTreeView` is a scrollable, collapsible tree of addressable rows. A
 node's subtree is a contiguous pre-order range, so folding is a jump and unfolding
 is a step; visible rows are cached and recomputed only on a structural change;
-ids are stable and never recycled. It draws nothing: a row is returned as data
-(label, depth, folder, expanded, selected) and the caller paints it. That is what
-lets one widget serve a file tree, a channel list and a settings menu. It is not a
-panel child and does not replace the panel tree.
+ids are stable and never recycled. In addition to headless node/row queries, it
+ships a built-in canonical row painter with configurable indentation
+(`TerminalTreeView_setIndent`, default 2 spaces), folder marker styling, and
+icon provider integration (e.g. Nerd Font or plain mode). The caller configures
+these uniform presentation defaults instead of duplicating file-tree rendering
+loops in consumer entry points.
 
 `TerminalScrollGlide` is the shared scroll motion for any viewport: per-axis
 shown/target positions plus the easing between them, with a snap threshold. Input
@@ -121,11 +144,18 @@ and paints clipped cells; virtual hints never change source bytes or span
 coordinates. Consumers own parsing, semantic classification, theme policy and
 backing lifetimes. This R3 toolkit borrows no other R3 language implementation.
 
+`TerminalApp` is the standard host execution harness. It manages the terminal
+lifecycle: raw mode acquisition/restoration, `SIGWINCH` resize handling, input
+polling, event dispatch, and frame pump over the root frame. Consumers wire
+objects and run `TerminalApp` without implementing ad-hoc terminal drivers.
+
 ### Source Taxonomy Extension
 
-`src/` is organised by the capability a unit owns, not by a flat widget prefix:
+`src` is organised by the capability a unit owns, not by a flat widget prefix:
 
 - `ui/surface/` — `Terminal`, `TerminalCanvas`, `TerminalProjection`, `TerminalSurface`: the cell surface and last-paint pipeline.
+- `ui/compositor/` — `TerminalCompositor`: delta-to-ANSI translation and synchronized device flush buffer.
+- `ui/app/` — `TerminalApp`: lifecycle harness, terminal raw mode, resize and event loop.
 - `ui/panel/` — `TerminalPanel`, `TerminalAnchor`, `TerminalFrame`: container, placement, region layout.
 - `ui/text/` — `TerminalText`, `TerminalTextView`, `TerminalStatusBar`.
 - `ui/list/`, `ui/tree/` — `TerminalListView`, `TerminalTreeView`.
@@ -141,39 +171,34 @@ backing lifetimes. This R3 toolkit borrows no other R3 language implementation.
 - `cli/` — command parsing and log projection, outside `ui/`.
 
 Every include names the canonical path (`ui/panel/terminal_panel.h`,
-`events/terminal_input.h`, `format/terminal_color.h`); `src/terminal/` no longer
+`events/terminal_input.h`, `format/terminal_color.h`); `src/terminal` no longer
 exists. A new reusable unit lands in the directory that owns its capability.
 Class names keep the `Terminal` prefix — the directory is placement, not identity.
 Mirrored owner tests live under `tests/determinant/<same relative directory>/`.
 
-### Pending: frame retirement and the missing flavours
+### Canonical Frame Integration and Progressing Flavours
 
-`TerminalFrame` still computes five regions, duplicating `TerminalAnchor` band
-arithmetic deliberately, not as a settled design. Its regions differ from the
-five anchor bands: the footer spans only the centre column; rails span the body,
-not the footer row. Retirement therefore first requires migrating
-`TerminalRule` and appearance presets. Until then, new layout belongs on panels
-and anchors; never extend frame geometry.
+`TerminalFrame` computes five canonical regions (header, left rail, centre,
+right rail, footer), providing a standard top-level application layout that
+coordinates with `TerminalPanel` and `TerminalAnchor`. Frame geometry is
+permanent and integrated, not retired: superapps and interactables target
+these five standard regions, while finer-grained layout within each region uses
+anchors and panels.
 
-`SCROLL` and `CODE` panel flavours are unimplemented: scrolling needs a real clip
-and offset; code needs a gutter, so do not add either name early.
-`TerminalScrollGlide` is now the reusable motion model, but it is not that flavour:
-the panel that clips cells still does not exist. `TerminalCodeView` is only the
-caller-fed line painter, not the `CODE` flavour or an editor. Generic `list_view`,
-`text_view`, `input_line` and `status_bar` widgets are superseded by the tree but
-not yet rebuilt from it. Cycle safety is proved for paint only; indirect cycles
-still make teardown undefined, so the tree is acyclic by contract.
+`SCROLL` and `CODE` panel flavours are progressing: scrolling needs a real clip
+and offset; code needs a gutter. `TerminalScrollGlide` provides the reusable
+motion model, and `TerminalCodeView` provides line-level rendering. Standardized
+gutter presentation, `cursor/` stepping, and caret movement will be unified
+in Determinant so consumers like Semicolon can retire their duplicated editor
+loops under the Vertical Integration Law (Compose down, never rebuild).
 
 Not implemented or implied by an executed owner: panel-tree pointer/hover routing
 (cold `TerminalPanel_childAt` exists, unused); bracketed chip/segment bar; tab
-strip; editor view with line-number gutter; and child-array allocation-failure
-injection. `TerminalTreeView` exists and its own owner proves folding, selection,
-reveal and viewport clamping; it draws no rows itself, so the caller's painting is
-not part of that proof. `cursor/` has no owner yet: caret movement, selection,
-grapheme and wide-cell stepping are still rebuilt inside consumers such as
-Semicolon. The format plane is 16-bit and carries italic as
-`TERMINAL_STYLE_ITALIC`, so a span can be bold, italic and underlined without a
-class of its own.
+strip; and child-array allocation-failure injection. `TerminalTreeView` proves
+folding, selection, reveal and viewport clamping, and its built-in row painter
+renders canonical indented rows with folder and icon styles. The format plane is
+16-bit and carries italic as `TERMINAL_STYLE_ITALIC`, so a span can be bold, italic
+and underlined without a class of its own.
 
 Markdown presentation is still a bounded subset, not a browser: headings ladders,
 both callout spellings, aligned tables, fenced code with a copy affordance and
@@ -181,11 +206,11 @@ labelled links are owned; emphasis nesting, HTML, reference links, images and a
 full CommonMark parser are not. A link press reports its target; it never hands
 an untrusted URI to a desktop opener.
 
-;;INTENTION("R3 terminal toolkit: anchor-owned placement over a two-kind component tree (panel container, addressable text leaf), a total repaint each frame so resize needs no invalidation, and a last-paint presenter that owns the delta; the frame's five regions remain a pending deliberate migration rather than a second layout system.")
+;;INTENTION("R3 terminal toolkit: uniform terminal presentation including canonical TerminalFrame layout, self-painting TerminalTreeView with configurable indents and icons, anchor/panel component tree, and TerminalCompositor/TerminalApp lifecycle, ensuring consumers compose R3 directly rather than re-implementing terminal drivers.")
 
 ## Current Proof Boundary
 
 This lawbook states the accepted contract, not readiness. Owner tests belong in
-`../../../tests/determinant/`. Primeagen integration, live reload, real terminal/
+`../../tests/determinant`. Primeagen integration, live reload, real terminal/
 backend behavior and other platforms need their own executed evidence. No push,
 interactive launch or live provider call is implied.
