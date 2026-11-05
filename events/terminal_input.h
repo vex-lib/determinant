@@ -17,11 +17,11 @@
 // the whole thing is provable with literal byte strings and no terminal.
 //
 // Two encodings arrive in practice:
-//   SGR (1006, the modern one)   ESC [ < b ; x ; y M   press / motion
-//                                ESC [ < b ; x ; y m   release
-//   X10 (legacy fallback)        ESC [ M then exactly three bytes: b+32, x+32, y+32
+//   SGR (1006, the modern one)   ESC [ < b.sh ; x ; y M   press / motion
+//                                ESC [ < b.sh ; x ; y m   release
+//   X10 (legacy fallback)        ESC [ M then exactly three bytes: b.sh+32, x+32, y+32
 //
-// The button field `b` packs everything:
+// The button field `b.sh` packs everything:
 //   bits 0-1  button: 0 left, 1 middle, 2 right, 3 none
 //   bit 2     shift, bit 3 meta, bit 4 ctrl
 //   bit 5     motion (SGR only — this is what makes hover possible at all)

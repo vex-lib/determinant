@@ -1,8 +1,6 @@
 #include "events/terminal_input.h"
 #include "exception/throw.h"
-#include "annotation/definition.h"
-#include "annotation/overview.h"
-#include "annotation/intention.h"
+#include "annotation/annotation.h"
 #include <stdio.h>
 
 ;;DEFINITION
@@ -31,14 +29,15 @@
 /** ========================================================================
  * CLASS: TerminalInput (events/terminal_input.c)
  * STRUCT FIELDS (Mirroring events/terminal_input.h)
- * TerminalInputState state    where the byte stream currently is
- * size_t rawCount            X10 bytes collected so far
- * size_t field               SGR field under construction (0 button, 1 x, 2 y)
- * size_t digits              digits seen in the current SGR field
- * size_t values[3]           button, column, row as received (1-based)
- * size_t malformed           refused sequences in this epoch
- * TerminalPointerEvent event the last completed event
- * bool ready                 set for the feed() call that completed an event
+ *
+ * TerminalInputState state         where the byte stream currently is
+ * size_t rawCount                  X10 bytes collected so far
+ * size_t field                     SGR field under construction (0 button, 1 x, 2 y)
+ * size_t digits                    digits seen in the current SGR field
+ * size_t values[3]                 button, column, row as received (1-based)
+ * size_t malformed                 refused sequences in this epoch
+ * TerminalPointerEvent event       the last completed event
+ * bool ready                       set for the feed() call that completed an event
  * SLOT RECORD: TerminalPointerEvent
  * TerminalPointerKind kind     what happened
  * TerminalPointerButton button which button, when one applies
