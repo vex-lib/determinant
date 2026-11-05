@@ -12,7 +12,7 @@
 // the device backend renders its own default fg/bg. Opaque black is
 // 0x000000FF and is NOT the sentinel, so black text is expressible.
 //
-// Any alpha BETWEEN those two ends is REAL: TERMINAL_RGBA(r, g, b, 0x60) is the same
+// Any alpha BETWEEN those two ends is REAL: TERMINAL_RGBA(r, g, b.sh, 0x60) is the same
 // colour at 38% opacity, which is how a fade is written down. A terminal has no alpha
 // channel — SGR sets ONE colour — so a translucent value only means something once it
 // has been composited over whatever is behind it. `TerminalColor_over` below is that
@@ -24,6 +24,7 @@
 #define TERMINAL_RGBA(r, g, b, a) \
     ((((uint32_t) (r) & 0xFFu) << 24) | (((uint32_t) (g) & 0xFFu) << 16) | \
      (((uint32_t) (b) & 0xFFu) << 8) | ((uint32_t) (a) & 0xFFu))
+
 #define TERMINAL_RGB(r, g, b) TERMINAL_RGBA(r, g, b, 0xFFu)
 
 #define TERMINAL_COLOR_RED(c)   ((uint8_t) (((c) >> 24) & 0xFFu))
