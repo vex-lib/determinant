@@ -2,9 +2,7 @@
 #include "io/file.h"
 #include "io/logparser.h"
 #include "exception/throw.h"
-#include "annotation/definition.h"
-#include "annotation/overview.h"
-#include "annotation/what.h"
+#include "annotation/annotation.h"
 #include <stdio.h>
 
 ;;DEFINITION

@@ -1,8 +1,7 @@
 #include "cli/scanner.h"
-#include "primitive/string.h"
+#include "primitive/vex-string.h"
 #include "exception/throw.h"
-#include "annotation/definition.h"
-#include "annotation/overview.h"
+#include "annotation/annotation.h"
 #include <string.h>
 #include <stdio.h>
 
