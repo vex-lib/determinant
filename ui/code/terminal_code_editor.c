@@ -19,10 +19,10 @@
  * STRUCT FIELDS (Mirroring ui/code/terminal_code_editor.h)
  *
  * char **lines                            row string storage
- * size_t *lineLengths, *lineCapacities    per-line metrics
- * size_t lineCount, lineCapacity          line array geometry
- * size_t cursorLine, cursorCol            2D caret coordinates
- * size_t scrollTop, scrollLeft            viewport offsets
+ * bytes *lineLengths, *lineCapacities    per-line metrics
+ * bytes lineCount, lineCapacity          line array geometry
+ * bytes cursorLine, cursorCol            2D caret coordinates
+ * bytes scrollTop, scrollLeft            viewport offsets
  * bool showGutter                         gutter enabled flag
  * TerminalPen gutterPen, textPen, cursorPen  styling pens
  * ======================================================================== */
@@ -30,12 +30,12 @@
 #define TERMINAL_CODE_EDITOR_INIT_CAPACITY 16u
 #define TERMINAL_CODE_EDITOR_LINE_INIT_CAP 64u
 
-static bool reserveLineCapacity(TerminalCodeEditor *self, size_t lineIndex, size_t needed) {
+static bool reserveLineCapacity(TerminalCodeEditor *self, bytes lineIndex, bytes needed) {
     if (self == nullptr || lineIndex >= (*self).lineCount)
         return false;
     if ((*self).lineCapacities[lineIndex] >= needed)
         return true;
-    size_t newCap = (*self).lineCapacities[lineIndex] * 2u;
+    bytes newCap = (*self).lineCapacities[lineIndex] * 2u;
     if (newCap < needed)
         newCap = needed + 32u;
     char *newBuf = (char*) Memory_alloc(TYPE_BYTE_ARRAY, newCap);
@@ -52,18 +52,18 @@ static bool reserveLineCapacity(TerminalCodeEditor *self, size_t lineIndex, size
     return true;
 }
 
-static bool reserveArrayCapacity(TerminalCodeEditor *self, size_t needed) {
+static bool reserveArrayCapacity(TerminalCodeEditor *self, bytes needed) {
     if (self == nullptr)
         return false;
     if ((*self).lineCapacity >= needed)
         return true;
-    size_t newCap = (*self).lineCapacity * 2u;
+    bytes newCap = (*self).lineCapacity * 2u;
     if (newCap < needed)
         newCap = needed + 8u;
 
     char **newLines = (char**) Memory_alloc(TYPE_BYTE_ARRAY, newCap * sizeof(char*));
-    size_t *newLengths = (size_t*) Memory_alloc(TYPE_BYTE_ARRAY, newCap * sizeof(size_t));
-    size_t *newCaps = (size_t*) Memory_alloc(TYPE_BYTE_ARRAY, newCap * sizeof(size_t));
+    bytes *newLengths = (bytes*) Memory_alloc(TYPE_BYTE_ARRAY, newCap * sizeof(bytes));
+    bytes *newCaps = (bytes*) Memory_alloc(TYPE_BYTE_ARRAY, newCap * sizeof(bytes));
 
     if (newLines == nullptr || newLengths == nullptr || newCaps == nullptr) {
         if (newLines != nullptr) Memory_free(newLines);
@@ -74,8 +74,8 @@ static bool reserveArrayCapacity(TerminalCodeEditor *self, size_t needed) {
 
     if ((*self).lines != nullptr) {
         memcpy(newLines, (*self).lines, (*self).lineCount * sizeof(char*));
-        memcpy(newLengths, (*self).lineLengths, (*self).lineCount * sizeof(size_t));
-        memcpy(newCaps, (*self).lineCapacities, (*self).lineCount * sizeof(size_t));
+        memcpy(newLengths, (*self).lineLengths, (*self).lineCount * sizeof(bytes));
+        memcpy(newCaps, (*self).lineCapacities, (*self).lineCount * sizeof(bytes));
         Memory_free((*self).lines);
         Memory_free((*self).lineLengths);
         Memory_free((*self).lineCapacities);
@@ -91,7 +91,7 @@ static bool reserveArrayCapacity(TerminalCodeEditor *self, size_t needed) {
 static void freeAllLines(TerminalCodeEditor *self) {
     if (self == nullptr || (*self).lines == nullptr)
         return;
-    for (size_t i = 0u; i < (*self).lineCount; ++i) {
+    for (bytes i = 0u; i < (*self).lineCount; ++i) {
         if ((*self).lines[i] != nullptr)
             Memory_free((*self).lines[i]);
     }
@@ -154,9 +154,9 @@ bool TerminalCodeEditor_setText(TerminalCodeEditor *self, const char *text) {
         return false;
     freeAllLines(self);
 
-    size_t len = strlen(text);
-    size_t estimatedLines = 1u;
-    for (size_t i = 0u; i < len; ++i) {
+    bytes len = strlen(text);
+    bytes estimatedLines = 1u;
+    for (bytes i = 0u; i < len; ++i) {
         if (text[i] == '\n')
             estimatedLines++;
     }
@@ -164,15 +164,15 @@ bool TerminalCodeEditor_setText(TerminalCodeEditor *self, const char *text) {
     if (!reserveArrayCapacity(self, estimatedLines + 4u))
         return false;
 
-    size_t at = 0u;
+    bytes at = 0u;
     while (at <= len) {
-        size_t lineStart = at;
+        bytes lineStart = at;
         while (at < len && text[at] != '\n')
             at++;
-        size_t lineLen = at - lineStart;
+        bytes lineLen = at - lineStart;
 
-        size_t idx = (*self).lineCount;
-        size_t cap = lineLen + 16u;
+        bytes idx = (*self).lineCount;
+        bytes cap = lineLen + 16u;
         char *buf = (char*) Memory_alloc(TYPE_BYTE_ARRAY, cap);
         if (buf == nullptr)
             return false;
@@ -196,11 +196,11 @@ bool TerminalCodeEditor_setText(TerminalCodeEditor *self, const char *text) {
     return true;
 }
 
-size_t TerminalCodeEditor_getLineCount(const TerminalCodeEditor *self) {
+bytes TerminalCodeEditor_getLineCount(const TerminalCodeEditor *self) {
     return self != nullptr ? (*self).lineCount : 0u;
 }
 
-const char *TerminalCodeEditor_getLine(const TerminalCodeEditor *self, size_t lineIndex) {
+const char *TerminalCodeEditor_getLine(const TerminalCodeEditor *self, bytes lineIndex) {
     if (self == nullptr || lineIndex >= (*self).lineCount || (*self).lines[lineIndex] == nullptr)
         return "";
     return (*self).lines[lineIndex];
@@ -211,13 +211,13 @@ bool TerminalCodeEditor_insertChar(TerminalCodeEditor *self, int character) {
         return false;
 
     if (character == '\n') {
-        size_t cur = (*self).cursorLine;
-        size_t col = (*self).cursorCol;
+        bytes cur = (*self).cursorLine;
+        bytes col = (*self).cursorCol;
         const char *curLine = (*self).lines[cur];
-        size_t curLen = (*self).lineLengths[cur];
+        bytes curLen = (*self).lineLengths[cur];
 
         // Measure leading whitespace for auto-indent
-        size_t indent = 0u;
+        bytes indent = 0u;
         while (indent < curLen && indent < col && (curLine[indent] == ' ' || curLine[indent] == '\t'))
             indent++;
 
@@ -225,16 +225,16 @@ bool TerminalCodeEditor_insertChar(TerminalCodeEditor *self, int character) {
             return false;
 
         // Shift rows down
-        for (size_t i = (*self).lineCount; i > cur + 1u; --i) {
+        for (bytes i = (*self).lineCount; i > cur + 1u; --i) {
             (*self).lines[i] = (*self).lines[i - 1u];
             (*self).lineLengths[i] = (*self).lineLengths[i - 1u];
             (*self).lineCapacities[i] = (*self).lineCapacities[i - 1u];
         }
 
         // Split line: right piece becomes new row
-        size_t rightLen = col < curLen ? (curLen - col) : 0u;
-        size_t newRowLen = indent + rightLen;
-        size_t newCap = newRowLen + 32u;
+        bytes rightLen = col < curLen ? (curLen - col) : 0u;
+        bytes newRowLen = indent + rightLen;
+        bytes newCap = newRowLen + 32u;
         char *newBuf = (char*) Memory_alloc(TYPE_BYTE_ARRAY, newCap);
         if (newBuf == nullptr)
             return false;
@@ -260,9 +260,9 @@ bool TerminalCodeEditor_insertChar(TerminalCodeEditor *self, int character) {
     }
 
     // Normal character insertion into current line
-    size_t cur = (*self).cursorLine;
-    size_t col = (*self).cursorCol;
-    size_t curLen = (*self).lineLengths[cur];
+    bytes cur = (*self).cursorLine;
+    bytes col = (*self).cursorCol;
+    bytes curLen = (*self).lineLengths[cur];
     if (col > curLen)
         col = curLen;
 
@@ -270,7 +270,7 @@ bool TerminalCodeEditor_insertChar(TerminalCodeEditor *self, int character) {
         return false;
 
     char *buf = (*self).lines[cur];
-    size_t moveCount = curLen - col;
+    bytes moveCount = curLen - col;
     if (moveCount > 0u)
         memmove(buf + col + 1u, buf + col, moveCount);
 
@@ -281,10 +281,10 @@ bool TerminalCodeEditor_insertChar(TerminalCodeEditor *self, int character) {
     return true;
 }
 
-bool TerminalCodeEditor_insertText(TerminalCodeEditor *self, const char *text, size_t length) {
+bool TerminalCodeEditor_insertText(TerminalCodeEditor *self, const char *text, bytes length) {
     if (self == nullptr || text == nullptr || length == 0u)
         return false;
-    for (size_t i = 0u; i < length; ++i) {
+    for (bytes i = 0u; i < length; ++i) {
         if (!TerminalCodeEditor_insertChar(self, text[i]))
             return false;
     }
@@ -295,13 +295,13 @@ bool TerminalCodeEditor_backspace(TerminalCodeEditor *self) {
     if (self == nullptr || (*self).lineCount == 0u)
         return false;
 
-    size_t cur = (*self).cursorLine;
-    size_t col = (*self).cursorCol;
+    bytes cur = (*self).cursorLine;
+    bytes col = (*self).cursorCol;
 
     if (col > 0u) {
         char *buf = (*self).lines[cur];
-        size_t len = (*self).lineLengths[cur];
-        size_t moveCount = len - col;
+        bytes len = (*self).lineLengths[cur];
+        bytes moveCount = len - col;
         if (moveCount > 0u)
             memmove(buf + col - 1u, buf + col, moveCount);
         (*self).lineLengths[cur]--;
@@ -312,9 +312,9 @@ bool TerminalCodeEditor_backspace(TerminalCodeEditor *self) {
 
     if (cur > 0u) {
         // Join with previous line
-        size_t prev = cur - 1u;
-        size_t prevLen = (*self).lineLengths[prev];
-        size_t curLen = (*self).lineLengths[cur];
+        bytes prev = cur - 1u;
+        bytes prevLen = (*self).lineLengths[prev];
+        bytes curLen = (*self).lineLengths[cur];
 
         if (!reserveLineCapacity(self, prev, prevLen + curLen + 1u))
             return false;
@@ -324,7 +324,7 @@ bool TerminalCodeEditor_backspace(TerminalCodeEditor *self) {
         (*self).lines[prev][(*self).lineLengths[prev]] = '\0';
 
         Memory_free((*self).lines[cur]);
-        for (size_t i = cur; i + 1u < (*self).lineCount; ++i) {
+        for (bytes i = cur; i + 1u < (*self).lineCount; ++i) {
             (*self).lines[i] = (*self).lines[i + 1u];
             (*self).lineLengths[i] = (*self).lineLengths[i + 1u];
             (*self).lineCapacities[i] = (*self).lineCapacities[i + 1u];
@@ -342,13 +342,13 @@ bool TerminalCodeEditor_delete(TerminalCodeEditor *self) {
     if (self == nullptr || (*self).lineCount == 0u)
         return false;
 
-    size_t cur = (*self).cursorLine;
-    size_t col = (*self).cursorCol;
-    size_t len = (*self).lineLengths[cur];
+    bytes cur = (*self).cursorLine;
+    bytes col = (*self).cursorCol;
+    bytes len = (*self).lineLengths[cur];
 
     if (col < len) {
         char *buf = (*self).lines[cur];
-        size_t moveCount = len - col - 1u;
+        bytes moveCount = len - col - 1u;
         if (moveCount > 0u)
             memmove(buf + col, buf + col + 1u, moveCount);
         (*self).lineLengths[cur]--;
@@ -357,8 +357,8 @@ bool TerminalCodeEditor_delete(TerminalCodeEditor *self) {
     }
 
     if (cur + 1u < (*self).lineCount) {
-        size_t next = cur + 1u;
-        size_t nextLen = (*self).lineLengths[next];
+        bytes next = cur + 1u;
+        bytes nextLen = (*self).lineLengths[next];
 
         if (!reserveLineCapacity(self, cur, len + nextLen + 1u))
             return false;
@@ -368,7 +368,7 @@ bool TerminalCodeEditor_delete(TerminalCodeEditor *self) {
         (*self).lines[cur][(*self).lineLengths[cur]] = '\0';
 
         Memory_free((*self).lines[next]);
-        for (size_t i = next; i + 1u < (*self).lineCount; ++i) {
+        for (bytes i = next; i + 1u < (*self).lineCount; ++i) {
             (*self).lines[i] = (*self).lines[i + 1u];
             (*self).lineLengths[i] = (*self).lineLengths[i + 1u];
             (*self).lineCapacities[i] = (*self).lineCapacities[i + 1u];
@@ -390,27 +390,27 @@ void TerminalCodeEditor_moveCursor(TerminalCodeEditor *self, int deltaLine, int 
         return;
 
     if (deltaLine < 0) {
-        size_t d = (size_t) (-deltaLine);
+        bytes d = (bytes) (-deltaLine);
         if ((*self).cursorLine >= d)
             (*self).cursorLine -= d;
         else
             (*self).cursorLine = 0u;
     } else if (deltaLine > 0) {
-        (*self).cursorLine += (size_t) deltaLine;
+        (*self).cursorLine += (bytes) deltaLine;
         if ((*self).cursorLine >= (*self).lineCount)
             (*self).cursorLine = (*self).lineCount - 1u;
     }
 
-    size_t curLen = (*self).lineLengths[(*self).cursorLine];
+    bytes curLen = (*self).lineLengths[(*self).cursorLine];
 
     if (deltaCol < 0) {
-        size_t d = (size_t) (-deltaCol);
+        bytes d = (bytes) (-deltaCol);
         if ((*self).cursorCol >= d)
             (*self).cursorCol -= d;
         else
             (*self).cursorCol = 0u;
     } else if (deltaCol > 0) {
-        (*self).cursorCol += (size_t) deltaCol;
+        (*self).cursorCol += (bytes) deltaCol;
         if ((*self).cursorCol > curLen)
             (*self).cursorCol = curLen;
     } else {
@@ -419,20 +419,20 @@ void TerminalCodeEditor_moveCursor(TerminalCodeEditor *self, int deltaLine, int 
     }
 }
 
-size_t TerminalCodeEditor_getCursorLine(const TerminalCodeEditor *self) {
+bytes TerminalCodeEditor_getCursorLine(const TerminalCodeEditor *self) {
     return self != nullptr ? (*self).cursorLine : 0u;
 }
 
-size_t TerminalCodeEditor_getCursorCol(const TerminalCodeEditor *self) {
+bytes TerminalCodeEditor_getCursorCol(const TerminalCodeEditor *self) {
     return self != nullptr ? (*self).cursorCol : 0u;
 }
 
-bool TerminalCodeEditor_setCursor(TerminalCodeEditor *self, size_t line, size_t col) {
+bool TerminalCodeEditor_setCursor(TerminalCodeEditor *self, bytes line, bytes col) {
     if (self == nullptr)
         return false;
     if (line >= (*self).lineCount)
         line = (*self).lineCount > 0u ? (*self).lineCount - 1u : 0u;
-    size_t curLen = (*self).lineCount > 0u ? (*self).lineLengths[line] : 0u;
+    bytes curLen = (*self).lineCount > 0u ? (*self).lineLengths[line] : 0u;
     if (col > curLen)
         col = curLen;
     (*self).cursorLine = line;
@@ -451,11 +451,11 @@ bool TerminalCodeEditor_getShowGutter(const TerminalCodeEditor *self) {
     return self != nullptr && (*self).showGutter;
 }
 
-size_t TerminalCodeEditor_getGutterWidth(const TerminalCodeEditor *self) {
+bytes TerminalCodeEditor_getGutterWidth(const TerminalCodeEditor *self) {
     if (self == nullptr || !(*self).showGutter)
         return 0u;
-    size_t count = (*self).lineCount;
-    size_t digits = 1u;
+    bytes count = (*self).lineCount;
+    bytes digits = 1u;
     while (count >= 10u) {
         digits++;
         count /= 10u;
@@ -467,16 +467,16 @@ void TerminalCodeEditor_render(const TerminalCodeEditor *self, TerminalCanvas *c
     if (self == nullptr || canvas == nullptr || !TerminalCanvas_isValid(canvas))
         return;
 
-    size_t width = TerminalCanvas_getWidth(canvas);
-    size_t height = TerminalCanvas_getHeight(canvas);
+    bytes width = TerminalCanvas_getWidth(canvas);
+    bytes height = TerminalCanvas_getHeight(canvas);
     if (width == 0u || height == 0u)
         return;
 
-    size_t gutterW = TerminalCodeEditor_getGutterWidth(self);
-    size_t codeW = width > gutterW ? (width - gutterW) : 0u;
+    bytes gutterW = TerminalCodeEditor_getGutterWidth(self);
+    bytes codeW = width > gutterW ? (width - gutterW) : 0u;
 
-    for (size_t y = 0u; y < height; ++y) {
-        size_t lineIdx = (*self).scrollTop + y;
+    for (bytes y = 0u; y < height; ++y) {
+        bytes lineIdx = (*self).scrollTop + y;
         if (lineIdx >= (*self).lineCount)
             break;
 
@@ -484,16 +484,16 @@ void TerminalCodeEditor_render(const TerminalCodeEditor *self, TerminalCanvas *c
         if ((*self).showGutter && gutterW > 0u) {
             char numBuf[16];
             int written = snprintf(numBuf, sizeof(numBuf), " %*zu ", (int) (gutterW - 2u), lineIdx + 1u);
-            if (written > 0 && (size_t) written <= gutterW)
-                TerminalCanvas_text(canvas, 0u, y, numBuf, (size_t) written, (*self).gutterPen);
+            if (written > 0 && (bytes) written <= gutterW)
+                TerminalCanvas_text(canvas, 0u, y, numBuf, (bytes) written, (*self).gutterPen);
         }
 
         // Render code text
         if (codeW > 0u) {
             const char *text = (*self).lines[lineIdx];
-            size_t len = (*self).lineLengths[lineIdx];
+            bytes len = (*self).lineLengths[lineIdx];
             if (len > (*self).scrollLeft) {
-                size_t showLen = len - (*self).scrollLeft;
+                bytes showLen = len - (*self).scrollLeft;
                 if (showLen > codeW)
                     showLen = codeW;
                 TerminalCanvas_text(canvas, gutterW, y, text + (*self).scrollLeft, showLen, (*self).textPen);
@@ -503,9 +503,9 @@ void TerminalCodeEditor_render(const TerminalCodeEditor *self, TerminalCanvas *c
 
     // Render active cursor
     if ((*self).cursorLine >= (*self).scrollTop && ((*self).cursorLine - (*self).scrollTop) < height) {
-        size_t cy = (*self).cursorLine - (*self).scrollTop;
+        bytes cy = (*self).cursorLine - (*self).scrollTop;
         if ((*self).cursorCol >= (*self).scrollLeft && ((*self).cursorCol - (*self).scrollLeft) < codeW) {
-            size_t cx = gutterW + ((*self).cursorCol - (*self).scrollLeft);
+            bytes cx = gutterW + ((*self).cursorCol - (*self).scrollLeft);
             char curChar = ' ';
             const char *line = (*self).lines[(*self).cursorLine];
             if ((*self).cursorCol < (*self).lineLengths[(*self).cursorLine])

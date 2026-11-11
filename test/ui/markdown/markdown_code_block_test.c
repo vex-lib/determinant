@@ -17,7 +17,7 @@ int main(void) {
     assert(TerminalMarkdownCodeBlockPool_add(pool, 9u, 0u, 8u, 0u, 0u));
     assert(TerminalMarkdownCodeBlockPool_count(pool) == 1u);
 
-    size_t index = 99u;
+    bytes index = 99u;
     assert(TerminalMarkdownCodeBlockPool_indexAt(pool, 2u, &index) && index == 0u);
     assert(TerminalMarkdownCodeBlockPool_indexAt(pool, 4u, &index));
     assert(!TerminalMarkdownCodeBlockPool_indexAt(pool, 5u, nullptr));
@@ -41,7 +41,7 @@ int main(void) {
 
     // Copy is newline-separated and atomic: a short buffer writes nothing.
     char buffer[8];
-    size_t written = 99u;
+    bytes written = 99u;
     assert(TerminalMarkdownCodeBlockPool_copy(pool, lines, 5u, 0u, buffer, sizeof buffer,
                                               &written));
     assert(written == 3u && memcmp(buffer, "a\nb.sh", 3u) == 0 && buffer[3] == '\0');

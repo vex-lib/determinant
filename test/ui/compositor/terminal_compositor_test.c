@@ -30,10 +30,10 @@ static void testPipeOutput(void) {
     assert(strstr(buf, "\033[?25l") != nullptr); // cursor hidden
 
     // Test blitRun inside synchronized transaction
-    uint32_t glyphs[3] = { 'H', 'i', '!' };
-    uint16_t styles[3] = { TERMINAL_STYLE_BOLD, TERMINAL_STYLE_NONE, TERMINAL_STYLE_UNDERLINE };
-    uint32_t fg[3] = { TERMINAL_RGB(255, 0, 0), TERMINAL_RGB(0, 255, 0), TERMINAL_COLOR_DEFAULT };
-    uint32_t bg[3] = { TERMINAL_COLOR_DEFAULT, TERMINAL_COLOR_DEFAULT, TERMINAL_COLOR_DEFAULT };
+    u32 glyphs[3] = { 'H', 'i', '!' };
+    u16 styles[3] = { TERMINAL_STYLE_BOLD, TERMINAL_STYLE_NONE, TERMINAL_STYLE_UNDERLINE };
+    u32 fg[3] = { TERMINAL_RGB(255, 0, 0), TERMINAL_RGB(0, 255, 0), TERMINAL_COLOR_DEFAULT };
+    u32 bg[3] = { TERMINAL_COLOR_DEFAULT, TERMINAL_COLOR_DEFAULT, TERMINAL_COLOR_DEFAULT };
 
     TerminalRun run = {
         .x = 2,
@@ -61,8 +61,8 @@ static void testPipeOutput(void) {
     assert(strstr(buf, "\033[?2026l") != nullptr); // sync end
 
     // Test uniform run (same pen, contiguous text)
-    uint16_t uniformStyles[3] = { TERMINAL_STYLE_BOLD, TERMINAL_STYLE_BOLD, TERMINAL_STYLE_BOLD };
-    uint32_t uniformFg[3] = { TERMINAL_RGB(255, 0, 0), TERMINAL_RGB(255, 0, 0), TERMINAL_RGB(255, 0, 0) };
+    u16 uniformStyles[3] = { TERMINAL_STYLE_BOLD, TERMINAL_STYLE_BOLD, TERMINAL_STYLE_BOLD };
+    u32 uniformFg[3] = { TERMINAL_RGB(255, 0, 0), TERMINAL_RGB(255, 0, 0), TERMINAL_RGB(255, 0, 0) };
     TerminalRun uniformRun = {
         .x = 0,
         .y = 0,

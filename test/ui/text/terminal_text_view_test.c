@@ -5,8 +5,8 @@
 int main(void) {
     static const char *lines[] = { "one", "two", "three", "four", "five" };
     enum { W = 10, H = 3 };
-    static uint32_t cells[W * H];
-    static uint32_t fg[W * H];
+    static u32 cells[W * H];
+    static u32 fg[W * H];
     TerminalCanvas canvas = TerminalCanvas(cells, nullptr, fg, nullptr, W, H);
     TerminalCanvas_fill(&canvas, ' ', TerminalPen());
 

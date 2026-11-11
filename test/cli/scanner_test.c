@@ -18,7 +18,7 @@ int main(void) {
     assert(Scanner_getPosition(&s) == 0);
     assert(Scanner_feed(&s, "\r\n\n", 3, false));
     assert(Scanner_getLength(&s) == 4);
-    uint8_t *line = Scanner_nextLine(&s);
+    u8 *line = Scanner_nextLine(&s);
     assert(line && strcmp((const char*) line, "a") == 0);
     string_free(line);
     line = Scanner_nextLine(&s);

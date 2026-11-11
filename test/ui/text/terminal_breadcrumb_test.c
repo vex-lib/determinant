@@ -4,8 +4,8 @@
 
 int main(void) {
     enum { W = 40, H = 1 };
-    static uint32_t cells[W * H];
-    static uint32_t fg[W * H];
+    static u32 cells[W * H];
+    static u32 fg[W * H];
     TerminalCanvas wide = TerminalCanvas(cells, nullptr, fg, nullptr, W, H);
     TerminalCanvas_fill(&wide, ' ', TerminalPen());
 
@@ -28,7 +28,7 @@ int main(void) {
 
     // 3. Shallow path inside root (<= 4 segments)
     char buffer[256];
-    size_t length = TerminalBreadcrumb_format(&breadcrumb, buffer, sizeof buffer);
+    bytes length = TerminalBreadcrumb_format(&breadcrumb, buffer, sizeof buffer);
     assert(length > 0u);
     assert(strcmp(buffer, "project › src › main.c") == 0);
 
@@ -55,7 +55,7 @@ int main(void) {
     assert(TerminalBreadcrumb_getMaxCells(&budgetBreadcrumb) == 20u);
     length = TerminalBreadcrumb_format(&budgetBreadcrumb, buffer, sizeof buffer);
     assert(length > 0u);
-    size_t measuredCells = TerminalBreadcrumb_measure(&budgetBreadcrumb);
+    bytes measuredCells = TerminalBreadcrumb_measure(&budgetBreadcrumb);
     assert(measuredCells <= 20u);
 
     // 7. Render to TerminalCanvas

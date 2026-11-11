@@ -5,7 +5,7 @@
 #include <stddef.h>
 
 #include "ui/surface/terminal_projection.h"
-#include "c23/constructor.h"
+#include "util/constructor.h"
 
 // ui/markdown/markdown_code_block.h — laid-out fences and their copy projection.
 //
@@ -24,18 +24,18 @@
 // the quote markers from each line.
 typedef struct TerminalMarkdownCodeBlock {
     bool valid;
-    size_t firstRow;
-    size_t rowCount;
-    size_t firstSourceLine;
-    size_t sourceLineCount;
-    size_t quoteDepth;
+    bytes firstRow;
+    bytes rowCount;
+    bytes firstSourceLine;
+    bytes sourceLineCount;
+    bytes quoteDepth;
 } TerminalMarkdownCodeBlock;
 
 // VALUE RECORD: TerminalMarkdownCodeLine (no behaviour; borrowed view).
 typedef struct TerminalMarkdownCodeLine {
     bool valid;
     const char *text;
-    size_t length;
+    bytes length;
 } TerminalMarkdownCodeLine;
 
 typedef struct TerminalMarkdownCodeBlockPool TerminalMarkdownCodeBlockPool;
@@ -54,40 +54,40 @@ void TerminalMarkdownCodeBlockPool_reset(TerminalMarkdownCodeBlockPool *self);
 // source range but has nothing to shade); the call is refused only when the cold
 // growth is refused, and the refusal count is queryable.
 bool TerminalMarkdownCodeBlockPool_add(TerminalMarkdownCodeBlockPool *self,
-                                       size_t firstRow, size_t rowCount,
-                                       size_t firstSourceLine, size_t sourceLineCount,
-                                       size_t quoteDepth);
+                                       bytes firstRow, bytes rowCount,
+                                       bytes firstSourceLine, bytes sourceLineCount,
+                                       bytes quoteDepth);
 
-size_t TerminalMarkdownCodeBlockPool_count(const TerminalMarkdownCodeBlockPool *self);
-size_t TerminalMarkdownCodeBlockPool_exhaustionCount(const TerminalMarkdownCodeBlockPool *self);
+bytes TerminalMarkdownCodeBlockPool_count(const TerminalMarkdownCodeBlockPool *self);
+bytes TerminalMarkdownCodeBlockPool_exhaustionCount(const TerminalMarkdownCodeBlockPool *self);
 
 // The record whose shaded rows cover `row`, and its index (nullable). Cold.
 bool TerminalMarkdownCodeBlockPool_indexAt(const TerminalMarkdownCodeBlockPool *self,
-                                           size_t row, size_t *index);
+                                           bytes row, bytes *index);
 TerminalMarkdownCodeBlock TerminalMarkdownCodeBlockPool_at(const TerminalMarkdownCodeBlockPool *self,
-                                                           size_t index);
+                                                           bytes index);
 
 // One source line of a RECORD (the view keeps the record a caller was given, so
 // it can resolve a line without searching the pool). Invalid line -> invalid.
 TerminalMarkdownCodeLine TerminalMarkdownCodeBlock_lineOf(const char *const *lines,
-                                                          size_t lineCount,
+                                                          bytes lineCount,
                                                           TerminalMarkdownCodeBlock block,
-                                                          size_t line);
+                                                          bytes line);
 
 // One source line of the fence at `index`, quote markers stripped. Invalid
 // block/line returns an invalid record.
 TerminalMarkdownCodeLine TerminalMarkdownCodeBlockPool_line(const TerminalMarkdownCodeBlockPool *self,
                                                             const char *const *lines,
-                                                            size_t lineCount, size_t index,
-                                                            size_t line);
+                                                            bytes lineCount, bytes index,
+                                                            bytes line);
 
 // Copy the fence's source lines into `dest`, newline-separated with no trailing
 // newline. Atomic: returns false and writes nothing when the content plus the
 // terminator does not fit. `written` receives the byte count (nullable).
 bool TerminalMarkdownCodeBlockPool_copy(const TerminalMarkdownCodeBlockPool *self,
-                                        const char *const *lines, size_t lineCount,
-                                        size_t index, char *dest, size_t capacity,
-                                        size_t *written);
+                                        const char *const *lines, bytes lineCount,
+                                        bytes index, char *dest, bytes capacity,
+                                        bytes *written);
 
 TerminalProjection TerminalMarkdownCodeBlockPool_toString(const TerminalMarkdownCodeBlockPool *self);
 TerminalProjection TerminalMarkdownCodeBlockPool_toStringStruct(const TerminalMarkdownCodeBlockPool *self);

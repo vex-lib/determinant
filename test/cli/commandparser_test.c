@@ -13,7 +13,7 @@ int main(void) {
     Command *cmd = CommandParser_parse(" \tgo a b.sh c d e f g h i j \n");
     assert(cmd && Command_argumentCount(cmd) == 10);
     assert(strcmp((const char*) Command_name(cmd), "go") == 0);
-    for (size_t i = 0; i < 10; ++i)
+    for (bytes i = 0; i < 10; ++i)
         assert(*Command_argument(cmd, i) == 'a' + i);
     Command_free(cmd);
     cmd = CommandParser_parseBytes("x", 1);
@@ -40,7 +40,7 @@ int main(void) {
     Command *survivor = CommandParser_parse("retained value");
     assert(survivor);
     void *blocks[MAX_BLOCKS];
-    size_t live = 0;
+    bytes live = 0;
     while (live < MAX_BLOCKS) {
         blocks[live] = Memory_alloc(TYPE_BYTE_ARRAY, BLOCK_BYTES);
         if (blocks[live] == nullptr)
@@ -57,7 +57,7 @@ int main(void) {
     assert(Memory_exhaustionCount() == 2);
     assert(strcmp((const char*) Command_name(survivor), "retained") == 0);
     assert(strcmp((const char*) Command_argument(survivor, 0), "value") == 0);
-    for (size_t j = 0; j < live; ++j) {
+    for (bytes j = 0; j < live; ++j) {
         const unsigned char *data = blocks[j];
         assert(data[0] == (unsigned char) j && data[BLOCK_BYTES - 1] == (unsigned char) j);
         Memory_free(blocks[j]);

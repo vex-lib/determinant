@@ -45,7 +45,7 @@ int main(void) {
 
     // Apply into a frame, and draw a run into a canvas region.
     enum { W = 16, H = 4 };
-    static uint32_t cells[W * H];
+    static u32 cells[W * H];
     TerminalCanvas canvas = TerminalCanvas(cells, nullptr, W, H);
     TerminalFrame frame = TerminalFrame(5, 5);
     TerminalAppearance apply = TerminalAppearance_named("ascii-solid");

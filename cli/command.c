@@ -16,18 +16,18 @@
 /** ========================================================================
  * CLASS: Command (cli/command.c)
  * STRUCT FIELDS (Mirroring cli/command.h)
- * uint8_t *name              owned R2 string block
- * size_t argumentCount       initialized directory extent
- * uint8_t **arguments        owned strings in inline pointer directory
+ * u8 *name              owned R2 string block
+ * bytes argumentCount       initialized directory extent
+ * u8 **arguments        owned strings in inline pointer directory
  * FUNCTION REGISTRY (exports)
  * Constructors: Command *Command_0(void)
- *   Command *Command_3(uint8_t *name, uint8_t **arguments, size_t count)
- * Getters: uint8_t *Command_name(const Command *self)
- *   size_t Command_argumentCount(const Command *self)
- *   uint8_t *Command_argument(const Command *self, size_t index)
+ *   Command *Command_3(u8 *name, u8 **arguments, bytes count)
+ * Getters: u8 *Command_name(const Command *self)
+ *   bytes Command_argumentCount(const Command *self)
+ *   u8 *Command_argument(const Command *self, bytes index)
  * Lifecycle: void Command_free(Command *self)
  * Projections: bool Command_toString/Command_toStringStruct(
- *   const Command *self, char *dest, size_t cap, bool *outTruncated)
+ *   const Command *self, char *dest, bytes cap, bool *outTruncated)
  * CONTRACT: caller-thread cold allocation; live string blocks required;
  * null/overflow/duplicate ownership reject before transfer. Failure preserves
  * input ownership. Geometry changes only by construction/free (Conflict Triage
@@ -36,7 +36,7 @@
  * owned strings, avoiding raw control/secret text; truncation always flagged.
  * ======================================================================== */
 Command *Command_0(void) {
-    uint8_t *name = String("");
+    u8 *name = String("");
     if (name == nullptr)
         return nullptr;
     Command *self = Command_3(name, nullptr, 0);
@@ -44,37 +44,37 @@ Command *Command_0(void) {
         string_free(name);
     return self;
 }
-Command *Command_3(uint8_t *name, uint8_t **arguments, size_t count) {
+Command *Command_3(u8 *name, u8 **arguments, bytes count) {
     if (name == nullptr || (count != 0 && arguments == nullptr)
-        || count > (UINT32_MAX - sizeof(Command)) / sizeof(uint8_t*)) {
+        || count > (UINT32_MAX - sizeof(Command)) / sizeof(u8*)) {
         THROW("Command construct: null input or extent overflow");
         return nullptr;
     }
-    for (size_t i = 0; i < count; ++i) {
+    for (bytes i = 0; i < count; ++i) {
         if (arguments[i] == nullptr || arguments[i] == name) {
             THROW("Command construct: invalid owned argument");
             return nullptr;
         }
-        for (size_t j = 0; j < i; ++j)
+        for (bytes j = 0; j < i; ++j)
             if (arguments[i] == arguments[j]) {
                 THROW("Command construct: duplicate owned argument");
                 return nullptr;
             }
     }
-    size_t bytes = sizeof(Command) + count * sizeof(uint8_t*);
+    bytes bytes = sizeof(Command) + count * sizeof(u8*);
     Command *self = Memory_alloc(TYPE_BYTE_ARRAY, bytes);
     if (self == nullptr)
         return nullptr; // R2 owner reports/counts allocation exhaustion.
     (*self).name = name;
     (*self).argumentCount = count;
-    (*self).arguments = (uint8_t**) (self + 1);
+    (*self).arguments = (u8**) (self + 1);
     if (count != 0)
-        memcpy((*self).arguments, arguments, count * sizeof(uint8_t*));
+        memcpy((*self).arguments, arguments, count * sizeof(u8*));
     return self;
 }
-uint8_t *Command_name(const Command *self) { return self ? (*self).name : nullptr; }
-size_t Command_argumentCount(const Command *self) { return self ? (*self).argumentCount : 0; }
-uint8_t *Command_argument(const Command *self, size_t index) {
+u8 *Command_name(const Command *self) { return self ? (*self).name : nullptr; }
+bytes Command_argumentCount(const Command *self) { return self ? (*self).argumentCount : 0; }
+u8 *Command_argument(const Command *self, bytes index) {
     if (self == nullptr || index >= (*self).argumentCount)
         return nullptr;
     return (*self).arguments[index];
@@ -83,14 +83,14 @@ void Command_free(Command *self) {
     if (self == nullptr)
         return;
     string_free((*self).name);
-    for (size_t i = 0; i < (*self).argumentCount; ++i)
+    for (bytes i = 0; i < (*self).argumentCount; ++i)
         string_free((*self).arguments[i]);
     Memory_free(self);
 }
-bool Command_toString(const Command *self, char *dest, size_t cap, bool *outTruncated) {
+bool Command_toString(const Command *self, char *dest, bytes cap, bool *outTruncated) {
     return Command_toStringStruct(self, dest, cap, outTruncated);
 }
-bool Command_toStringStruct(const Command *self, char *dest, size_t cap, bool *outTruncated) {
+bool Command_toStringStruct(const Command *self, char *dest, bytes cap, bool *outTruncated) {
     if (outTruncated != nullptr)
         *outTruncated = false;
     if (dest == nullptr || cap == 0) {
@@ -101,7 +101,7 @@ bool Command_toStringStruct(const Command *self, char *dest, size_t cap, bool *o
     }
     int n = self ? snprintf(dest, cap, "Command{name=<owned>,argumentCount=%zu,arguments=<owned>}", (*self).argumentCount)
                  : snprintf(dest, cap, "nullptr");
-    bool cut = n < 0 || (size_t) n >= cap;
+    bool cut = n < 0 || (bytes) n >= cap;
     if (outTruncated != nullptr)
         *outTruncated = cut;
     if (cut)

@@ -24,10 +24,10 @@
  * STRUCT FIELDS (Mirroring ui/text/terminal_text.h)
  *
  * const char *glyphs            borrowed UTF-8, must outlive the text
- * size_t length                 bytes in `glyphs`
+ * bytes length                 bytes in `glyphs`
  * TerminalPen pen               this text's own style/foreground/background
- * uint32_t bracketLeft          codepoint before the text (0 = none)
- * uint32_t bracketRight         codepoint after the text (0 = none)
+ * u32 bracketLeft          codepoint before the text (0 = none)
+ * u32 bracketRight         codepoint after the text (0 = none)
  * TerminalTextAlign align       placement inside the resolved region
  * PRIVATE HELPERS
  * validGlyphs(glyphs, length)  borrowed string admission (non-null when length != 0)
@@ -40,7 +40,7 @@
  *   setStyle/getStyle, setForegroundColor/getForegroundColor,
  *   setBackgroundColor/getBackgroundColor, setBrackets/getBracketLeft/getBracketRight,
  *   setAlign/getAlign
- * Measure: size_t TerminalText_measure(self)
+ * Measure: bytes TerminalText_measure(self)
  * Paint: void TerminalText_paint(self, region, parentPen)
  * Projections: TerminalProjection TerminalText_toString/toStringStruct(self)
  * CONTRACT: a null text, a null glyph span carrying a non-zero length, or an
@@ -50,7 +50,7 @@
  * at the region edge, so an over-wide label degrades rather than wrapping.
  * ======================================================================== */
 
-static bool validGlyphs(const char *glyphs, size_t length) {
+static bool validGlyphs(const char *glyphs, bytes length) {
     return glyphs != nullptr || length == 0;
 }
 
@@ -83,7 +83,7 @@ TerminalText *TerminalText_1(const char *glyphs) {
     return TerminalText(glyphs, glyphs != nullptr ? strlen(glyphs) : 0);
 }
 
-TerminalText *TerminalText_2(const char *glyphs, size_t length) {
+TerminalText *TerminalText_2(const char *glyphs, bytes length) {
     if (!validGlyphs(glyphs, length)) {
         THROW("TerminalText construct: null glyph span with a non-zero length");
         return nullptr;
@@ -102,7 +102,7 @@ void TerminalText_free(TerminalText *self) {
     Memory_free(self);
 }
 
-bool TerminalText_setText(TerminalText *self, const char *glyphs, size_t length) {
+bool TerminalText_setText(TerminalText *self, const char *glyphs, bytes length) {
     if (self == nullptr || !validGlyphs(glyphs, length)) {
         THROW("TerminalText text: null text or invalid glyph span");
         return false;
@@ -113,7 +113,7 @@ bool TerminalText_setText(TerminalText *self, const char *glyphs, size_t length)
 }
 
 const char *TerminalText_getText(const TerminalText *self) { return self ? (*self).glyphs : nullptr; }
-size_t TerminalText_getLength(const TerminalText *self) { return self ? (*self).length : 0; }
+bytes TerminalText_getLength(const TerminalText *self) { return self ? (*self).length : 0; }
 
 bool TerminalText_setPen(TerminalText *self, TerminalPen pen) {
     if (self == nullptr) {
@@ -126,7 +126,7 @@ bool TerminalText_setPen(TerminalText *self, TerminalPen pen) {
 TerminalPen TerminalText_getPen(const TerminalText *self) {
     return self ? (*self).pen : TerminalPen_0();
 }
-bool TerminalText_setStyle(TerminalText *self, uint8_t style) {
+bool TerminalText_setStyle(TerminalText *self, u8 style) {
     if (self == nullptr) {
         THROW("TerminalText style: null text");
         return false;
@@ -135,13 +135,13 @@ bool TerminalText_setStyle(TerminalText *self, uint8_t style) {
     (*pen).style = style;
     return true;
 }
-uint8_t TerminalText_getStyle(const TerminalText *self) {
+u8 TerminalText_getStyle(const TerminalText *self) {
     if (self == nullptr)
         return TERMINAL_STYLE_NONE;
     const TerminalPen *pen = &(*self).pen;
     return (*pen).style;
 }
-bool TerminalText_setForegroundColor(TerminalText *self, uint32_t color) {
+bool TerminalText_setForegroundColor(TerminalText *self, u32 color) {
     if (self == nullptr) {
         THROW("TerminalText foreground: null text");
         return false;
@@ -150,13 +150,13 @@ bool TerminalText_setForegroundColor(TerminalText *self, uint32_t color) {
     (*pen).fg = color;
     return true;
 }
-uint32_t TerminalText_getForegroundColor(const TerminalText *self) {
+u32 TerminalText_getForegroundColor(const TerminalText *self) {
     if (self == nullptr)
         return TERMINAL_COLOR_DEFAULT;
     const TerminalPen *pen = &(*self).pen;
     return (*pen).fg;
 }
-bool TerminalText_setBackgroundColor(TerminalText *self, uint32_t color) {
+bool TerminalText_setBackgroundColor(TerminalText *self, u32 color) {
     if (self == nullptr) {
         THROW("TerminalText background: null text");
         return false;
@@ -165,14 +165,14 @@ bool TerminalText_setBackgroundColor(TerminalText *self, uint32_t color) {
     (*pen).bg = color;
     return true;
 }
-uint32_t TerminalText_getBackgroundColor(const TerminalText *self) {
+u32 TerminalText_getBackgroundColor(const TerminalText *self) {
     if (self == nullptr)
         return TERMINAL_COLOR_DEFAULT;
     const TerminalPen *pen = &(*self).pen;
     return (*pen).bg;
 }
 
-bool TerminalText_setBrackets(TerminalText *self, uint32_t left, uint32_t right) {
+bool TerminalText_setBrackets(TerminalText *self, u32 left, u32 right) {
     if (self == nullptr) {
         THROW("TerminalText brackets: null text");
         return false;
@@ -181,10 +181,10 @@ bool TerminalText_setBrackets(TerminalText *self, uint32_t left, uint32_t right)
     (*self).bracketRight = right;
     return true;
 }
-uint32_t TerminalText_getBracketLeft(const TerminalText *self) {
+u32 TerminalText_getBracketLeft(const TerminalText *self) {
     return self ? (*self).bracketLeft : 0;
 }
-uint32_t TerminalText_getBracketRight(const TerminalText *self) {
+u32 TerminalText_getBracketRight(const TerminalText *self) {
     return self ? (*self).bracketRight : 0;
 }
 
@@ -202,9 +202,9 @@ TerminalTextAlign TerminalText_getAlign(const TerminalText *self) {
 
 // Cells the body occupies, using the canvas's locale-free width rule so a wide
 // glyph counts as two and the brackets line up with what paint actually writes.
-static size_t bodyCells(const char *glyphs, size_t length) {
-    size_t cells = 0;
-    size_t at = 0;
+static bytes bodyCells(const char *glyphs, bytes length) {
+    bytes cells = 0;
+    bytes at = 0;
     while (at < length) {
         TerminalCanvasDecodedScalar decoded = TerminalCanvas_utf8Decode(glyphs + at, length - at);
         if (decoded.bytes == 0) {
@@ -218,10 +218,10 @@ static size_t bodyCells(const char *glyphs, size_t length) {
     return cells;
 }
 
-size_t TerminalText_measure(const TerminalText *self) {
+bytes TerminalText_measure(const TerminalText *self) {
     if (self == nullptr)
         return 0;
-    size_t cells = bodyCells((*self).glyphs, (*self).length);
+    bytes cells = bodyCells((*self).glyphs, (*self).length);
     if ((*self).bracketLeft != 0)
         ++cells;
     if ((*self).bracketRight != 0)
@@ -232,9 +232,9 @@ size_t TerminalText_measure(const TerminalText *self) {
 void TerminalText_paint(const TerminalText *self, TerminalCanvas *region, TerminalPen parentPen) {
     if (self == nullptr || !TerminalCanvas_isValid(region))
         return;
-    size_t regionWidth = TerminalCanvas_getWidth(region);
-    size_t cells = TerminalText_measure(self);
-    size_t x = 0;
+    bytes regionWidth = TerminalCanvas_getWidth(region);
+    bytes cells = TerminalText_measure(self);
+    bytes x = 0;
     if (cells < regionWidth) {
         if ((*self).align == TERMINAL_TEXT_ALIGN_CENTER)
             x = (regionWidth - cells) / 2;

@@ -35,14 +35,14 @@ typedef enum TerminalMarkdownCalloutKind {
 typedef struct TerminalMarkdownCallout {
     bool valid;
     TerminalMarkdownCalloutKind kind;
-    size_t contentStart;
-    size_t titleStart;
-    size_t titleLength;
+    bytes contentStart;
+    bytes titleStart;
+    bytes titleLength;
 } TerminalMarkdownCallout;
 
 // Parse a marker at the START of the span: `[!KIND]...` or `!KIND!...`, case
 // insensitive. An unknown kind is not a callout, so a stray `[!x]` stays literal.
-TerminalMarkdownCallout TerminalMarkdownCallout_parse(const char *text, size_t length);
+TerminalMarkdownCallout TerminalMarkdownCallout_parse(const char *text, bytes length);
 
 // Upper-case label for the kind ("WARNING"), or "" for NONE.
 const char *TerminalMarkdownCallout_name(TerminalMarkdownCalloutKind kind);
@@ -52,6 +52,6 @@ const char *TerminalMarkdownCallout_bar(void);
 
 // Index into the theme's callout pen table: 0 for NOTE ... 4 for CAUTION,
 // TERMINAL_MARKDOWN_CALLOUT_KIND_COUNT when the kind is NONE.
-size_t TerminalMarkdownCallout_penIndex(TerminalMarkdownCalloutKind kind);
+bytes TerminalMarkdownCallout_penIndex(TerminalMarkdownCalloutKind kind);
 
 #endif

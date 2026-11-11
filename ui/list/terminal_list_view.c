@@ -16,9 +16,9 @@
  * CLASS: TerminalListView (ui/list/terminal_list_view.c)
  * STRUCT FIELDS (Mirroring ui/list/terminal_list_view.h)
  * const char *const *labels  borrowed labels
- * size_t count               label count
- * size_t selection           selected index
- * size_t scroll              first visible index
+ * bytes count               label count
+ * bytes selection           selected index
+ * bytes scroll              first visible index
  * const char *marker         selected-row marker (default "> ")
  * TerminalPen normal, selected  row pens
  * FUNCTION REGISTRY (exports)
@@ -40,14 +40,14 @@ TerminalListView TerminalListView_0(void) {
     return view;
 }
 
-TerminalListView TerminalListView_2(const char *const *labels, size_t count) {
+TerminalListView TerminalListView_2(const char *const *labels, bytes count) {
     TerminalListView view = TerminalListView_0();
     view.labels = (count != 0) ? labels : nullptr;
     view.count = (labels != nullptr) ? count : 0;
     return view;
 }
 
-bool TerminalListView_setLabels(TerminalListView *self, const char *const *labels, size_t count) {
+bool TerminalListView_setLabels(TerminalListView *self, const char *const *labels, bytes count) {
     if (self == nullptr || (count != 0 && labels == nullptr)) {
         THROW("TerminalListView labels: null list");
         return false;
@@ -60,18 +60,18 @@ TerminalListViewLabels TerminalListView_getLabels(const TerminalListView *self) 
     return self ? (TerminalListViewLabels) { (*self).labels, (*self).count }
                 : (TerminalListViewLabels) { nullptr, 0u };
 }
-bool TerminalListView_setSelection(TerminalListView *self, size_t selection) {
+bool TerminalListView_setSelection(TerminalListView *self, bytes selection) {
     if (self == nullptr) { THROW("TerminalListView selection: null"); return false; }
     (*self).selection = selection;
     return true;
 }
-size_t TerminalListView_getSelection(const TerminalListView *self) { return self ? (*self).selection : 0; }
-bool TerminalListView_setScroll(TerminalListView *self, size_t scroll) {
+bytes TerminalListView_getSelection(const TerminalListView *self) { return self ? (*self).selection : 0; }
+bool TerminalListView_setScroll(TerminalListView *self, bytes scroll) {
     if (self == nullptr) { THROW("TerminalListView scroll: null"); return false; }
     (*self).scroll = scroll;
     return true;
 }
-size_t TerminalListView_getScroll(const TerminalListView *self) { return self ? (*self).scroll : 0; }
+bytes TerminalListView_getScroll(const TerminalListView *self) { return self ? (*self).scroll : 0; }
 bool TerminalListView_setMarker(TerminalListView *self, const char *marker) {
     if (self == nullptr) { THROW("TerminalListView marker: null"); return false; }
     (*self).marker = marker;
@@ -88,16 +88,16 @@ TerminalListViewPens TerminalListView_getPens(const TerminalListView *self) {
                 : (TerminalListViewPens) { TerminalPen_0(), TerminalPen_0() };
 }
 
-bool TerminalListView_move(TerminalListView *self, long delta, size_t visibleRows) {
+bool TerminalListView_move(TerminalListView *self, long delta, bytes visibleRows) {
     if (self == nullptr || (*self).count == 0)
         return false;
-    size_t selection = (*self).selection;
+    bytes selection = (*self).selection;
     if (delta < 0) {
         if (selection == 0)
             return false;
-        selection -= (size_t) -delta;
+        selection -= (bytes) -delta;
     } else {
-        size_t next = selection + (size_t) delta;
+        bytes next = selection + (bytes) delta;
         if (next >= (*self).count)
             next = (*self).count - 1;
         if (next == selection)
@@ -117,10 +117,10 @@ bool TerminalListView_move(TerminalListView *self, long delta, size_t visibleRow
 void TerminalListView_render(const TerminalListView *self, TerminalCanvas *canvas) {
     if (self == nullptr || !TerminalCanvas_isValid(canvas))
         return;
-    size_t rows = TerminalCanvas_getHeight(canvas);
-    size_t markerLen = self ? strlen(TerminalListView_getMarker(self)) : 0;
-    for (size_t row = 0; row < rows; ++row) {
-        size_t index = (*self).scroll + row;
+    bytes rows = TerminalCanvas_getHeight(canvas);
+    bytes markerLen = self ? strlen(TerminalListView_getMarker(self)) : 0;
+    for (bytes row = 0; row < rows; ++row) {
+        bytes index = (*self).scroll + row;
         if (index >= (*self).count)
             break;
         bool selected = index == (*self).selection;

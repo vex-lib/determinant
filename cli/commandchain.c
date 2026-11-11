@@ -15,20 +15,20 @@
  * CLASS: CommandChain (cli/commandchain.c)
  * STRUCT FIELDS (Mirroring cli/commandinfo.h)
  * CommandInfo **entries       owned pointer directory
- * size_t count                initialized directory extent
+ * bytes count                initialized directory extent
  * FUNCTION REGISTRY (exports)
  * Constructors: CommandChain *CommandChain_2(CommandInfo **entries,
- *   size_t count)
- * Getters: size_t CommandChain_getCount(const CommandChain *self)
+ *   bytes count)
+ * Getters: bytes CommandChain_getCount(const CommandChain *self)
  *   CommandInfo *CommandChain_getEntry(const CommandChain *self,
- *   size_t index)
+ *   bytes index)
  * Lifecycle: void CommandChain_free(CommandChain *self)
  * Projections: bool CommandChain_toString/CommandChain_toStringStruct(
- *   const CommandChain *self, char *dest, size_t cap, bool *outTruncated)
+ *   const CommandChain *self, char *dest, bytes cap, bool *outTruncated)
  * CONTRACT: takes ownership of entries only on success; duplicates and null
  * entries reject before transfer. Free null is harmless.
  * ======================================================================== */
-CommandChain *CommandChain_2(CommandInfo **entries, size_t count) {
+CommandChain *CommandChain_2(CommandInfo **entries, bytes count) {
     if (count != 0 && entries == nullptr) {
         THROW("CommandChain construct: null entries");
         return nullptr;
@@ -37,18 +37,18 @@ CommandChain *CommandChain_2(CommandInfo **entries, size_t count) {
         THROW("CommandChain construct: extent overflow");
         return nullptr;
     }
-    for (size_t i = 0; i < count; ++i) {
+    for (bytes i = 0; i < count; ++i) {
         if (entries[i] == nullptr) {
             THROW("CommandChain construct: null entry");
             return nullptr;
         }
-        for (size_t j = 0; j < i; ++j)
+        for (bytes j = 0; j < i; ++j)
             if (entries[i] == entries[j]) {
                 THROW("CommandChain construct: duplicate entry");
                 return nullptr;
             }
     }
-    size_t bytes = sizeof(CommandChain) + count * sizeof(CommandInfo*);
+    bytes bytes = sizeof(CommandChain) + count * sizeof(CommandInfo*);
     CommandChain *self = Memory_alloc(TYPE_BYTE_ARRAY, bytes);
     if (self == nullptr)
         return nullptr;
@@ -58,8 +58,8 @@ CommandChain *CommandChain_2(CommandInfo **entries, size_t count) {
         memcpy((*self).entries, entries, count * sizeof(CommandInfo*));
     return self;
 }
-size_t CommandChain_getCount(const CommandChain *self) { return self ? (*self).count : 0; }
-CommandInfo *CommandChain_getEntry(const CommandChain *self, size_t index) {
+bytes CommandChain_getCount(const CommandChain *self) { return self ? (*self).count : 0; }
+CommandInfo *CommandChain_getEntry(const CommandChain *self, bytes index) {
     if (self == nullptr || index >= (*self).count)
         return nullptr;
     return (*self).entries[index];
@@ -67,14 +67,14 @@ CommandInfo *CommandChain_getEntry(const CommandChain *self, size_t index) {
 void CommandChain_free(CommandChain *self) {
     if (self == nullptr)
         return;
-    for (size_t i = 0; i < (*self).count; ++i)
+    for (bytes i = 0; i < (*self).count; ++i)
         CommandInfo_free((*self).entries[i]);
     Memory_free(self);
 }
-bool CommandChain_toString(const CommandChain *self, char *dest, size_t cap, bool *outTruncated) {
+bool CommandChain_toString(const CommandChain *self, char *dest, bytes cap, bool *outTruncated) {
     return CommandChain_toStringStruct(self, dest, cap, outTruncated);
 }
-bool CommandChain_toStringStruct(const CommandChain *self, char *dest, size_t cap, bool *outTruncated) {
+bool CommandChain_toStringStruct(const CommandChain *self, char *dest, bytes cap, bool *outTruncated) {
     if (outTruncated != nullptr)
         *outTruncated = false;
     if (dest == nullptr || cap == 0) {
@@ -85,7 +85,7 @@ bool CommandChain_toStringStruct(const CommandChain *self, char *dest, size_t ca
     }
     int n = self ? snprintf(dest, cap, "CommandChain{count=%zu,entries=<owned>}", (*self).count)
                  : snprintf(dest, cap, "nullptr");
-    bool cut = n < 0 || (size_t) n >= cap;
+    bool cut = n < 0 || (bytes) n >= cap;
     if (outTruncated != nullptr)
         *outTruncated = cut;
     if (cut)

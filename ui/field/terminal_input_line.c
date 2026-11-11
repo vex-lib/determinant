@@ -15,15 +15,15 @@
  * CLASS: TerminalInputLine (ui/field/terminal_input_line.c)
  * STRUCT FIELDS (Mirroring ui/field/terminal_input_line.h)
  * char *buffer             borrowed storage
- * size_t capacity          usable bytes (index [length] stays NUL)
- * size_t length            current text length
+ * bytes capacity          usable bytes (index [length] stays NUL)
+ * bytes length            current text length
  * const char *prefix       prompt prefix (default "> ")
  * TerminalPen prefixPen, textPen  pens
  * FUNCTION REGISTRY (exports)
  * Constructors: TerminalInputLine_0(void), TerminalInputLine_2(buffer, capacity)
  * Config: bind/getBuffer/getCapacity/isBound, set/getPrefix, set/getPens
  * Editing: bool add(self, ch), bool backspace(self), void clear(self)
- * Queries: size_t TerminalInputLine_length(self)
+ * Queries: bytes TerminalInputLine_length(self)
  * Render: TerminalInputLine_render(self, canvas)
  * Projections: TerminalProjection TerminalInputLine_toString/toStringStruct(self)
  * CONTRACT: null/unbound operations reject; add refuses (loud, counted by the
@@ -39,7 +39,7 @@ TerminalInputLine TerminalInputLine_0(void) {
     return line;
 }
 
-TerminalInputLine TerminalInputLine_2(char *buffer, size_t capacity) {
+TerminalInputLine TerminalInputLine_2(char *buffer, bytes capacity) {
     TerminalInputLine line = TerminalInputLine_0();
     if (buffer != nullptr && capacity >= 2) {
         line.buffer = buffer;
@@ -49,7 +49,7 @@ TerminalInputLine TerminalInputLine_2(char *buffer, size_t capacity) {
     return line;
 }
 
-bool TerminalInputLine_bind(TerminalInputLine *self, char *buffer, size_t capacity) {
+bool TerminalInputLine_bind(TerminalInputLine *self, char *buffer, bytes capacity) {
     if (self == nullptr || buffer == nullptr || capacity < 2) {
         THROW("TerminalInputLine bind: null or too small");
         return false;
@@ -61,8 +61,8 @@ bool TerminalInputLine_bind(TerminalInputLine *self, char *buffer, size_t capaci
     return true;
 }
 const char *TerminalInputLine_getBuffer(const TerminalInputLine *self) { return self ? (*self).buffer : nullptr; }
-size_t TerminalInputLine_getCapacity(const TerminalInputLine *self) { return self ? (*self).capacity : 0; }
-size_t TerminalInputLine_length(const TerminalInputLine *self) { return self ? (*self).length : 0; }
+bytes TerminalInputLine_getCapacity(const TerminalInputLine *self) { return self ? (*self).capacity : 0; }
+bytes TerminalInputLine_length(const TerminalInputLine *self) { return self ? (*self).length : 0; }
 bool TerminalInputLine_isBound(const TerminalInputLine *self) { return self && (*self).buffer != nullptr; }
 bool TerminalInputLine_setPrefix(TerminalInputLine *self, const char *prefix) {
     if (self == nullptr || prefix == nullptr) { THROW("TerminalInputLine prefix: null"); return false; }
@@ -110,7 +110,7 @@ void TerminalInputLine_render(const TerminalInputLine *self, TerminalCanvas *can
     if (self == nullptr || !TerminalCanvas_isValid(canvas))
         return;
     const char *prefix = TerminalInputLine_getPrefix(self);
-    size_t prefixLen = strlen(prefix);
+    bytes prefixLen = strlen(prefix);
     TerminalCanvas_text(canvas, 0, 0, prefix, prefixLen, (*self).prefixPen);
     if ((*self).buffer != nullptr)
         TerminalCanvas_text(canvas, prefixLen, 0, (*self).buffer, (*self).length, (*self).textPen);

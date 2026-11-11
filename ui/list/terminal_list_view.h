@@ -6,7 +6,7 @@
 
 #include "ui/surface/terminal_canvas.h"
 #include "ui/surface/terminal_projection.h"
-#include "c23/constructor.h"
+#include "util/constructor.h"
 
 // ui/list/terminal_list_view.h — a bare, generic list.
 //
@@ -19,33 +19,33 @@
 
 typedef struct TerminalListView {
     const char *const *labels;   // borrowed labels
-    size_t count;
-    size_t selection;            // selected index (may be >= count: nothing marked)
-    size_t scroll;               // first visible index
+    bytes count;
+    bytes selection;            // selected index (may be >= count: nothing marked)
+    bytes scroll;               // first visible index
     const char *marker;          // selected-row marker (default "> ")
     TerminalPen normal;          // unselected row pen
     TerminalPen selected;        // selected row pen (marker + label)
 } TerminalListView;
-typedef struct TerminalListViewLabels { const char *const *data; size_t count; } TerminalListViewLabels;
+typedef struct TerminalListViewLabels { const char *const *data; bytes count; } TerminalListViewLabels;
 typedef struct TerminalListViewPens { TerminalPen normal; TerminalPen selected; } TerminalListViewPens;
 
 TerminalListView TerminalListView_0(void);
-TerminalListView TerminalListView_2(const char *const *labels, size_t count);
+TerminalListView TerminalListView_2(const char *const *labels, bytes count);
 #define TerminalListView(...) CONSTRUCTOR_DISPATCH(TerminalListView, __VA_ARGS__)
 #define TerminalListView_zero() TerminalListView_0()
 
-bool TerminalListView_setLabels(TerminalListView *self, const char *const *labels, size_t count);
+bool TerminalListView_setLabels(TerminalListView *self, const char *const *labels, bytes count);
 TerminalListViewLabels TerminalListView_getLabels(const TerminalListView *self);
-bool TerminalListView_setSelection(TerminalListView *self, size_t selection);
-size_t TerminalListView_getSelection(const TerminalListView *self);
-bool TerminalListView_setScroll(TerminalListView *self, size_t scroll);
-size_t TerminalListView_getScroll(const TerminalListView *self);
+bool TerminalListView_setSelection(TerminalListView *self, bytes selection);
+bytes TerminalListView_getSelection(const TerminalListView *self);
+bool TerminalListView_setScroll(TerminalListView *self, bytes scroll);
+bytes TerminalListView_getScroll(const TerminalListView *self);
 bool TerminalListView_setMarker(TerminalListView *self, const char *marker);
 const char *TerminalListView_getMarker(const TerminalListView *self);
 void TerminalListView_setPens(TerminalListView *self, TerminalPen normal, TerminalPen selected);
 TerminalListViewPens TerminalListView_getPens(const TerminalListView *self);
 // Move the selection within [0, count) and keep it visible; false at an edge.
-bool TerminalListView_move(TerminalListView *self, long delta, size_t visibleRows);
+bool TerminalListView_move(TerminalListView *self, long delta, bytes visibleRows);
 
 void TerminalListView_render(const TerminalListView *self, TerminalCanvas *canvas);
 

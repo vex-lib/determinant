@@ -8,7 +8,7 @@
 
 typedef struct TerminalProjection {
     char text[512];
-    size_t length;
+    bytes length;
     bool truncated;
 } TerminalProjection;
 
@@ -23,8 +23,8 @@ static inline TerminalProjection TerminalProjection_format(const char *format, .
         projection.truncated = true;
         return projection;
     }
-    projection.truncated = (size_t) length >= sizeof projection.text;
-    projection.length = projection.truncated ? sizeof projection.text - 1u : (size_t) length;
+    projection.truncated = (bytes) length >= sizeof projection.text;
+    projection.length = projection.truncated ? sizeof projection.text - 1u : (bytes) length;
     return projection;
 }
 

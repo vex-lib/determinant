@@ -32,39 +32,39 @@
  * the exact widths stand.
  * ============================================================================ */
 
-static size_t cellTrimStart(const char *text, size_t start, size_t end) {
+static bytes cellTrimStart(const char *text, bytes start, bytes end) {
     while (start < end && TerminalMarkdownText_isSpace(text[start]))
         ++start;
     return start;
 }
 
-static size_t cellTrimEnd(const char *text, size_t start, size_t end) {
+static bytes cellTrimEnd(const char *text, bytes start, bytes end) {
     while (end > start && TerminalMarkdownText_isSpace(text[end - 1u]))
         --end;
     return end;
 }
 
-static size_t skipCodeRun(const char *text, size_t at, size_t end) {
-    size_t run = 0;
+static bytes skipCodeRun(const char *text, bytes at, bytes end) {
+    bytes run = 0;
     while (at + run < end && text[at + run] == '`')
         ++run;
-    size_t close = TerminalMarkdownText_findRun(text, end, at + run, '`', run);
+    bytes close = TerminalMarkdownText_findRun(text, end, at + run, '`', run);
     return close == SIZE_MAX ? at + run : close + run;
 }
 
-size_t TerminalMarkdownTable_split(const char *text, size_t length, const char **cells,
-                           size_t *lengths, size_t capacity) {
+bytes TerminalMarkdownTable_split(const char *text, bytes length, const char **cells,
+                           bytes *lengths, bytes capacity) {
     if (text == nullptr || cells == nullptr || lengths == nullptr || capacity == 0)
         return 0;
-    size_t start = TerminalMarkdownText_leadingSpaces(text, length);
-    size_t end = TerminalMarkdownText_trimRight(text, length);
+    bytes start = TerminalMarkdownText_leadingSpaces(text, length);
+    bytes end = TerminalMarkdownText_trimRight(text, length);
     if (start < end && text[start] == '|')
         ++start;
     if (end > start && text[end - 1u] == '|')
         --end;
-    size_t count = 0;
-    size_t cellStart = start;
-    size_t at = start;
+    bytes count = 0;
+    bytes cellStart = start;
+    bytes at = start;
     while (at <= end) {
         bool boundary = false;
         if (at == end) {
@@ -73,7 +73,7 @@ size_t TerminalMarkdownTable_split(const char *text, size_t length, const char *
             at += 2u;
             continue;
         } else if (text[at] == '`') {
-            size_t next = skipCodeRun(text, at, end);
+            bytes next = skipCodeRun(text, at, end);
             at = next > at ? next : at + 1u;
             continue;
         } else if (text[at] == '|') {
@@ -83,8 +83,8 @@ size_t TerminalMarkdownTable_split(const char *text, size_t length, const char *
             ++at;
             continue;
         }
-        size_t trimmedStart = cellTrimStart(text, cellStart, at);
-        size_t trimmedEnd = cellTrimEnd(text, trimmedStart, at);
+        bytes trimmedStart = cellTrimStart(text, cellStart, at);
+        bytes trimmedEnd = cellTrimEnd(text, trimmedStart, at);
         if (count < capacity) {
             cells[count] = text + trimmedStart;
             lengths[count] = trimmedEnd - trimmedStart;
@@ -98,18 +98,18 @@ size_t TerminalMarkdownTable_split(const char *text, size_t length, const char *
     return count;
 }
 
-size_t TerminalMarkdownTable_parseDelimiter(const char *text, size_t length,
-                                    TerminalMarkdownTableAlign *aligns, size_t capacity) {
+bytes TerminalMarkdownTable_parseDelimiter(const char *text, bytes length,
+                                    TerminalMarkdownTableAlign *aligns, bytes capacity) {
     const char *cells[TERMINAL_MARKDOWN_TABLE_COLUMNS];
-    size_t lengths[TERMINAL_MARKDOWN_TABLE_COLUMNS];
-    size_t count = TerminalMarkdownTable_split(text, length, cells, lengths, TERMINAL_MARKDOWN_TABLE_COLUMNS);
+    bytes lengths[TERMINAL_MARKDOWN_TABLE_COLUMNS];
+    bytes count = TerminalMarkdownTable_split(text, length, cells, lengths, TERMINAL_MARKDOWN_TABLE_COLUMNS);
     if (count < 2u)
         return 0;
-    for (size_t column = 0; column < count; ++column) {
+    for (bytes column = 0; column < count; ++column) {
         bool leftColon = false;
         bool rightColon = false;
-        size_t dashes = 0;
-        for (size_t at = 0; at < lengths[column]; ++at) {
+        bytes dashes = 0;
+        for (bytes at = 0; at < lengths[column]; ++at) {
             char character = cells[column][at];
             if (character == ':') {
                 if (at == 0)
@@ -133,17 +133,17 @@ size_t TerminalMarkdownTable_parseDelimiter(const char *text, size_t length,
     return count;
 }
 
-size_t TerminalMarkdownTable_natural(const char *text, size_t length) {
+bytes TerminalMarkdownTable_natural(const char *text, bytes length) {
     return TerminalMarkdownText_cells(text, length);
 }
 
-size_t TerminalMarkdownTable_longestWord(const char *text, size_t length) {
-    size_t longest = 0;
-    size_t word = 0;
-    size_t at = 0;
+bytes TerminalMarkdownTable_longestWord(const char *text, bytes length) {
+    bytes longest = 0;
+    bytes word = 0;
+    bytes at = 0;
     while (text != nullptr && at < length) {
         TerminalCanvasDecodedScalar decoded = TerminalCanvas_utf8Decode(text + at, length - at);
-        size_t bytes = decoded.bytes == 0 ? 1u : decoded.bytes;
+        bytes bytes = decoded.bytes == 0 ? 1u : decoded.bytes;
         if (decoded.bytes == 0 || TerminalMarkdownText_isSpace(text[at])) {
             if (word > longest)
                 longest = word;
@@ -158,8 +158,8 @@ size_t TerminalMarkdownTable_longestWord(const char *text, size_t length) {
     return longest == 0 ? 1u : longest;
 }
 
-TerminalMarkdownTableCellLine TerminalMarkdownTable_cellLine(const char *text, size_t length,
-                                             size_t offset, size_t width) {
+TerminalMarkdownTableCellLine TerminalMarkdownTable_cellLine(const char *text, bytes length,
+                                             bytes offset, bytes width) {
     TerminalMarkdownTableCellLine line = { text + length, 0, length, 0, false, false, false };
     if (text == nullptr)
         return line;
@@ -179,13 +179,13 @@ TerminalMarkdownTableCellLine TerminalMarkdownTable_cellLine(const char *text, s
                       && !TerminalMarkdownText_isSpace(text[offset - 1u])
                       && !TerminalMarkdownText_isSpace(text[offset]));
     line.leadingHyphen = isMidWord;
-    size_t availableWidth = width;
+    bytes availableWidth = width;
     if (isMidWord && availableWidth > 1u)
         availableWidth -= 1u;
-    size_t at = offset;
-    size_t used = 0;
-    size_t lastSpace = SIZE_MAX;
-    size_t afterSpace = SIZE_MAX;
+    bytes at = offset;
+    bytes used = 0;
+    bytes lastSpace = SIZE_MAX;
+    bytes afterSpace = SIZE_MAX;
     while (at < length) {
         if (TerminalMarkdownText_isSpace(text[at]) && at > offset) {
             lastSpace = at;
@@ -194,8 +194,8 @@ TerminalMarkdownTableCellLine TerminalMarkdownTable_cellLine(const char *text, s
                 ++afterSpace;
         }
         TerminalCanvasDecodedScalar decoded = TerminalCanvas_utf8Decode(text + at, length - at);
-        size_t bytes = decoded.bytes == 0 ? 1u : decoded.bytes;
-        size_t glyphCells = decoded.bytes == 0 ? 1u : TerminalCanvas_widthOf(decoded.codepoint);
+        bytes bytes = decoded.bytes == 0 ? 1u : decoded.bytes;
+        bytes glyphCells = decoded.bytes == 0 ? 1u : TerminalCanvas_widthOf(decoded.codepoint);
         if (glyphCells != 0 && used + glyphCells > availableWidth) {
             if (lastSpace != SIZE_MAX) {
                 line.length = lastSpace - offset;
@@ -203,8 +203,8 @@ TerminalMarkdownTableCellLine TerminalMarkdownTable_cellLine(const char *text, s
                 line.cells = TerminalMarkdownText_cells(line.text, line.length) + (isMidWord ? 1u : 0u);
                 return line;
             }
-            size_t budget = availableWidth > 1u ? availableWidth - 1u : 1u;
-            size_t take = TerminalMarkdownText_bytesForCells(text + offset, length - offset,
+            bytes budget = availableWidth > 1u ? availableWidth - 1u : 1u;
+            bytes take = TerminalMarkdownText_bytesForCells(text + offset, length - offset,
                                                              budget, &used);
             if (take == 0) {
                 take = TerminalMarkdownText_scalarBytes(text + offset, length - offset);
@@ -226,9 +226,9 @@ TerminalMarkdownTableCellLine TerminalMarkdownTable_cellLine(const char *text, s
     return line;
 }
 
-size_t TerminalMarkdownTable_lineCount(const char *text, size_t length, size_t width) {
-    size_t offset = 0;
-    size_t count = 0;
+bytes TerminalMarkdownTable_lineCount(const char *text, bytes length, bytes width) {
+    bytes offset = 0;
+    bytes count = 0;
     while (offset < length) {
         TerminalMarkdownTableCellLine line = TerminalMarkdownTable_cellLine(text, length, offset, width);
         ++count;
@@ -242,34 +242,34 @@ size_t TerminalMarkdownTable_lineCount(const char *text, size_t length, size_t w
     return count == 0 ? 1u : count;
 }
 
-static void applySpacing(size_t *widths, size_t columns, size_t available) {
+static void applySpacing(bytes *widths, bytes columns, bytes available) {
     // Raise every column to the 4-cell spacing floor, but only if the raised table
     // still fits the cells this viewport gave it. Otherwise the fit budget wins and
     // the exact widths stand: a table must not gain a scrollbar to satisfy rounding.
-    size_t total = 0;
-    for (size_t column = 0; column < columns; ++column) {
-        size_t padded = TerminalMarkdownTable_padWidth(widths[column]);
+    bytes total = 0;
+    for (bytes column = 0; column < columns; ++column) {
+        bytes padded = TerminalMarkdownTable_padWidth(widths[column]);
         if (padded > available - total)
             return;
         total += padded;
     }
-    for (size_t column = 0; column < columns; ++column)
+    for (bytes column = 0; column < columns; ++column)
         widths[column] = TerminalMarkdownTable_padWidth(widths[column]);
 }
 
-bool TerminalMarkdownTable_allocate(const size_t *needed, const size_t *minimums, size_t *widths,
-                            size_t columns, size_t viewport) {
+bool TerminalMarkdownTable_allocate(const bytes *needed, const bytes *minimums, bytes *widths,
+                            bytes columns, bytes viewport) {
     if (needed == nullptr || minimums == nullptr || widths == nullptr || columns == 0)
         return false;
-    size_t overhead = columns * 3u + 1u;
+    bytes overhead = columns * 3u + 1u;
     if (viewport <= overhead)
         return false;
-    size_t available = viewport - overhead;
-    size_t neededTotal = 0;
-    size_t minimumTotal = 0;
+    bytes available = viewport - overhead;
+    bytes neededTotal = 0;
+    bytes minimumTotal = 0;
     bool neededFits = true;
     bool minimumsFit = true;
-    for (size_t column = 0; column < columns; ++column) {
+    for (bytes column = 0; column < columns; ++column) {
         if (needed[column] > available - neededTotal) {
             neededFits = false;
             neededTotal = available;
@@ -287,37 +287,37 @@ bool TerminalMarkdownTable_allocate(const size_t *needed, const size_t *minimums
     if (!minimumsFit)
         return false;
     if (neededFits) {
-        for (size_t column = 0; column < columns; ++column)
+        for (bytes column = 0; column < columns; ++column)
             widths[column] = needed[column];
         applySpacing(widths, columns, available);
         return true;
     }
-    size_t extraBudget = available - minimumTotal;
-    size_t remainingNeed = 0;
-    for (size_t column = 0; column < columns; ++column) {
-        size_t extra = needed[column] > minimums[column] ? needed[column] - minimums[column] : 0u;
+    bytes extraBudget = available - minimumTotal;
+    bytes remainingNeed = 0;
+    for (bytes column = 0; column < columns; ++column) {
+        bytes extra = needed[column] > minimums[column] ? needed[column] - minimums[column] : 0u;
         remainingNeed = extra > SIZE_MAX - remainingNeed ? SIZE_MAX : remainingNeed + extra;
     }
     if (remainingNeed == 0u) {
         applySpacing(widths, columns, available);
         return true;
     }
-    size_t used = 0;
-    long double fractions[TERMINAL_MARKDOWN_TABLE_COLUMNS] = {0};
-    for (size_t column = 0; column < columns; ++column) {
-        size_t extra = needed[column] > minimums[column] ? needed[column] - minimums[column] : 0u;
-        long double share = (long double) extraBudget * (long double) extra
-                          / (long double) remainingNeed;
-        size_t whole = (size_t) share;
+    bytes used = 0;
+    long d64 fractions[TERMINAL_MARKDOWN_TABLE_COLUMNS] = {0};
+    for (bytes column = 0; column < columns; ++column) {
+        bytes extra = needed[column] > minimums[column] ? needed[column] - minimums[column] : 0u;
+        long d64 share = (long d64) extraBudget * (long d64) extra
+                          / (long d64) remainingNeed;
+        bytes whole = (bytes) share;
         if (whole > extra)
             whole = extra;
         widths[column] += whole;
         used += whole;
-        fractions[column] = whole == extra ? -1.0L : share - (long double) whole;
+        fractions[column] = whole == extra ? -1.0L : share - (long d64) whole;
     }
     while (used < extraBudget) {
-        size_t chosen = SIZE_MAX;
-        for (size_t column = 0; column < columns; ++column)
+        bytes chosen = SIZE_MAX;
+        for (bytes column = 0; column < columns; ++column)
             if (fractions[column] >= 0.0L
                 && (chosen == SIZE_MAX || fractions[column] > fractions[chosen]))
                 chosen = column;
@@ -331,36 +331,36 @@ bool TerminalMarkdownTable_allocate(const size_t *needed, const size_t *minimums
     return true;
 }
 
-bool TerminalMarkdownTable_isWarped(const size_t *needed, const size_t *widths,
-                                    size_t columns, size_t threshold) {
+bool TerminalMarkdownTable_isWarped(const bytes *needed, const bytes *widths,
+                                    bytes columns, bytes threshold) {
     if (needed == nullptr || widths == nullptr || columns == 0)
         return false;
-    size_t limit = threshold != 0u ? threshold : TERMINAL_MARKDOWN_TABLE_WARP_THRESHOLD;
-    for (size_t column = 0; column < columns; ++column) {
+    bytes limit = threshold != 0u ? threshold : TERMINAL_MARKDOWN_TABLE_WARP_THRESHOLD;
+    for (bytes column = 0; column < columns; ++column) {
         if (widths[column] < needed[column] && widths[column] < limit)
             return true;
     }
     return false;
 }
 
-size_t TerminalMarkdownTable_allocateUnwarped(const size_t *needed, size_t *widths,
-                                              size_t columns) {
+bytes TerminalMarkdownTable_allocateUnwarped(const bytes *needed, bytes *widths,
+                                              bytes columns) {
     if (widths == nullptr || columns == 0)
         return 0;
-    size_t total = columns * 3u + 1u;
-    for (size_t column = 0; column < columns; ++column) {
-        size_t width = (needed != nullptr && needed[column] != 0u) ? needed[column] : 1u;
+    bytes total = columns * 3u + 1u;
+    for (bytes column = 0; column < columns; ++column) {
+        bytes width = (needed != nullptr && needed[column] != 0u) ? needed[column] : 1u;
         widths[column] = TerminalMarkdownTable_padWidth(width);
         total += widths[column];
     }
     return total;
 }
 
-size_t TerminalMarkdownTable_padWidth(size_t width) {
+bytes TerminalMarkdownTable_padWidth(bytes width) {
     if (width == 0u)
         return 4u;
     if (width > SIZE_MAX - 3u)
-        return SIZE_MAX & ~(size_t) 3u;
-    return (width + 3u) & ~(size_t) 3u;
+        return SIZE_MAX & ~(bytes) 3u;
+    return (width + 3u) & ~(bytes) 3u;
 }
 

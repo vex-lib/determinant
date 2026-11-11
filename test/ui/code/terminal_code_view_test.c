@@ -7,10 +7,10 @@
 #include <string.h>
 
 static void testColoredLineAndVirtualHint(void) {
-    uint32_t cells[20] = {0};
-    uint16_t styles[20] = {0};
-    uint32_t foregrounds[20] = {0};
-    uint32_t backgrounds[20] = {0};
+    u32 cells[20] = {0};
+    u16 styles[20] = {0};
+    u32 foregrounds[20] = {0};
+    u32 backgrounds[20] = {0};
     TerminalCanvas canvas = TerminalCanvas(cells, styles, foregrounds, backgrounds, 20u, 1u);
     const char *source = "int add(x)";
     const TerminalCodeSpan spans[] = {
@@ -48,7 +48,7 @@ static void testColoredLineAndVirtualHint(void) {
 }
 
 static void testRejectPreservesAdmittedLine(void) {
-    uint32_t cells[8] = {0};
+    u32 cells[8] = {0};
     TerminalCanvas canvas = TerminalCanvas(cells, nullptr, 8u, 1u);
     const char *source = "old";
     const TerminalCodeSpan good[] = {{0u, 3u, TerminalPen(0u, 0xFFFFFFFFu)}};
@@ -80,7 +80,7 @@ static void testRejectPreservesAdmittedLine(void) {
 }
 
 static void testCellScrollAndClipping(void) {
-    uint32_t cells[4] = {0};
+    u32 cells[4] = {0};
     TerminalCanvas canvas = TerminalCanvas(cells, nullptr, 4u, 1u);
     TerminalCodeView *view = TerminalCodeView();
     assert(view != nullptr);

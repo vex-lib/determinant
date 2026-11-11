@@ -6,7 +6,7 @@
 
 #include "ui/surface/terminal_canvas.h"
 #include "ui/surface/terminal_projection.h"
-#include "c23/constructor.h"
+#include "util/constructor.h"
 
 // ui/field/terminal_input_line.h — a bare, generic single-line input.
 //
@@ -19,8 +19,8 @@
 
 typedef struct TerminalInputLine {
     char *buffer;      // borrowed storage
-    size_t capacity;   // usable bytes (a NUL terminator is kept at [length])
-    size_t length;
+    bytes capacity;   // usable bytes (a NUL terminator is kept at [length])
+    bytes length;
     const char *prefix;   // default "> "
     TerminalPen prefixPen;
     TerminalPen textPen;
@@ -28,14 +28,14 @@ typedef struct TerminalInputLine {
 typedef struct TerminalInputLinePens { TerminalPen prefix; TerminalPen text; } TerminalInputLinePens;
 
 TerminalInputLine TerminalInputLine_0(void);
-TerminalInputLine TerminalInputLine_2(char *buffer, size_t capacity);
+TerminalInputLine TerminalInputLine_2(char *buffer, bytes capacity);
 #define TerminalInputLine(...) CONSTRUCTOR_DISPATCH(TerminalInputLine, __VA_ARGS__)
 #define TerminalInputLine_zero() TerminalInputLine_0()
 
-bool TerminalInputLine_bind(TerminalInputLine *self, char *buffer, size_t capacity);
+bool TerminalInputLine_bind(TerminalInputLine *self, char *buffer, bytes capacity);
 const char *TerminalInputLine_getBuffer(const TerminalInputLine *self);
-size_t TerminalInputLine_getCapacity(const TerminalInputLine *self);
-size_t TerminalInputLine_length(const TerminalInputLine *self);
+bytes TerminalInputLine_getCapacity(const TerminalInputLine *self);
+bytes TerminalInputLine_length(const TerminalInputLine *self);
 bool TerminalInputLine_isBound(const TerminalInputLine *self);
 bool TerminalInputLine_setPrefix(TerminalInputLine *self, const char *prefix);
 const char *TerminalInputLine_getPrefix(const TerminalInputLine *self);

@@ -5,7 +5,7 @@
 #include <stddef.h>
 
 #include "ui/surface/terminal_projection.h"
-#include "c23/constructor.h"
+#include "util/constructor.h"
 
 // ui/scroll/terminal_scroll_glide.h — per-axis viewport momentum.
 //
@@ -20,29 +20,29 @@
 #define TERMINAL_SCROLL_EPSILON_DEFAULT 0.4
 
 typedef struct TerminalScrollGlide {
-    double rowShown;      // rows currently displayed, fractional
-    double rowTarget;     // rows headed for
-    double columnShown;   // columns currently displayed, fractional
-    double columnTarget;  // columns headed for
-    double ease;          // fraction of remaining distance covered per step
-    double epsilon;       // remaining distance that snaps to the target
+    d64 rowShown;      // rows currently displayed, fractional
+    d64 rowTarget;     // rows headed for
+    d64 columnShown;   // columns currently displayed, fractional
+    d64 columnTarget;  // columns headed for
+    d64 ease;          // fraction of remaining distance covered per step
+    d64 epsilon;       // remaining distance that snaps to the target
 } TerminalScrollGlide;
 
 // SLOT RECORD: TerminalScrollGlidePosition (no behaviour of its own)
 typedef struct TerminalScrollGlidePosition {
-    size_t row;
-    size_t column;
+    bytes row;
+    bytes column;
 } TerminalScrollGlidePosition;
 
 TerminalScrollGlide TerminalScrollGlide_0(void);
-TerminalScrollGlide TerminalScrollGlide_2(double ease, double epsilon);
+TerminalScrollGlide TerminalScrollGlide_2(d64 ease, d64 epsilon);
 #define TerminalScrollGlide(...) CONSTRUCTOR_DISPATCH(TerminalScrollGlide, __VA_ARGS__)
 #define TerminalScrollGlide_zero() TerminalScrollGlide_0()
 
-bool TerminalScrollGlide_setEase(TerminalScrollGlide *self, double ease);
-double TerminalScrollGlide_getEase(const TerminalScrollGlide *self);
-bool TerminalScrollGlide_setEpsilon(TerminalScrollGlide *self, double epsilon);
-double TerminalScrollGlide_getEpsilon(const TerminalScrollGlide *self);
+bool TerminalScrollGlide_setEase(TerminalScrollGlide *self, d64 ease);
+d64 TerminalScrollGlide_getEase(const TerminalScrollGlide *self);
+bool TerminalScrollGlide_setEpsilon(TerminalScrollGlide *self, d64 epsilon);
+d64 TerminalScrollGlide_getEpsilon(const TerminalScrollGlide *self);
 
 // Still travelling? Drives the frame cadence: true while either axis is farther
 // than epsilon from its target.
@@ -51,30 +51,30 @@ bool TerminalScrollGlide_isActive(const TerminalScrollGlide *self);
 // Input moves only the target. Both bounds are inclusive maxima; the target is
 // clamped into [0, max] so the glide cannot aim past a bound.
 void TerminalScrollGlide_impulse(TerminalScrollGlide *self, long rows, long columns,
-                                 size_t maxRows, size_t maxColumns);
-void TerminalScrollGlide_setTarget(TerminalScrollGlide *self, size_t row, size_t column,
-                                   size_t maxRows, size_t maxColumns);
+                                 bytes maxRows, bytes maxColumns);
+void TerminalScrollGlide_setTarget(TerminalScrollGlide *self, bytes row, bytes column,
+                                   bytes maxRows, bytes maxColumns);
 
 // Snap one or both axes: both shown and target land on the supplied position(s).
-void TerminalScrollGlide_setPosition(TerminalScrollGlide *self, size_t row, size_t column,
-                                     size_t maxRows, size_t maxColumns);
-void TerminalScrollGlide_setRowPosition(TerminalScrollGlide *self, size_t row, size_t maxRows);
-void TerminalScrollGlide_setColumnPosition(TerminalScrollGlide *self, size_t column,
-                                           size_t maxColumns);
+void TerminalScrollGlide_setPosition(TerminalScrollGlide *self, bytes row, bytes column,
+                                     bytes maxRows, bytes maxColumns);
+void TerminalScrollGlide_setRowPosition(TerminalScrollGlide *self, bytes row, bytes maxRows);
+void TerminalScrollGlide_setColumnPosition(TerminalScrollGlide *self, bytes column,
+                                           bytes maxColumns);
 
 // Stop where we are: drop the target onto the shown position.
 void TerminalScrollGlide_halt(TerminalScrollGlide *self);
 // Clamp both shown and target after a layout or extent change.
-void TerminalScrollGlide_clamp(TerminalScrollGlide *self, size_t maxRows, size_t maxColumns);
+void TerminalScrollGlide_clamp(TerminalScrollGlide *self, bytes maxRows, bytes maxColumns);
 
 // Advance one frame and return the whole-cell position to paint. Call once per
 // frame; a settled glide returns the same position and costs two comparisons.
 TerminalScrollGlidePosition TerminalScrollGlide_step(TerminalScrollGlide *self);
 
-double TerminalScrollGlide_getRowShown(const TerminalScrollGlide *self);
-double TerminalScrollGlide_getRowTarget(const TerminalScrollGlide *self);
-double TerminalScrollGlide_getColumnShown(const TerminalScrollGlide *self);
-double TerminalScrollGlide_getColumnTarget(const TerminalScrollGlide *self);
+d64 TerminalScrollGlide_getRowShown(const TerminalScrollGlide *self);
+d64 TerminalScrollGlide_getRowTarget(const TerminalScrollGlide *self);
+d64 TerminalScrollGlide_getColumnShown(const TerminalScrollGlide *self);
+d64 TerminalScrollGlide_getColumnTarget(const TerminalScrollGlide *self);
 TerminalScrollGlidePosition TerminalScrollGlide_getPosition(const TerminalScrollGlide *self);
 
 TerminalProjection TerminalScrollGlide_toString(const TerminalScrollGlide *self);

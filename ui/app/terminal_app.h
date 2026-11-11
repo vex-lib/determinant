@@ -11,7 +11,7 @@
 #include "ui/surface/terminal_projection.h"
 #include "ui/compositor/terminal_compositor.h"
 #include "events/terminal_input.h"
-#include "c23/constructor.h"
+#include "util/constructor.h"
 
 // ui/app/terminal_app.h — the canonical terminal application runner.
 //
@@ -29,20 +29,20 @@ typedef struct TerminalApp {
     TerminalCompositor *compositor;       // owned output compositor
     TerminalSurface *surface;             // owned last-paint presenter
     TerminalInput input;                  // mouse input state machine
-    size_t width;                         // current grid width in cells
-    size_t height;                        // current grid height in cells
-    size_t capacity;                      // allocated cells (width * height)
-    uint32_t *backCells;                  // back buffer glyphs
-    uint16_t *backStyles;                 // back buffer styles
-    uint32_t *backFg;                     // back buffer foreground
-    uint32_t *backBg;                     // back buffer background
-    uint32_t *frontCells;                 // front buffer mirror
-    uint16_t *frontStyles;                // front buffer mirror
-    uint32_t *frontFg;                    // front buffer mirror
-    uint32_t *frontBg;                    // front buffer mirror
+    bytes width;                         // current grid width in cells
+    bytes height;                        // current grid height in cells
+    bytes capacity;                      // allocated cells (width * height)
+    u32 *backCells;                  // back buffer glyphs
+    u16 *backStyles;                 // back buffer styles
+    u32 *backFg;                     // back buffer foreground
+    u32 *backBg;                     // back buffer background
+    u32 *frontCells;                 // front buffer mirror
+    u16 *frontStyles;                // front buffer mirror
+    u32 *frontFg;                    // front buffer mirror
+    u32 *frontBg;                    // front buffer mirror
     bool running;                         // main loop active
     bool headless;                        // offline mode (no real TTY calls)
-    size_t frameCount;                    // completed frame steps
+    bytes frameCount;                    // completed frame steps
 } TerminalApp;
 
 TerminalApp *TerminalApp_0(void);
@@ -58,16 +58,16 @@ TerminalPanel *TerminalApp_getRoot(const TerminalApp *self);
 bool TerminalApp_setCompositor(TerminalApp *self, TerminalCompositor *compositor);
 TerminalCompositor *TerminalApp_getCompositor(const TerminalApp *self);
 
-bool TerminalApp_resize(TerminalApp *self, size_t width, size_t height);
-size_t TerminalApp_getWidth(const TerminalApp *self);
-size_t TerminalApp_getHeight(const TerminalApp *self);
+bool TerminalApp_resize(TerminalApp *self, bytes width, bytes height);
+bytes TerminalApp_getWidth(const TerminalApp *self);
+bytes TerminalApp_getHeight(const TerminalApp *self);
 
 // Advances one frame: paints root panel into back canvas, diffs through surface,
 // and flushes changed runs through compositor.
 bool TerminalApp_step(TerminalApp *self);
 
 // Feeds raw input bytes into the internal input decoder.
-bool TerminalApp_feedInput(TerminalApp *self, const char *bytes, size_t length);
+bool TerminalApp_feedInput(TerminalApp *self, const char *bytes, bytes length);
 
 // Runs the interactive event loop until stopped or interrupted.
 int TerminalApp_run(TerminalApp *self);

@@ -5,7 +5,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "c23/constructor.h"
+#include "util/constructor.h"
 
 #include "ui/surface/terminal_canvas.h"
 #include "ui/surface/terminal_projection.h"
@@ -25,40 +25,40 @@
 //   "ascii-dashed"   `- - - - - - - - - - - - - -`
 //   "unicode-light"  `──────────┬───────────┬─────`
 //   "unicode-emdash" `——————————┬———————————┬—————`
-//   "unicode-double" `══════════╦═══════════╦═════`
+//   "unicode-d64" `══════════╦═══════════╦═════`
 // Every preset also carries accent/muted/text/error colours.
 
 typedef struct TerminalAppearance {
     TerminalRule rule;
-    uint32_t colorAccent;
-    uint32_t colorMuted;
-    uint32_t colorText;
-    uint32_t colorError;
+    u32 colorAccent;
+    u32 colorMuted;
+    u32 colorText;
+    u32 colorError;
 } TerminalAppearance;
-typedef struct TerminalAppearanceColors { uint32_t accent; uint32_t muted; uint32_t text; uint32_t error; } TerminalAppearanceColors;
+typedef struct TerminalAppearanceColors { u32 accent; u32 muted; u32 text; u32 error; } TerminalAppearanceColors;
 
 // The default appearance (the "ascii-striped" preset).
 TerminalAppearance TerminalAppearance_0(void);
 #define TerminalAppearance(...) CONSTRUCTOR_DISPATCH(TerminalAppearance, __VA_ARGS__)
 
 // --- Preset registry (for a settings UI: list names, pick by name/index) ---
-size_t      TerminalAppearance_presetCount(void);
-const char *TerminalAppearance_presetName(size_t index);      // NULL when out of range
-TerminalAppearance TerminalAppearance_preset(size_t index);   // default when out of range
+bytes      TerminalAppearance_presetCount(void);
+const char *TerminalAppearance_presetName(bytes index);      // NULL when out of range
+TerminalAppearance TerminalAppearance_preset(bytes index);   // default when out of range
 TerminalAppearance TerminalAppearance_named(const char *name);// default when unknown
 
 // --- Configuration (symmetric setters & getters) ---
 bool TerminalAppearance_setRule(TerminalAppearance *self, TerminalRule rule);
 TerminalRule TerminalAppearance_getRule(const TerminalAppearance *self);
-bool TerminalAppearance_setColors(TerminalAppearance *self, uint32_t accent, uint32_t muted,
-                                  uint32_t text, uint32_t error);
+bool TerminalAppearance_setColors(TerminalAppearance *self, u32 accent, u32 muted,
+                                  u32 text, u32 error);
 TerminalAppearanceColors TerminalAppearance_getColors(const TerminalAppearance *self);
 
 // --- Apply ---
 // Push the preset's rule into a frame; draw a rule run into any canvas region.
 void TerminalAppearance_applyTo(const TerminalAppearance *self, TerminalFrame *frame);
 void TerminalAppearance_drawRule(const TerminalAppearance *self, TerminalCanvas *canvas,
-                                 size_t ly, TerminalPen pen);
+                                 bytes ly, TerminalPen pen);
 
 TerminalProjection TerminalAppearance_toString(const TerminalAppearance *self);
 TerminalProjection TerminalAppearance_toStringStruct(const TerminalAppearance *self);

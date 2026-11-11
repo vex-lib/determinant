@@ -6,7 +6,7 @@
 #include <stdint.h>
 
 #include "ui/surface/terminal_projection.h"
-#include "c23/constructor.h"
+#include "util/constructor.h"
 
 typedef struct TerminalCanvas TerminalCanvas;
 
@@ -40,9 +40,9 @@ typedef struct TerminalCanvas TerminalCanvas;
 // No node. Zero is never a live id, so it is the natural "nothing here".
 #define TERMINAL_TREE_NO_NODE ((TerminalTreeNodeId) 0u)
 // No row, for the queries that answer a row.
-#define TERMINAL_TREE_NO_ROW ((size_t) -1)
+#define TERMINAL_TREE_NO_ROW ((bytes) -1)
 
-typedef uint32_t TerminalTreeNodeId;
+typedef u32 TerminalTreeNodeId;
 
 // One visible row, as the caller needs it to paint. Returned BY VALUE: this is the whole
 // reason the caller never walks the tree.
@@ -51,7 +51,7 @@ typedef uint32_t TerminalTreeNodeId;
 typedef struct TerminalTreeRow {
     TerminalTreeNodeId id;   // the node this row shows
     const char *label;       // borrowed label, never copied
-    size_t depth;            // 0 at the top level, one more per level of nesting
+    bytes depth;            // 0 at the top level, one more per level of nesting
     bool folder;             // has foldable children
     bool expanded;           // a folder that is NOT folded
     bool selected;           // the tree's current selection
@@ -63,9 +63,9 @@ typedef struct TerminalTreeRow {
 // SLOT RECORD: TerminalTreeNode (no behaviour of its own)
 typedef struct TerminalTreeNode {
     TerminalTreeNodeId id;   // stable identity, never reused
-    int32_t parent;          // parent's index in the node array, or NO_PARENT
-    size_t subtreeCount;     // nodes in this subtree, including this one
-    size_t depth;            // 0 at the top level
+    i32 parent;          // parent's index in the node array, or NO_PARENT
+    bytes subtreeCount;     // nodes in this subtree, including this one
+    bytes depth;            // 0 at the top level
     bool folder;             // has foldable children
     bool expanded;           // unfolded (only meaningful for a folder)
     const char *label;       // borrowed
@@ -73,18 +73,18 @@ typedef struct TerminalTreeNode {
 
 typedef struct TerminalTreeView {
     TerminalTreeNode *nodes;      // owned pre-order node array
-    size_t nodeCount;             // live nodes
-    size_t nodeCapacity;          // admitted node slots
-    uint32_t *rows;               // owned visible-row array (node indices)
-    size_t visibleCount;          // rows currently visible
-    size_t rowsCapacity;          // admitted row slots
+    bytes nodeCount;             // live nodes
+    bytes nodeCapacity;          // admitted node slots
+    u32 *rows;               // owned visible-row array (node indices)
+    bytes visibleCount;          // rows currently visible
+    bytes rowsCapacity;          // admitted row slots
     TerminalTreeNodeId nextId;    // identity source, never rewound
     TerminalTreeNodeId selected;  // NO_NODE when nothing is selected
-    size_t scrollRow;             // first visible row
-    size_t viewportRows;          // rows the caller can show
-    size_t nodeRefusals;          // node-growth refusals in this epoch
-    size_t rowRefusals;           // row-growth refusals in this epoch
-    size_t indentSpaces;          // spaces per nesting level (default 2)
+    bytes scrollRow;             // first visible row
+    bytes viewportRows;          // rows the caller can show
+    bytes nodeRefusals;          // node-growth refusals in this epoch
+    bytes rowRefusals;           // row-growth refusals in this epoch
+    bytes indentSpaces;          // spaces per nesting level (default 2)
     bool nerdIcons;               // render nerd font icons or plain ASCII
 } TerminalTreeView;
 
@@ -139,45 +139,45 @@ TerminalTreeNodeId TerminalTreeView_getSelected(const TerminalTreeView *self);
 bool TerminalTreeView_isSelected(const TerminalTreeView *self, TerminalTreeNodeId id);
 
 // --- viewport --------------------------------------------------------------------
-size_t TerminalTreeView_visibleCount(const TerminalTreeView *self);
-bool TerminalTreeView_setViewportRows(TerminalTreeView *self, size_t rows);
-size_t TerminalTreeView_viewportRows(const TerminalTreeView *self);
-size_t TerminalTreeView_scrollRow(const TerminalTreeView *self);
-size_t TerminalTreeView_maxScrollRow(const TerminalTreeView *self);
+bytes TerminalTreeView_visibleCount(const TerminalTreeView *self);
+bool TerminalTreeView_setViewportRows(TerminalTreeView *self, bytes rows);
+bytes TerminalTreeView_viewportRows(const TerminalTreeView *self);
+bytes TerminalTreeView_scrollRow(const TerminalTreeView *self);
+bytes TerminalTreeView_maxScrollRow(const TerminalTreeView *self);
 // Scroll, clamped to [0, maxScrollRow]. Returns the row actually scrolled to, so a
 // caller that has run off the end can see where it landed instead of guessing.
-size_t TerminalTreeView_setScrollRow(TerminalTreeView *self, size_t row);
-size_t TerminalTreeView_scrollBy(TerminalTreeView *self, long rows);
+bytes TerminalTreeView_setScrollRow(TerminalTreeView *self, bytes row);
+bytes TerminalTreeView_scrollBy(TerminalTreeView *self, long rows);
 
 // --- rows ------------------------------------------------------------------------
 // The row at an absolute index. An out-of-range row is reported as an empty row rather
 // than read: a caller painting a stale row must not be able to walk off the end.
-TerminalTreeRow TerminalTreeView_rowAt(const TerminalTreeView *self, size_t row);
+TerminalTreeRow TerminalTreeView_rowAt(const TerminalTreeView *self, bytes row);
 // The node under a row OFFSET from the top of the viewport — the one call a pointer
 // event needs. NO_NODE means the offset is past the last row: a click on empty space
 // below the tree is not a click on a row.
-TerminalTreeNodeId TerminalTreeView_nodeAtOffset(const TerminalTreeView *self, size_t offset);
+TerminalTreeNodeId TerminalTreeView_nodeAtOffset(const TerminalTreeView *self, bytes offset);
 // The absolute row a node is displayed at, or NO_ROW when it is hidden inside a folded
 // parent. A selected row that is folded away is still selected; it is simply not shown.
-size_t TerminalTreeView_rowOf(const TerminalTreeView *self, TerminalTreeNodeId id);
+bytes TerminalTreeView_rowOf(const TerminalTreeView *self, TerminalTreeNodeId id);
 
 // --- queries ---------------------------------------------------------------------
 bool TerminalTreeView_isNode(const TerminalTreeView *self, TerminalTreeNodeId id);
 const char *TerminalTreeView_getLabel(const TerminalTreeView *self, TerminalTreeNodeId id);
-size_t TerminalTreeView_depthOf(const TerminalTreeView *self, TerminalTreeNodeId id);
+bytes TerminalTreeView_depthOf(const TerminalTreeView *self, TerminalTreeNodeId id);
 // DIRECT children of a node.
-size_t TerminalTreeView_childCountOf(const TerminalTreeView *self, TerminalTreeNodeId id);
+bytes TerminalTreeView_childCountOf(const TerminalTreeView *self, TerminalTreeNodeId id);
 // The whole subtree below a node, its own row included. This is the number the pre-order
 // layout is built on, exposed so a caller can size a fold without walking.
-size_t TerminalTreeView_subtreeCountOf(const TerminalTreeView *self, TerminalTreeNodeId id);
-size_t TerminalTreeView_nodeCount(const TerminalTreeView *self);
-size_t TerminalTreeView_capacity(const TerminalTreeView *self);
-size_t TerminalTreeView_exhaustionCount(const TerminalTreeView *self);
+bytes TerminalTreeView_subtreeCountOf(const TerminalTreeView *self, TerminalTreeNodeId id);
+bytes TerminalTreeView_nodeCount(const TerminalTreeView *self);
+bytes TerminalTreeView_capacity(const TerminalTreeView *self);
+bytes TerminalTreeView_exhaustionCount(const TerminalTreeView *self);
 void TerminalTreeView_clearExhaustion(TerminalTreeView *self);
 
 // --- presentation ----------------------------------------------------------------
-bool TerminalTreeView_setIndent(TerminalTreeView *self, size_t indentSpaces);
-size_t TerminalTreeView_getIndent(const TerminalTreeView *self);
+bool TerminalTreeView_setIndent(TerminalTreeView *self, bytes indentSpaces);
+bytes TerminalTreeView_getIndent(const TerminalTreeView *self);
 bool TerminalTreeView_setNerdIcons(TerminalTreeView *self, bool nerdIcons);
 bool TerminalTreeView_getNerdIcons(const TerminalTreeView *self);
 // Paint the visible tree rows onto the canvas, applying indentation, folder glyphs,

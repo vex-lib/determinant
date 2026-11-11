@@ -31,17 +31,17 @@
  * STRUCT FIELDS (Mirroring events/terminal_input.h)
  *
  * TerminalInputState state         where the byte stream currently is
- * size_t rawCount                  X10 bytes collected so far
- * size_t field                     SGR field under construction (0 button, 1 x, 2 y)
- * size_t digits                    digits seen in the current SGR field
- * size_t values[3]                 button, column, row as received (1-based)
- * size_t malformed                 refused sequences in this epoch
+ * bytes rawCount                  X10 bytes collected so far
+ * bytes field                     SGR field under construction (0 button, 1 x, 2 y)
+ * bytes digits                    digits seen in the current SGR field
+ * bytes values[3]                 button, column, row as received (1-based)
+ * bytes malformed                 refused sequences in this epoch
  * TerminalPointerEvent event       the last completed event
  * bool ready                       set for the feed() call that completed an event
  * SLOT RECORD: TerminalPointerEvent
  * TerminalPointerKind kind     what happened
  * TerminalPointerButton button which button, when one applies
- * size_t x, y                  0-based cell column and row
+ * bytes x, y                  0-based cell column and row
  * bool shift, meta, ctrl       modifiers held at the time
  * PRIVATE HELPERS
  * beginSgr(self)              reset the SGR fields and enter the button field
@@ -53,7 +53,7 @@
  * Feed: bool TerminalInput_feed(self, byte)
  * Queries: TerminalPointerEvent getEvent(self), getKind/getButton(self)
  *   bool isReady/isPending(self), TerminalInputState getState(self)
- *   size_t malformedCount(self)
+ *   bytes malformedCount(self)
  * Lifecycle: void TerminalInput_reset(self), void clearMalformed(self)
  * Projections: TerminalProjection TerminalInput_toString/toStringStruct(self)
  * CONTRACT: feed is hot and quiet — one range guard, no allocation, no logging,
@@ -64,7 +64,7 @@
  * refused loudly by the cold projections only; feed(null) is a quiet false.
  * ======================================================================== */
 
-static TerminalPointerButton buttonFor(size_t low) {
+static TerminalPointerButton buttonFor(bytes low) {
     switch (low & 3u) {
         case 0: return TERMINAL_BUTTON_LEFT;
         case 1: return TERMINAL_BUTTON_MIDDLE;
@@ -93,7 +93,7 @@ static void beginSgr(TerminalInput *self) {
 
 // Shared decode for both encodings. `motion` exists only in SGR, and `release` is
 // SGR's lowercase final byte; X10 signals a release by reporting low bits 3.
-static void complete(TerminalInput *self, size_t raw, size_t x, size_t y,
+static void complete(TerminalInput *self, bytes raw, bytes x, bytes y,
                      bool release, bool sgr) {
     if (x == 0 || y == 0) {
         noteMalformed(self);
@@ -103,7 +103,7 @@ static void complete(TerminalInput *self, size_t raw, size_t x, size_t y,
     event.shift = (raw & 4u) != 0;
     event.meta = (raw & 8u) != 0;
     event.ctrl = (raw & 16u) != 0;
-    size_t low = raw & 3u;
+    bytes low = raw & 3u;
     bool motion = sgr && (raw & 32u) != 0;
     bool wheel = (raw & 64u) != 0;
     if (wheel) {
@@ -166,7 +166,7 @@ bool TerminalInput_feed(TerminalInput *self, int byte) {
             if (incoming < 32u)
                 noteMalformed(self);
             else {
-                (*self).values[(*self).rawCount] = (size_t) incoming - 32u;
+                (*self).values[(*self).rawCount] = (bytes) incoming - 32u;
                 if (++(*self).rawCount == TERMINAL_INPUT_X10_BYTES)
                     complete(self, (*self).values[0], (*self).values[1], (*self).values[2],
                              false, false);
@@ -181,7 +181,7 @@ bool TerminalInput_feed(TerminalInput *self, int byte) {
                     break;
                 }
                 (*self).values[(*self).field] =
-                    (*self).values[(*self).field] * 10u + (size_t) (incoming - '0');
+                    (*self).values[(*self).field] * 10u + (bytes) (incoming - '0');
                 ++(*self).digits;
             } else if (incoming == ';' && (*self).field < 2 && (*self).digits > 0) {
                 ++(*self).field;
@@ -221,7 +221,7 @@ bool TerminalInput_isPending(const TerminalInput *self) {
 TerminalInputState TerminalInput_getState(const TerminalInput *self) {
     return self != nullptr ? (*self).state : TERMINAL_INPUT_IDLE;
 }
-size_t TerminalInput_malformedCount(const TerminalInput *self) {
+bytes TerminalInput_malformedCount(const TerminalInput *self) {
     return self != nullptr ? (*self).malformed : 0;
 }
 void TerminalInput_clearMalformed(TerminalInput *self) {
@@ -234,7 +234,7 @@ void TerminalInput_reset(TerminalInput *self) {
         THROW("TerminalInput reset: null input");
         return;
     }
-    size_t malformed = (*self).malformed;
+    bytes malformed = (*self).malformed;
     *self = TerminalInput_0();
     (*self).malformed = malformed;   // reset reopens the decode, not the evidence
 }

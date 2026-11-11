@@ -35,8 +35,8 @@ static void testTextAreaEditing(void) {
     assert(TerminalTextArea_getCursorByte(area) < 6);
 
     // Render into canvas
-    uint32_t cells[20 * 5];
-    for (size_t i = 0; i < 20 * 5; ++i)
+    u32 cells[20 * 5];
+    for (bytes i = 0; i < 20 * 5; ++i)
         cells[i] = ' ';
     TerminalCanvas canvas = TerminalCanvas_4(cells, nullptr, 20, 5);
     TerminalTextArea_render(area, &canvas);

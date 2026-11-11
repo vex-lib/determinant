@@ -16,16 +16,16 @@ static void beginDiagnostics(void) {
     assert(savedStderr >= 0);
     assert(dup2(fileno(diagnostics), STDERR_FILENO) >= 0);
 }
-static void endDiagnostics(size_t expected, const char *fragment) {
+static void endDiagnostics(bytes expected, const char *fragment) {
     fflush(stderr);
     assert(dup2(savedStderr, STDERR_FILENO) >= 0);
     close(savedStderr);
     rewind(diagnostics);
     char text[8192];
-    size_t n = fread(text, 1, sizeof(text) - 1, diagnostics);
+    bytes n = fread(text, 1, sizeof(text) - 1, diagnostics);
     text[n] = 0;
-    size_t lines = 0;
-    for (size_t i = 0; i < n; ++i)
+    bytes lines = 0;
+    for (bytes i = 0; i < n; ++i)
         if (text[i] == '\n')
             ++lines;
     assert(lines == expected);

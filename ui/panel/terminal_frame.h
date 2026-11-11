@@ -8,7 +8,7 @@
 #include "ui/surface/terminal_canvas.h"
 #include "ui/surface/terminal_projection.h"
 #include "ui/image/terminal_image.h"
-#include "c23/constructor.h"
+#include "util/constructor.h"
 
 // ui/panel/terminal_frame.h — a bare region layout, no application semantics.
 //
@@ -37,54 +37,54 @@
 // A rule drawn between panels is CUT: it stops short of the panel's verticals
 // and may carry cut-endpoint glyphs ('╶','╴') so the line visibly ends.
 typedef struct TerminalRule {
-    uint32_t horizontal;  // horizontal run glyph (default '-')
-    uint32_t vertical;    // rail glyph (default '|')
-    uint32_t junction;    // where a rail meets a horizontal run (default '+')
-    uint32_t corner;      // rail top when there is no header run (default '+')
-    uint32_t stripe;      // alternate run glyph; 0 means no striping
-    size_t stripeEvery;   // period of the stripe (e.g. 4 => "---.")
+    u32 horizontal;  // horizontal run glyph (default '-')
+    u32 vertical;    // rail glyph (default '|')
+    u32 junction;    // where a rail meets a horizontal run (default '+')
+    u32 corner;      // rail top when there is no header run (default '+')
+    u32 stripe;      // alternate run glyph; 0 means no striping
+    bytes stripeEvery;   // period of the stripe (e.g. 4 => "---.")
     // Detached-box corners; 0 falls back to `corner`.
-    uint32_t cornerTopLeft, cornerTopRight, cornerBottomLeft, cornerBottomRight;
+    u32 cornerTopLeft, cornerTopRight, cornerBottomLeft, cornerBottomRight;
     // CUT endpoints for a rule that stops short (0 => a plain space).
-    uint32_t cutLeft, cutRight;
+    u32 cutLeft, cutRight;
 } TerminalRule;
-typedef struct TerminalFramePair { size_t first; size_t second; } TerminalFramePair;
-typedef struct TerminalFrameLayout { size_t left; size_t right; bool rails; } TerminalFrameLayout;
+typedef struct TerminalFramePair { bytes first; bytes second; } TerminalFramePair;
+typedef struct TerminalFrameLayout { bytes left; bytes right; bool rails; } TerminalFrameLayout;
 
 TerminalRule TerminalRule_0(void);                                    // connector, solid ASCII
-TerminalRule TerminalRule_2(uint32_t horizontal, uint32_t vertical);  // custom glyphs
-TerminalRule TerminalRule_4(uint32_t horizontal, uint32_t vertical, uint32_t stripe, size_t stripeEvery);
+TerminalRule TerminalRule_2(u32 horizontal, u32 vertical);  // custom glyphs
+TerminalRule TerminalRule_4(u32 horizontal, u32 vertical, u32 stripe, bytes stripeEvery);
 #define TerminalRule(...) CONSTRUCTOR_DISPATCH(TerminalRule, __VA_ARGS__)
 #define TerminalRule_zero() TerminalRule_0()
 
 // Draw one styled horizontal run into a canvas region row (app footer rules).
-void TerminalRule_draw(const TerminalRule *rule, TerminalCanvas *canvas, size_t ly, TerminalPen pen);
+void TerminalRule_draw(const TerminalRule *rule, TerminalCanvas *canvas, bytes ly, TerminalPen pen);
 // Draw ONE horizontal run that is CUT: inset from both edges of the region and
 // terminated with the cut-endpoint glyphs, so it stops short the way a panel
 // divider does. `inset` is the blank margin inside each edge (0 => touching).
-void TerminalRule_drawCut(const TerminalRule *rule, TerminalCanvas *canvas, size_t ly,
-                          size_t inset, TerminalPen pen);
+void TerminalRule_drawCut(const TerminalRule *rule, TerminalCanvas *canvas, bytes ly,
+                          bytes inset, TerminalPen pen);
 // Draw a DETACHED box around the whole canvas region: its own corners, its own
 // verticals, never joined to a neighbour.
 void TerminalRule_drawBox(const TerminalRule *rule, TerminalCanvas *canvas, TerminalPen pen);
 
 typedef struct TerminalFrame {
-    size_t leftWidth;    // requested left-column width
-    size_t rightWidth;   // requested right-column width
-    size_t headerRows;   // top band rows (0 => none); the rule sits on the last
-    size_t footerRows;   // bottom band rows under the centre column (0 => none)
+    bytes leftWidth;    // requested left-column width
+    bytes rightWidth;   // requested right-column width
+    bytes headerRows;   // top band rows (0 => none); the rule sits on the last
+    bytes footerRows;   // bottom band rows under the centre column (0 => none)
     const TerminalImage *background;   // borrowed, nullable
     TerminalRule rule;   // connector glyph set used by drawRules
 } TerminalFrame;
 
 TerminalFrame TerminalFrame_0(void);
-TerminalFrame TerminalFrame_2(size_t leftWidth, size_t rightWidth);
+TerminalFrame TerminalFrame_2(bytes leftWidth, bytes rightWidth);
 #define TerminalFrame(...) CONSTRUCTOR_DISPATCH(TerminalFrame, __VA_ARGS__)
 #define TerminalFrame_zero() TerminalFrame_0()
 
-bool TerminalFrame_setRails(TerminalFrame *self, size_t leftWidth, size_t rightWidth);
+bool TerminalFrame_setRails(TerminalFrame *self, bytes leftWidth, bytes rightWidth);
 TerminalFramePair TerminalFrame_getRails(const TerminalFrame *self);
-bool TerminalFrame_setBands(TerminalFrame *self, size_t headerRows, size_t footerRows);
+bool TerminalFrame_setBands(TerminalFrame *self, bytes headerRows, bytes footerRows);
 TerminalFramePair TerminalFrame_getBands(const TerminalFrame *self);
 bool TerminalFrame_setBackground(TerminalFrame *self, const TerminalImage *image);
 const TerminalImage *TerminalFrame_getBackground(const TerminalFrame *self);

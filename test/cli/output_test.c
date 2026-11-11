@@ -3,8 +3,8 @@
 #include "cli/output.h"
 #include <assert.h>
 #include <string.h>
-static bool output(void *hostContext, const char *text, size_t length) {
-    size_t *received = hostContext;
+static bool output(void *hostContext, const char *text, bytes length) {
+    bytes *received = hostContext;
     if (length == 0)
         return false;
     assert(memcmp(text, "abc", length) == 0);
@@ -12,7 +12,7 @@ static bool output(void *hostContext, const char *text, size_t length) {
     return true;
 }
 int main(void) {
-    size_t received = 0;
+    bytes received = 0;
     DeterminantOutputFn fn = output;
     assert(fn(&received, "abc", 3) && received == 3);
     assert(!fn(&received, nullptr, 0) && received == 3);

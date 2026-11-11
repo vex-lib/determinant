@@ -69,7 +69,7 @@ bool LogCommands_stat(const char *path, DeterminantOutputFn output, void *hostCo
     int n = snprintf(text, sizeof(text), "log: records=%lld bytes=%lld payload=%lld",
         (long long) ((bytes - LOGPARSER_HEADER_BYTES) / LOGPARSER_RECORD_BYTES),
         (long long) bytes, (long long) (bytes - LOGPARSER_HEADER_BYTES));
-    if (n < 0 || (size_t) n >= sizeof(text) || !output(hostContext, text, (size_t) n)) {
+    if (n < 0 || (bytes) n >= sizeof(text) || !output(hostContext, text, (bytes) n)) {
         THROW("LogCommands stat: formatting or sink failure");
         return false;
     }
@@ -85,7 +85,7 @@ static void catHandler(void *context, int kind, int64_t ts, int64_t v0, int64_t 
     int n = snprintf(text, sizeof(text), "timestamp=%lld kind=%d values=%lld %lld %lld %lld %lld",
         (long long) ts, kind, (long long) v0, (long long) v1, (long long) v2,
         (long long) v3, (long long) v4);
-    if (n < 0 || (size_t) n >= sizeof(text) || !(*cat).output((*cat).hostContext, text, (size_t) n)) {
+    if (n < 0 || (bytes) n >= sizeof(text) || !(*cat).output((*cat).hostContext, text, (bytes) n)) {
         (*cat).failed = true;
         return;
     }
@@ -104,7 +104,7 @@ bool LogCommands_cat(const char *path, int limit, DeterminantOutputFn output, vo
     if (cat.shown < cat.total) {
         char text[64];
         int n = snprintf(text, sizeof(text), "(%lld more)", (long long) (cat.total - cat.shown));
-        if (n < 0 || (size_t) n >= sizeof(text) || !output(hostContext, text, (size_t) n)) {
+        if (n < 0 || (bytes) n >= sizeof(text) || !output(hostContext, text, (bytes) n)) {
             THROW("LogCommands cat: tail sink failure");
             return false;
         }

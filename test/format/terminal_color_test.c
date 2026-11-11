@@ -23,7 +23,7 @@
 
 int main(void) {
     // --- The vocabulary itself: channel order, and the sentinel ---
-    uint32_t packed = TERMINAL_RGBA(0x12, 0x34, 0x56, 0x78);
+    u32 packed = TERMINAL_RGBA(0x12, 0x34, 0x56, 0x78);
     assert(TERMINAL_COLOR_RED(packed) == 0x12u);
     assert(TERMINAL_COLOR_GREEN(packed) == 0x34u);
     assert(TERMINAL_COLOR_BLUE(packed) == 0x56u);
@@ -73,16 +73,16 @@ int main(void) {
     // --- A real fade always comes out opaque ---
     // This is what makes the result safe for a device with no alpha channel: there is
     // nothing left to composite after this call.
-    for (uint32_t alpha = 0x01u; alpha < 0xFFu; ++alpha) {
-        uint32_t blended = TerminalColor_over(TERMINAL_RGBA(0x20, 0x60, 0xA0, alpha), OPAQUE_BLACK);
+    for (u32 alpha = 0x01u; alpha < 0xFFu; ++alpha) {
+        u32 blended = TerminalColor_over(TERMINAL_RGBA(0x20, 0x60, 0xA0, alpha), OPAQUE_BLACK);
         assert(TERMINAL_COLOR_ALPHA(blended) == 0xFFu);
     }
 
     // --- Monotone travel, and an exact landing at both ends ---
-    uint32_t previous = 0u;
-    for (uint32_t alpha = 0x00u; alpha <= 0xFFu; ++alpha) {
-        uint32_t blended = TerminalColor_over(TERMINAL_RGBA(0xFF, 0xFF, 0xFF, alpha), OPAQUE_BLACK);
-        uint32_t red = TERMINAL_COLOR_RED(blended);
+    u32 previous = 0u;
+    for (u32 alpha = 0x00u; alpha <= 0xFFu; ++alpha) {
+        u32 blended = TerminalColor_over(TERMINAL_RGBA(0xFF, 0xFF, 0xFF, alpha), OPAQUE_BLACK);
+        u32 red = TERMINAL_COLOR_RED(blended);
         assert(red >= previous);                       // never goes backwards
         assert(TERMINAL_COLOR_RED(blended) == TERMINAL_COLOR_GREEN(blended)
                && TERMINAL_COLOR_GREEN(blended) == TERMINAL_COLOR_BLUE(blended));
@@ -93,18 +93,18 @@ int main(void) {
     // --- Re-compositing an opaque result does not drift ---
     // A composite becomes the backdrop for the next layer (a faded highlight, then ink
     // over it), and that must be a fixed point rather than a slow decay.
-    uint32_t band = TerminalColor_over(TERMINAL_RGBA(0x7A, 0xC8, 0xFF, 0x38), OPAQUE_BLACK);
+    u32 band = TerminalColor_over(TERMINAL_RGBA(0x7A, 0xC8, 0xFF, 0x38), OPAQUE_BLACK);
     assert(TerminalColor_over(band, OPAQUE_BLACK) == band);
     assert(TerminalColor_over(TERMINAL_COLOR_DEFAULT, band) == band);
     // Ink over the band is not the ink on its own: the layering is real.
-    uint32_t ink = TerminalColor_over(TERMINAL_RGBA(0xE6, 0xE6, 0xE6, 0x80), band);
+    u32 ink = TerminalColor_over(TERMINAL_RGBA(0xE6, 0xE6, 0xE6, 0x80), band);
     assert(ink != band && TERMINAL_COLOR_ALPHA(ink) == 0xFFu);
 
     // --- A fade toward a light backdrop moves toward that backdrop ---
     // The same translucent colour lands light on a light theme and dark on a dark one,
     // which is the whole reason a fade is worth writing down instead of a fixed grey.
-    uint32_t onDark = TerminalColor_over(TERMINAL_RGBA(0xAA, 0xAA, 0xC4, 0x7A), OPAQUE_BLACK);
-    uint32_t onLight = TerminalColor_over(TERMINAL_RGBA(0xAA, 0xAA, 0xC4, 0x7A), OPAQUE_WHITE);
+    u32 onDark = TerminalColor_over(TERMINAL_RGBA(0xAA, 0xAA, 0xC4, 0x7A), OPAQUE_BLACK);
+    u32 onLight = TerminalColor_over(TERMINAL_RGBA(0xAA, 0xAA, 0xC4, 0x7A), OPAQUE_WHITE);
     assert(TERMINAL_COLOR_RED(onLight) > TERMINAL_COLOR_RED(onDark));
     assert(TERMINAL_COLOR_BLUE(onLight) > TERMINAL_COLOR_BLUE(onDark));
     return 0;

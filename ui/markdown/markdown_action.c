@@ -19,16 +19,16 @@
  * action has no target and no block.
  * ============================================================================ */
 
-size_t TerminalMarkdownAction_iconColumn(size_t width, size_t glyphCells) {
+bytes TerminalMarkdownAction_iconColumn(bytes width, bytes glyphCells) {
     if (glyphCells == 0 || width < glyphCells + 1u)
         return 0;
     return width - glyphCells - 1u;
 }
 
-bool TerminalMarkdownAction_iconHit(size_t width, size_t column, size_t glyphCells) {
+bool TerminalMarkdownAction_iconHit(bytes width, bytes column, bytes glyphCells) {
     if (glyphCells == 0 || width < glyphCells + 1u)
         return false;
-    size_t start = TerminalMarkdownAction_iconColumn(width, glyphCells);
+    bytes start = TerminalMarkdownAction_iconColumn(width, glyphCells);
     return column >= start && column < start + glyphCells;
 }
 

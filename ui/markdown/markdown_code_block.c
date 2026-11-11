@@ -16,9 +16,9 @@
  * CLASS: TerminalMarkdownCodeBlockPool (ui/markdown/markdown_code_block.c)
  * STRUCT FIELDS
  *   TerminalMarkdownCodeBlock *blocks  owned record pool
- *   size_t count                       live records
- *   size_t capacity                    admitted slots
- *   size_t refusals                    cold growth refusals in this epoch
+ *   bytes count                       live records
+ *   bytes capacity                    admitted slots
+ *   bytes refusals                    cold growth refusals in this epoch
  * FUNCTION REGISTRY (exports)
  * Lifecycle: TerminalMarkdownCodeBlockPool_0/free/reset
  * Add:       TerminalMarkdownCodeBlockPool_add(...)
@@ -36,13 +36,13 @@
 
 struct TerminalMarkdownCodeBlockPool {
     TerminalMarkdownCodeBlock *blocks;
-    size_t count;
-    size_t capacity;
-    size_t refusals;
+    bytes count;
+    bytes capacity;
+    bytes refusals;
 };
 
 static bool grow(TerminalMarkdownCodeBlockPool *self) {
-    size_t next = (*self).capacity == 0 ? CODE_BLOCK_POOL_DEFAULT : (*self).capacity * 2u;
+    bytes next = (*self).capacity == 0 ? CODE_BLOCK_POOL_DEFAULT : (*self).capacity * 2u;
     if (next < (*self).capacity || next > CODE_BLOCK_POOL_LIMIT
         || next > SIZE_MAX / sizeof(TerminalMarkdownCodeBlock)) {
         ++(*self).refusals;
@@ -87,9 +87,9 @@ void TerminalMarkdownCodeBlockPool_reset(TerminalMarkdownCodeBlockPool *self) {
 }
 
 bool TerminalMarkdownCodeBlockPool_add(TerminalMarkdownCodeBlockPool *self,
-                                       size_t firstRow, size_t rowCount,
-                                       size_t firstSourceLine, size_t sourceLineCount,
-                                       size_t quoteDepth) {
+                                       bytes firstRow, bytes rowCount,
+                                       bytes firstSourceLine, bytes sourceLineCount,
+                                       bytes quoteDepth) {
     if (self == nullptr)
         return false;
     if (rowCount == 0)
@@ -103,22 +103,22 @@ bool TerminalMarkdownCodeBlockPool_add(TerminalMarkdownCodeBlockPool *self,
     return true;
 }
 
-size_t TerminalMarkdownCodeBlockPool_count(const TerminalMarkdownCodeBlockPool *self) {
+bytes TerminalMarkdownCodeBlockPool_count(const TerminalMarkdownCodeBlockPool *self) {
     return self != nullptr ? (*self).count : 0u;
 }
 
-size_t TerminalMarkdownCodeBlockPool_exhaustionCount(const TerminalMarkdownCodeBlockPool *self) {
+bytes TerminalMarkdownCodeBlockPool_exhaustionCount(const TerminalMarkdownCodeBlockPool *self) {
     return self != nullptr ? (*self).refusals : 0u;
 }
 
 bool TerminalMarkdownCodeBlockPool_indexAt(const TerminalMarkdownCodeBlockPool *self,
-                                           size_t row, size_t *index) {
+                                           bytes row, bytes *index) {
     if (self == nullptr)
         return false;
-    size_t low = 0;
-    size_t high = (*self).count;
+    bytes low = 0;
+    bytes high = (*self).count;
     while (low < high) {
-        size_t mid = low + (high - low) / 2u;
+        bytes mid = low + (high - low) / 2u;
         const TerminalMarkdownCodeBlock *block = &(*self).blocks[mid];
         if (row < (*block).firstRow) {
             high = mid;
@@ -136,7 +136,7 @@ bool TerminalMarkdownCodeBlockPool_indexAt(const TerminalMarkdownCodeBlockPool *
 }
 
 TerminalMarkdownCodeBlock TerminalMarkdownCodeBlockPool_at(const TerminalMarkdownCodeBlockPool *self,
-                                                           size_t index) {
+                                                           bytes index) {
     TerminalMarkdownCodeBlock none = {0};
     if (self == nullptr || index >= (*self).count)
         return none;
@@ -145,9 +145,9 @@ TerminalMarkdownCodeBlock TerminalMarkdownCodeBlockPool_at(const TerminalMarkdow
 
 // Byte offset just past `depth` `>` gutters, or SIZE_MAX when the line does not
 // carry them. One optional space after each `>` belongs to the gutter.
-static size_t quoteContentStart(const char *line, size_t length, size_t depth) {
-    size_t at = 0;
-    for (size_t level = 0; level < depth; ++level) {
+static bytes quoteContentStart(const char *line, bytes length, bytes depth) {
+    bytes at = 0;
+    for (bytes level = 0; level < depth; ++level) {
         if (at >= length || line[at] != '>')
             return SIZE_MAX;
         ++at;
@@ -157,19 +157,19 @@ static size_t quoteContentStart(const char *line, size_t length, size_t depth) {
     return at;
 }
 
-static bool contentLine(const char *const *lines, size_t lineCount,
-                        TerminalMarkdownCodeBlock block, size_t line,
-                        const char **text, size_t *length) {
+static bool contentLine(const char *const *lines, bytes lineCount,
+                        TerminalMarkdownCodeBlock block, bytes line,
+                        const char **text, bytes *length) {
     if (lines == nullptr || !block.valid || line >= block.sourceLineCount)
         return false;
     if (block.firstSourceLine > SIZE_MAX - line)
         return false;
-    size_t sourceLine = block.firstSourceLine + line;
+    bytes sourceLine = block.firstSourceLine + line;
     if (sourceLine >= lineCount)
         return false;
     const char *bytes = lines[sourceLine];
-    size_t total = strlen(bytes);
-    size_t start = 0;
+    bytes total = strlen(bytes);
+    bytes start = 0;
     if (block.quoteDepth != 0) {
         start = quoteContentStart(bytes, total, block.quoteDepth);
         if (start == SIZE_MAX)
@@ -183,12 +183,12 @@ static bool contentLine(const char *const *lines, size_t lineCount,
 }
 
 TerminalMarkdownCodeLine TerminalMarkdownCodeBlock_lineOf(const char *const *lines,
-                                                          size_t lineCount,
+                                                          bytes lineCount,
                                                           TerminalMarkdownCodeBlock block,
-                                                          size_t line) {
+                                                          bytes line) {
     TerminalMarkdownCodeLine none = {0};
     const char *text = nullptr;
-    size_t length = 0;
+    bytes length = 0;
     if (!contentLine(lines, lineCount, block, line, &text, &length))
         return none;
     return (TerminalMarkdownCodeLine) { true, text, length };
@@ -196,17 +196,17 @@ TerminalMarkdownCodeLine TerminalMarkdownCodeBlock_lineOf(const char *const *lin
 
 TerminalMarkdownCodeLine TerminalMarkdownCodeBlockPool_line(const TerminalMarkdownCodeBlockPool *self,
                                                             const char *const *lines,
-                                                            size_t lineCount, size_t index,
-                                                            size_t line) {
+                                                            bytes lineCount, bytes index,
+                                                            bytes line) {
     if (self == nullptr || index >= (*self).count)
         return (TerminalMarkdownCodeLine) {0};
     return TerminalMarkdownCodeBlock_lineOf(lines, lineCount, (*self).blocks[index], line);
 }
 
 bool TerminalMarkdownCodeBlockPool_copy(const TerminalMarkdownCodeBlockPool *self,
-                                        const char *const *lines, size_t lineCount,
-                                        size_t index, char *dest, size_t capacity,
-                                        size_t *written) {
+                                        const char *const *lines, bytes lineCount,
+                                        bytes index, char *dest, bytes capacity,
+                                        bytes *written) {
     if (written != nullptr)
         *written = 0;
     if (self == nullptr || dest == nullptr || capacity == 0 || index >= (*self).count)
@@ -218,10 +218,10 @@ bool TerminalMarkdownCodeBlockPool_copy(const TerminalMarkdownCodeBlockPool *sel
         dest[0] = '\0';
         return true;
     }
-    size_t total = 0;
-    for (size_t line = 0; line < (*block).sourceLineCount; ++line) {
+    bytes total = 0;
+    for (bytes line = 0; line < (*block).sourceLineCount; ++line) {
         const char *text = nullptr;
-        size_t length = 0;
+        bytes length = 0;
         if (!contentLine(lines, lineCount, *block, line, &text, &length))
             return false;
         if (length > SIZE_MAX - total - 1u)
@@ -230,10 +230,10 @@ bool TerminalMarkdownCodeBlockPool_copy(const TerminalMarkdownCodeBlockPool *sel
     }
     if (total > capacity)       // total includes the last newline, which the
         return false;           // terminator below replaces
-    size_t at = 0;
-    for (size_t line = 0; line < (*block).sourceLineCount; ++line) {
+    bytes at = 0;
+    for (bytes line = 0; line < (*block).sourceLineCount; ++line) {
         const char *text = nullptr;
-        size_t length = 0;
+        bytes length = 0;
         if (!contentLine(lines, lineCount, *block, line, &text, &length))
             return false;
         if (length != 0)

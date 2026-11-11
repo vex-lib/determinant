@@ -11,7 +11,7 @@
 #include <signal.h>
 
 ;;DEFINITION
-/** The canonical terminal application runner. Owns the double-buffered cell planes,
+/** The canonical terminal application runner. Owns the d64-buffered cell planes,
  * drives the TerminalSurface diffing pipeline, coordinates with TerminalCompositor
  * for synchronized atomic ANSI flushes, and translates TTY or caller-fed input.
  *
@@ -27,15 +27,15 @@
  * TerminalCompositor *compositor          owned output flusher
  * TerminalSurface *surface                owned last-paint presenter
  * TerminalInput input                     mouse input decoder
- * size_t width, height                    grid dimensions in cells
- * size_t capacity                         allocated cell capacity
- * uint32_t *backCells, *frontCells        glyph planes
- * uint16_t *backStyles, *frontStyles      attribute planes
- * uint32_t *backFg, *frontFg              foreground color planes
- * uint32_t *backBg, *frontBg              background color planes
+ * bytes width, height                    grid dimensions in cells
+ * bytes capacity                         allocated cell capacity
+ * u32 *backCells, *frontCells        glyph planes
+ * u16 *backStyles, *frontStyles      attribute planes
+ * u32 *backFg, *frontFg              foreground color planes
+ * u32 *backBg, *frontBg              background color planes
  * bool running                            main loop flag
  * bool headless                           offline testing flag
- * size_t frameCount                       rendered frame count
+ * bytes frameCount                       rendered frame count
  * ======================================================================== */
 
 static volatile sig_atomic_t gSignalQuit = 0;
@@ -75,17 +75,17 @@ static void freePlanes(TerminalApp *self) {
     (*self).capacity = 0u;
 }
 
-static bool allocatePlanes(TerminalApp *self, size_t count) {
+static bool allocatePlanes(TerminalApp *self, bytes count) {
     freePlanes(self);
-    (*self).backCells = (uint32_t*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(uint32_t));
-    (*self).backStyles = (uint16_t*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(uint16_t));
-    (*self).backFg = (uint32_t*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(uint32_t));
-    (*self).backBg = (uint32_t*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(uint32_t));
+    (*self).backCells = (u32*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u32));
+    (*self).backStyles = (u16*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u16));
+    (*self).backFg = (u32*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u32));
+    (*self).backBg = (u32*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u32));
 
-    (*self).frontCells = (uint32_t*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(uint32_t));
-    (*self).frontStyles = (uint16_t*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(uint16_t));
-    (*self).frontFg = (uint32_t*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(uint32_t));
-    (*self).frontBg = (uint32_t*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(uint32_t));
+    (*self).frontCells = (u32*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u32));
+    (*self).frontStyles = (u16*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u16));
+    (*self).frontFg = (u32*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u32));
+    (*self).frontBg = (u32*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u32));
 
     if ((*self).backCells == nullptr || (*self).backStyles == nullptr
         || (*self).backFg == nullptr || (*self).backBg == nullptr
@@ -96,7 +96,7 @@ static bool allocatePlanes(TerminalApp *self, size_t count) {
     }
 
     (*self).capacity = count;
-    for (size_t i = 0u; i < count; ++i) {
+    for (bytes i = 0u; i < count; ++i) {
         (*self).backCells[i] = ' ';
         (*self).backStyles[i] = 0u;
         (*self).backFg[i] = TERMINAL_COLOR_DEFAULT;
@@ -218,7 +218,7 @@ TerminalCompositor *TerminalApp_getCompositor(const TerminalApp *self) {
     return self != nullptr ? (*self).compositor : nullptr;
 }
 
-bool TerminalApp_resize(TerminalApp *self, size_t width, size_t height) {
+bool TerminalApp_resize(TerminalApp *self, bytes width, bytes height) {
     if (self == nullptr || width == 0u || height == 0u)
         return false;
     if ((*self).width == width && (*self).height == height && (*self).capacity >= width * height)
@@ -238,11 +238,11 @@ bool TerminalApp_resize(TerminalApp *self, size_t width, size_t height) {
     return true;
 }
 
-size_t TerminalApp_getWidth(const TerminalApp *self) {
+bytes TerminalApp_getWidth(const TerminalApp *self) {
     return self != nullptr ? (*self).width : 0u;
 }
 
-size_t TerminalApp_getHeight(const TerminalApp *self) {
+bytes TerminalApp_getHeight(const TerminalApp *self) {
     return self != nullptr ? (*self).height : 0u;
 }
 
@@ -263,11 +263,11 @@ bool TerminalApp_step(TerminalApp *self) {
     return true;
 }
 
-bool TerminalApp_feedInput(TerminalApp *self, const char *bytes, size_t length) {
+bool TerminalApp_feedInput(TerminalApp *self, const char *bytes, bytes length) {
     if (self == nullptr || bytes == nullptr || length == 0u)
         return false;
-    for (size_t i = 0u; i < length; ++i)
-        TerminalInput_feed(&(*self).input, (uint8_t) bytes[i]);
+    for (bytes i = 0u; i < length; ++i)
+        TerminalInput_feed(&(*self).input, (u8) bytes[i]);
     return true;
 }
 
@@ -333,7 +333,7 @@ int TerminalApp_run(TerminalApp *self) {
     while ((*self).running && !gSignalQuit) {
         struct winsize ws;
         if (ioctl(STDIN_FILENO, TIOCGWINSZ, &ws) == 0 && ws.ws_col > 0 && ws.ws_row > 0)
-            TerminalApp_resize(self, (size_t) ws.ws_col, (size_t) ws.ws_row);
+            TerminalApp_resize(self, (bytes) ws.ws_col, (bytes) ws.ws_row);
 
         TerminalApp_step(self);
 
@@ -345,7 +345,7 @@ int TerminalApp_run(TerminalApp *self) {
                 if (inputBuf[i] == 3)
                     (*self).running = false;
             }
-            TerminalApp_feedInput(self, inputBuf, (size_t) bytesRead);
+            TerminalApp_feedInput(self, inputBuf, (bytes) bytesRead);
         }
     }
 

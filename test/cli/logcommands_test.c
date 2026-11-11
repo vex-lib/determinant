@@ -6,9 +6,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 static char captured[1024];
-static size_t used;
+static bytes used;
 static bool fail;
-static bool sink(void *context, const char *text, size_t length) {
+static bool sink(void *context, const char *text, bytes length) {
     assert(context == &used);
     if (fail)
         return false;
@@ -23,7 +23,7 @@ int main(void) {
     const char *tmp = getenv("TMPDIR");
     assert(tmp != nullptr);
     int n = snprintf(path, sizeof(path), "%s/determinant-log-XXXXXX", tmp);
-    assert(n > 0 && (size_t) n < sizeof(path));
+    assert(n > 0 && (bytes) n < sizeof(path));
     int fd = mkstemp(path);
     assert(fd >= 0);
     FILE *file = fdopen(fd, "wb");

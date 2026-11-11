@@ -17,26 +17,26 @@
  * CLASS: Terminal (ui/surface/terminal.c)
  * STRUCT FIELDS (Mirroring ui/surface/terminal.h)
  * char *cells                    borrowed contiguous cell backing
- * size_t capacity                admitted backing bytes
- * size_t width                   columns (cells)
- * size_t height                  rows (cells)
+ * bytes capacity                admitted backing bytes
+ * bytes width                   columns (cells)
+ * bytes height                  rows (cells)
  * DeterminantOutputFn output      borrowed host sink
  * void *hostContext              opaque resident sink state
  * void *residentState            opaque resident consumer state
  * TerminalModule module          borrowed reloadable exports
- * uint64_t generation            successful export publications
- * size_t refusalCount            epoch text capacity refusals
+ * u64 generation            successful export publications
+ * bytes refusalCount            epoch text capacity refusals
  * bool paused                    new module admission disabled
  * bool active                    current callback exclusion
  * SLOT RECORD: TerminalModule
- * uint32_t abi                   explicit export ABI identity
+ * u32 abi                   explicit export ABI identity
  * TerminalViewFn view            borrowed render callback
  * TerminalCommandFn command      borrowed command callback
  * TerminalKey: normalized host key vocabulary (enum, no owned state)
  * FUNCTION REGISTRY (exports)
  * Constructor: Terminal Terminal_0(void) [zero/arity chooser]
- * Admission: bool Terminal_bind(Terminal *self, char *cells, size_t capacity,
- *     size_t width, size_t height, DeterminantOutputFn output, void *hostContext)
+ * Admission: bool Terminal_bind(Terminal *self, char *cells, bytes capacity,
+ *     bytes width, bytes height, DeterminantOutputFn output, void *hostContext)
  * Configuration: bool Terminal_setOutput(Terminal *self,
  *     DeterminantOutputFn output, void *hostContext)
  * Lifecycle: bool Terminal_pause(Terminal *self)
@@ -44,20 +44,20 @@
  * Reload: bool Terminal_swap(Terminal *self, TerminalModule module,
  *     void *residentState)
  * Dispatch: bool Terminal_render(Terminal *self)
- *   bool Terminal_command(Terminal *self, const char *text, size_t length)
- * Cells: bool Terminal_text(Terminal *self, size_t x, size_t y,
- *     const char *text, size_t length)
+ *   bool Terminal_command(Terminal *self, const char *text, bytes length)
+ * Cells: bool Terminal_text(Terminal *self, bytes x, bytes y,
+ *     const char *text, bytes length)
  *   bool Terminal_clear(Terminal *self), Terminal_present(Terminal *self)
  * Queries: DeterminantOutputFn Terminal_getOutput(const Terminal *self)
  *   void *Terminal_getHostContext(const Terminal *self)
  *   void *Terminal_getResidentState(const Terminal *self)
  *   const char *Terminal_getCells(const Terminal *self)
  *   TerminalModule Terminal_getModule(const Terminal *self)
- *   size_t Terminal_getWidth(const Terminal *self)
- *   size_t Terminal_getHeight(const Terminal *self)
- *   size_t Terminal_getCapacity(const Terminal *self)
- *   uint64_t Terminal_getGeneration(const Terminal *self)
- *   size_t Terminal_exhaustionCount(const Terminal *self)
+ *   bytes Terminal_getWidth(const Terminal *self)
+ *   bytes Terminal_getHeight(const Terminal *self)
+ *   bytes Terminal_getCapacity(const Terminal *self)
+ *   u64 Terminal_getGeneration(const Terminal *self)
+ *   bytes Terminal_exhaustionCount(const Terminal *self)
  *   bool Terminal_isPaused(const Terminal *self), Terminal_isActive(const Terminal *self)
  * Projections: TerminalProjection Terminal_toString/toStringStruct(self)
  * CONTRACT: null query defaults; cold invalid operations THROW once; hot
@@ -72,7 +72,7 @@
  * ======================================================================== */
 ;;INTENTION("per the Conflict Triage Law: geometry, backing, callback generation and admission change through lifecycle, not setters forging ownership")
 Terminal Terminal_0(void) { return (Terminal) {.paused = true}; }
-bool Terminal_bind(Terminal *self, char *cells, size_t capacity, size_t width, size_t height,
+bool Terminal_bind(Terminal *self, char *cells, bytes capacity, bytes width, bytes height,
                    DeterminantOutputFn output, void *hostContext) {
     if (self == nullptr || (*self).active || !(*self).paused || cells == nullptr || output == nullptr
         || width == 0 || height == 0 || height > SIZE_MAX / width || width * height > capacity) {
@@ -138,12 +138,12 @@ bool Terminal_render(Terminal *self) {
         THROW("Terminal render: view rejected");
     return ok;
 }
-bool Terminal_command(Terminal *self, const char *text, size_t length) {
+bool Terminal_command(Terminal *self, const char *text, bytes length) {
     if (self == nullptr || (*self).paused || (*self).active || (text == nullptr && length != 0)) {
         THROW("Terminal command: invalid span, paused or busy");
         return false;
     }
-    for (size_t i = 0; i < length; ++i)
+    for (bytes i = 0; i < length; ++i)
         if ((unsigned char) text[i] < 32 || (unsigned char) text[i] >= 127) {
             THROW("Terminal command: invalid ASCII byte at %zu", i);
             return false;
@@ -156,7 +156,7 @@ bool Terminal_command(Terminal *self, const char *text, size_t length) {
         THROW("Terminal command: callback rejected");
     return ok;
 }
-bool Terminal_text(Terminal *self, size_t x, size_t y, const char *text, size_t length) {
+bool Terminal_text(Terminal *self, bytes x, bytes y, const char *text, bytes length) {
     if (self == nullptr || (*self).cells == nullptr || (text == nullptr && length != 0)) {
         THROW("Terminal text: invalid backing/span");
         return false;
@@ -168,7 +168,7 @@ bool Terminal_text(Terminal *self, size_t x, size_t y, const char *text, size_t 
             ++(*self).refusalCount;
         return false;
     }
-    for (size_t i = 0; i < length; ++i)
+    for (bytes i = 0; i < length; ++i)
         if ((unsigned char) text[i] < 32 || (unsigned char) text[i] >= 127) {
             THROW("Terminal text: invalid ASCII byte at %zu", i);
             return false;
@@ -193,11 +193,11 @@ bool Terminal_present(Terminal *self) {
 }
 DeterminantOutputFn Terminal_getOutput(const Terminal *self) { return self ? (*self).output : nullptr; }
 void *Terminal_getHostContext(const Terminal *self) { return self ? (*self).hostContext : nullptr; }
-size_t Terminal_getWidth(const Terminal *self) { return self ? (*self).width : 0; }
-size_t Terminal_getHeight(const Terminal *self) { return self ? (*self).height : 0; }
-size_t Terminal_getCapacity(const Terminal *self) { return self ? (*self).capacity : 0; }
-uint64_t Terminal_getGeneration(const Terminal *self) { return self ? (*self).generation : 0; }
-size_t Terminal_exhaustionCount(const Terminal *self) { return self ? (*self).refusalCount : 0; }
+bytes Terminal_getWidth(const Terminal *self) { return self ? (*self).width : 0; }
+bytes Terminal_getHeight(const Terminal *self) { return self ? (*self).height : 0; }
+bytes Terminal_getCapacity(const Terminal *self) { return self ? (*self).capacity : 0; }
+u64 Terminal_getGeneration(const Terminal *self) { return self ? (*self).generation : 0; }
+bytes Terminal_exhaustionCount(const Terminal *self) { return self ? (*self).refusalCount : 0; }
 bool Terminal_isPaused(const Terminal *self) { return self && (*self).paused; }
 bool Terminal_isActive(const Terminal *self) { return self && (*self).active; }
 const char *Terminal_getCells(const Terminal *self) { return self ? (*self).cells : nullptr; }

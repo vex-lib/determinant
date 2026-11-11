@@ -115,8 +115,8 @@ static void testCanvasRendering(void) {
     TerminalCodeEditor *editor = TerminalCodeEditor("alpha\nbeta");
     assert(editor != nullptr);
 
-    uint32_t cells[30 * 4];
-    for (size_t i = 0u; i < 30u * 4u; ++i)
+    u32 cells[30 * 4];
+    for (bytes i = 0u; i < 30u * 4u; ++i)
         cells[i] = ' ';
     TerminalCanvas canvas = TerminalCanvas_4(cells, nullptr, 30u, 4u);
 

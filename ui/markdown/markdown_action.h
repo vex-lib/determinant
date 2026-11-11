@@ -28,16 +28,16 @@ typedef enum TerminalMarkdownActionKind {
 typedef struct TerminalMarkdownAction {
     TerminalMarkdownActionKind kind;
     const char *target;    // borrowed link target (LINK only)
-    size_t targetLength;
-    size_t block;          // code-block index (COPY_CODE only)
+    bytes targetLength;
+    bytes block;          // code-block index (COPY_CODE only)
 } TerminalMarkdownAction;
 
 // First column of the copy glyph on a row `width` cells wide, leaving one cell
 // of right margin. Zero when the row cannot hold the glyph.
-size_t TerminalMarkdownAction_iconColumn(size_t width, size_t glyphCells);
+bytes TerminalMarkdownAction_iconColumn(bytes width, bytes glyphCells);
 
 // True when `column` lands on the copy glyph of a `width`-cell row.
-bool TerminalMarkdownAction_iconHit(size_t width, size_t column, size_t glyphCells);
+bool TerminalMarkdownAction_iconHit(bytes width, bytes column, bytes glyphCells);
 
 TerminalProjection TerminalMarkdownAction_toString(TerminalMarkdownAction action);
 TerminalProjection TerminalMarkdownAction_toStringStruct(TerminalMarkdownAction action);

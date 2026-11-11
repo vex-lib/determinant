@@ -7,7 +7,7 @@
 
 #include "ui/surface/terminal_canvas.h"
 #include "ui/surface/terminal_projection.h"
-#include "c23/constructor.h"
+#include "util/constructor.h"
 
 // ui/surface/terminal_surface.h — the LAST-PAINT presenter.
 //
@@ -38,13 +38,13 @@
 //
 // SLOT RECORD: TerminalRun (no behaviour of its own; owned by TerminalSurface)
 typedef struct TerminalRun {
-    size_t x;               // absolute left column
-    size_t y;               // absolute row
-    size_t length;          // cells in this run (>= 1)
-    const uint32_t *cells;  // borrowed glyph codepoints at the first cell
-    const uint16_t *styles; // borrowed style flags at the first cell (nullable)
-    const uint32_t *fg;     // borrowed foreground at the first cell (nullable)
-    const uint32_t *bg;     // borrowed background at the first cell (nullable)
+    bytes x;               // absolute left column
+    bytes y;               // absolute row
+    bytes length;          // cells in this run (>= 1)
+    const u32 *cells;  // borrowed glyph codepoints at the first cell
+    const u16 *styles; // borrowed style flags at the first cell (nullable)
+    const u32 *fg;     // borrowed foreground at the first cell (nullable)
+    const u32 *bg;     // borrowed background at the first cell (nullable)
 } TerminalRun;
 
 // A present is a TRANSACTION. The host is told when one opens and when it closes, so
@@ -83,9 +83,9 @@ typedef struct TerminalPresentResult {
     bool ok;             // every changed run was accepted
     bool changed;        // any cell differed from the last paint
     bool transactional;  // a frame transaction was opened AND closed around the runs
-    size_t changedCells; // differing cells found by this present's scan
-    size_t runs;         // runs handed to the sink
-    size_t emittedCells; // cells inside those runs (>= changedCells)
+    bytes changedCells; // differing cells found by this present's scan
+    bytes runs;         // runs handed to the sink
+    bytes emittedCells; // cells inside those runs (>= changedCells)
 } TerminalPresentResult;
 
 // Gap tolerance: the largest run of unchanged cells allowed INSIDE one emitted
@@ -104,12 +104,12 @@ typedef struct TerminalSurface {
     TerminalFrameFn frame;    // borrowed frame bracket (nullable)
     void *frameContext;       // opaque bracket state
     bool bracketed;           // a transaction is currently open
-    size_t gapTolerance;      // max unchanged run inside one emitted run
-    size_t presentCount;      // completed presents (lifetime)
-    size_t changedCells;      // differing cells in the last present
-    size_t changedRuns;       // runs handed to the sink in the last present
-    size_t emittedCells;      // cells inside those runs in the last present
-    size_t refusalCount;      // refusals in this epoch
+    bytes gapTolerance;      // max unchanged run inside one emitted run
+    bytes presentCount;      // completed presents (lifetime)
+    bytes changedCells;      // differing cells in the last present
+    bytes changedRuns;       // runs handed to the sink in the last present
+    bytes emittedCells;      // cells inside those runs in the last present
+    bytes refusalCount;      // refusals in this epoch
     bool active;              // sink in flight (reentrancy guard)
 } TerminalSurface;
 
@@ -132,8 +132,8 @@ bool TerminalSurface_setFrame(TerminalSurface *self, TerminalFrameFn frame, void
 TerminalFrameFn TerminalSurface_getFrame(const TerminalSurface *self);
 void *TerminalSurface_getFrameContext(const TerminalSurface *self);
 bool TerminalSurface_isBracketed(const TerminalSurface *self);
-bool TerminalSurface_setGapTolerance(TerminalSurface *self, size_t tolerance);
-size_t TerminalSurface_getGapTolerance(const TerminalSurface *self);
+bool TerminalSurface_setGapTolerance(TerminalSurface *self, bytes tolerance);
+bytes TerminalSurface_getGapTolerance(const TerminalSurface *self);
 
 // Hot: emit only what differs, then adopt `back` as the new front. Quiet on
 // success — no logging and no allocation on a clean frame, and an unchanged frame
@@ -151,11 +151,11 @@ bool TerminalSurface_isBound(const TerminalSurface *self);
 bool TerminalSurface_isActive(const TerminalSurface *self);
 TerminalCanvas TerminalSurface_getBack(const TerminalSurface *self);
 TerminalCanvas TerminalSurface_getFront(const TerminalSurface *self);
-size_t TerminalSurface_presentCount(const TerminalSurface *self);
-size_t TerminalSurface_changedCells(const TerminalSurface *self);
-size_t TerminalSurface_changedRuns(const TerminalSurface *self);
-size_t TerminalSurface_emittedCells(const TerminalSurface *self);
-size_t TerminalSurface_exhaustionCount(const TerminalSurface *self);
+bytes TerminalSurface_presentCount(const TerminalSurface *self);
+bytes TerminalSurface_changedCells(const TerminalSurface *self);
+bytes TerminalSurface_changedRuns(const TerminalSurface *self);
+bytes TerminalSurface_emittedCells(const TerminalSurface *self);
+bytes TerminalSurface_exhaustionCount(const TerminalSurface *self);
 
 TerminalProjection TerminalSurface_toString(const TerminalSurface *self);
 TerminalProjection TerminalSurface_toStringStruct(const TerminalSurface *self);

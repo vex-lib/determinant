@@ -29,9 +29,9 @@ typedef enum TerminalMarkdownTableAlign {
 // line leaves one cell free for it).
 typedef struct TerminalMarkdownTableCellLine {
     const char *text;
-    size_t length;
-    size_t next;
-    size_t cells;
+    bytes length;
+    bytes next;
+    bytes cells;
     bool truncated;
     bool trailingHyphen;
     bool leadingHyphen;
@@ -40,55 +40,55 @@ typedef struct TerminalMarkdownTableCellLine {
 // Parse a delimiter row (`| :--- | :---: | ---: |`) into per-column alignment.
 // Returns the column count (>= 2), or 0 when the row is not a delimiter. A null
 // `aligns` only counts.
-size_t TerminalMarkdownTable_parseDelimiter(const char *text, size_t length,
-                                    TerminalMarkdownTableAlign *aligns, size_t capacity);
+bytes TerminalMarkdownTable_parseDelimiter(const char *text, bytes length,
+                                    TerminalMarkdownTableAlign *aligns, bytes capacity);
 
 // Split one row into trimmed cell slices, honouring `\|` and backtick code spans
 // so a literal pipe cannot invent a column. An optional leading/trailing pipe is
 // ignored. Returns the cell count; never writes more than `capacity`.
-size_t TerminalMarkdownTable_split(const char *text, size_t length, const char **cells,
-                           size_t *lengths, size_t capacity);
+bytes TerminalMarkdownTable_split(const char *text, bytes length, const char **cells,
+                           bytes *lengths, bytes capacity);
 
 // Display width of the whole cell (natural width).
-size_t TerminalMarkdownTable_natural(const char *text, size_t length);
+bytes TerminalMarkdownTable_natural(const char *text, bytes length);
 
 // Display width of the longest word in the cell, floored at 1 — the width below
 // which the cell would have to break inside a word.
-size_t TerminalMarkdownTable_longestWord(const char *text, size_t length);
+bytes TerminalMarkdownTable_longestWord(const char *text, bytes length);
 
 // Number of wrapped display lines the cell occupies at `width`.
-size_t TerminalMarkdownTable_lineCount(const char *text, size_t length, size_t width);
+bytes TerminalMarkdownTable_lineCount(const char *text, bytes length, bytes width);
 
 // One wrapped line starting at source offset `offset` within a cell of `width`.
 // Breaks between words; when a single word cannot fit it cuts at `width - 1`
 // cells and sets `truncated`, leaving the ellipsis cell to the caller.
-TerminalMarkdownTableCellLine TerminalMarkdownTable_cellLine(const char *text, size_t length,
-                                             size_t offset, size_t width);
+TerminalMarkdownTableCellLine TerminalMarkdownTable_cellLine(const char *text, bytes length,
+                                             bytes offset, bytes width);
 
 // Allocate a viewport across columns: natural widths when they fit, otherwise
 // minimums plus a proportional share of the slack. False when even the minimums
 // do not fit, so the caller can pick a different presentation instead of
 // clipping a column to zero.
-bool TerminalMarkdownTable_allocate(const size_t *needed, const size_t *minimums, size_t *widths,
-                            size_t columns, size_t viewport);
+bool TerminalMarkdownTable_allocate(const bytes *needed, const bytes *minimums, bytes *widths,
+                            bytes columns, bytes viewport);
 
 // True when any column whose needed width exceeds its allocated width was squeezed
 // below `threshold` display cells. If `threshold` is 0,
 // TERMINAL_MARKDOWN_TABLE_WARP_THRESHOLD (30) is used.
-bool TerminalMarkdownTable_isWarped(const size_t *needed, const size_t *widths,
-                                    size_t columns, size_t threshold);
+bool TerminalMarkdownTable_isWarped(const bytes *needed, const bytes *widths,
+                                    bytes columns, bytes threshold);
 
 // Allocate columns at unwarped widths: natural width when reasonable, so cells do
 // not degrade into narrow vertical ribbons, with every column rounded up to the
 // 4-cell spacing floor. Returns total width including borders and margins.
-size_t TerminalMarkdownTable_allocateUnwarped(const size_t *needed, size_t *widths,
-                                              size_t columns);
+bytes TerminalMarkdownTable_allocateUnwarped(const bytes *needed, bytes *widths,
+                                              bytes columns);
 
 // Spacing floor: one column's content width is a whole number of 4-cell steps
 // (21 -> 24, 4 -> 4, 0 -> 4), so a table's vertical borders fall on a stable grid
 // and a cell has air on both sides instead of hugging the pipe. Allocation applies
 // it whenever the raised table still fits its budget, and a warped table always
 // rounds every column because it pans anyway.
-size_t TerminalMarkdownTable_padWidth(size_t width);
+bytes TerminalMarkdownTable_padWidth(bytes width);
 
 #endif

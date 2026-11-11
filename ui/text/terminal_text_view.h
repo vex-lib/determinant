@@ -6,7 +6,7 @@
 
 #include "ui/surface/terminal_canvas.h"
 #include "ui/surface/terminal_projection.h"
-#include "c23/constructor.h"
+#include "util/constructor.h"
 
 // ui/text/terminal_text_view.h — a bare, generic text viewport.
 //
@@ -16,28 +16,28 @@
 
 typedef struct TerminalTextView {
     const char *const *lines;   // borrowed lines
-    size_t count;
-    size_t scroll;              // lines scrolled up from the tail
+    bytes count;
+    bytes scroll;              // lines scrolled up from the tail
     bool tail;                  // keep the newest line visible (default true)
     TerminalPen pen;
 } TerminalTextView;
-typedef struct TerminalTextViewLines { const char *const *data; size_t count; } TerminalTextViewLines;
+typedef struct TerminalTextViewLines { const char *const *data; bytes count; } TerminalTextViewLines;
 
 TerminalTextView TerminalTextView_0(void);
-TerminalTextView TerminalTextView_2(const char *const *lines, size_t count);
+TerminalTextView TerminalTextView_2(const char *const *lines, bytes count);
 #define TerminalTextView(...) CONSTRUCTOR_DISPATCH(TerminalTextView, __VA_ARGS__)
 #define TerminalTextView_zero() TerminalTextView_0()
 
-bool TerminalTextView_setLines(TerminalTextView *self, const char *const *lines, size_t count);
+bool TerminalTextView_setLines(TerminalTextView *self, const char *const *lines, bytes count);
 TerminalTextViewLines TerminalTextView_getLines(const TerminalTextView *self);
-bool TerminalTextView_setScroll(TerminalTextView *self, size_t scroll);
-size_t TerminalTextView_getScroll(const TerminalTextView *self);
+bool TerminalTextView_setScroll(TerminalTextView *self, bytes scroll);
+bytes TerminalTextView_getScroll(const TerminalTextView *self);
 void TerminalTextView_setTail(TerminalTextView *self, bool tail);
 bool TerminalTextView_isTail(const TerminalTextView *self);
 void TerminalTextView_setPen(TerminalTextView *self, TerminalPen pen);
 TerminalPen TerminalTextView_getPen(const TerminalTextView *self);
 // Scroll by rows (positive = toward newer at the tail); false at an end.
-bool TerminalTextView_scrollBy(TerminalTextView *self, long delta, size_t visibleRows);
+bool TerminalTextView_scrollBy(TerminalTextView *self, long delta, bytes visibleRows);
 
 void TerminalTextView_render(const TerminalTextView *self, TerminalCanvas *canvas);
 

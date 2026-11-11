@@ -19,8 +19,8 @@ int main(void) {
 
     // Render prefix + text into a canvas.
     enum { W = 8, H = 1 };
-    static uint32_t cells[W * H];
-    static uint32_t fg[W * H];
+    static u32 cells[W * H];
+    static u32 fg[W * H];
     TerminalCanvas canvas = TerminalCanvas(cells, nullptr, fg, nullptr, W, H);
     TerminalInputLine_add(&line, 'a');
     TerminalInputLine_setPens(&line, TerminalPen(0, TERMINAL_RGB(1, 2, 3)), TerminalPen(0, TERMINAL_RGB(4, 5, 6)));

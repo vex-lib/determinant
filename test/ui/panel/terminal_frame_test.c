@@ -5,10 +5,10 @@
 
 int main(void) {
     enum { W = 40, H = 10 };
-    static uint32_t cells[W * H];
-    static uint16_t styles[W * H];
-    static uint32_t fg[W * H];
-    static uint32_t bg[W * H];
+    static u32 cells[W * H];
+    static u16 styles[W * H];
+    static u32 fg[W * H];
+    static u32 bg[W * H];
 
     TerminalFrame frame = TerminalFrame(10, 10);
     assert(TerminalFrame_getBackground(&frame) == nullptr);
@@ -55,7 +55,7 @@ int main(void) {
     assert(TerminalCanvas_glyphAt(&root, 4, 1) == '-');
 
     // A very narrow root collapses the rails so the centre stays usable.
-    static uint32_t narrow[6 * 6];
+    static u32 narrow[6 * 6];
     TerminalCanvas small = TerminalCanvas(narrow, nullptr, 6, 6);
     layout = TerminalFrame_getLayout(&frame, &small);
     assert(!layout.rails && layout.left == 0 && layout.right == 0);
@@ -64,7 +64,7 @@ int main(void) {
     assert(TerminalCanvas_isValid(&centerSmall) && !TerminalCanvas_isValid(&leftSmall));
 
     // Background paint + null safety.
-    static const uint8_t white[4] = { 255, 255, 255, 255 };
+    static const u8 white[4] = { 255, 255, 255, 255 };
     TerminalImage image = TerminalImage(white, 1, 1);
     TerminalImage_setRamp(&image, "#");
     assert(TerminalFrame_setBackground(&frame, &image));
@@ -86,7 +86,7 @@ int main(void) {
 
     // DETACHED box: real corners, its own verticals, nothing joined to a neighbour.
     {
-        static uint32_t bc[6 * 3];
+        static u32 bc[6 * 3];
         TerminalCanvas box = TerminalCanvas(bc, nullptr, 6, 3);
         TerminalCanvas_fill(&box, ' ', TerminalPen());
         // Box glyphs set directly: the frame owns the rule, not the palette.
@@ -124,7 +124,7 @@ int main(void) {
     // CUT run: it stops short of both edges and ends in the endpoint glyphs, so a
     // divider never runs into the panel's verticals.
     {
-        static uint32_t cut[10];
+        static u32 cut[10];
         TerminalCanvas line = TerminalCanvas(cut, nullptr, 10, 1);
         TerminalCanvas_fill(&line, ' ', TerminalPen());
         TerminalRule boxed = TerminalRule_0();

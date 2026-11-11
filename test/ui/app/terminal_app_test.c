@@ -1,5 +1,5 @@
 // determinant/test/ui/app/terminal_app_test.c
-// Owner: TerminalApp — host lifecycle harness, double-buffered rendering,
+// Owner: TerminalApp — host lifecycle harness, d64-buffered rendering,
 // and step-driven presentation.
 
 #include "ui/app/terminal_app.h"

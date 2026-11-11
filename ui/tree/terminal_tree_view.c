@@ -37,29 +37,29 @@
  * CLASS: TerminalTreeView (ui/tree/terminal_tree_view.c)
  * STRUCT FIELDS (Mirroring ui/tree/terminal_tree_view.h)
  * TerminalTreeNode *nodes    owned pre-order node array
- * size_t nodeCount           live nodes
- * size_t nodeCapacity        admitted node slots
- * uint32_t *rows             owned visible-row array (node indices)
- * size_t visibleCount        rows currently visible
- * size_t rowsCapacity        admitted row slots
+ * bytes nodeCount           live nodes
+ * bytes nodeCapacity        admitted node slots
+ * u32 *rows             owned visible-row array (node indices)
+ * bytes visibleCount        rows currently visible
+ * bytes rowsCapacity        admitted row slots
  * TerminalTreeNodeId nextId  identity source, never rewound
  * TerminalTreeNodeId selected  NO_NODE when nothing is selected
- * size_t scrollRow           first visible row
- * size_t viewportRows        rows the caller can show
- * size_t nodeRefusals        node-growth refusals in this epoch
- * size_t rowRefusals         row-growth refusals in this epoch
+ * bytes scrollRow           first visible row
+ * bytes viewportRows        rows the caller can show
+ * bytes nodeRefusals        node-growth refusals in this epoch
+ * bytes rowRefusals         row-growth refusals in this epoch
  * SLOT RECORD: TerminalTreeNode
  * TerminalTreeNodeId id      stable identity, never reused
- * int32_t parent             parent's index, or NO_PARENT
- * size_t subtreeCount        nodes in this subtree, including this one
- * size_t depth               0 at the top level
+ * i32 parent             parent's index, or NO_PARENT
+ * bytes subtreeCount        nodes in this subtree, including this one
+ * bytes depth               0 at the top level
  * bool folder                has foldable children
  * bool expanded              unfolded
  * const char *label          borrowed
  * SLOT RECORD: TerminalTreeRow
  * TerminalTreeNodeId id      the node this row shows
  * const char *label          borrowed label
- * size_t depth               nesting depth
+ * bytes depth               nesting depth
  * bool folder/expanded/selected  what the caller paints with
  * PRIVATE HELPERS
  * TERMINAL_TREE_NO_INDEX      sentinel index meaning "no such node"
@@ -79,15 +79,15 @@
  *   bool isExpanded/isFolder(self, id)
  * Selection: bool setSelected(self, id) / isSelected(self, id)
  *   TerminalTreeNodeId getSelected(self)
- * Viewport: size_t visibleCount/viewportRows/scrollRow/maxScrollRow(self)
+ * Viewport: bytes visibleCount/viewportRows/scrollRow/maxScrollRow(self)
  *   bool setViewportRows(self, rows)
- *   size_t setScrollRow(self, row) / scrollBy(self, rows)
+ *   bytes setScrollRow(self, row) / scrollBy(self, rows)
  * Rows: TerminalTreeRow TerminalTreeView_rowAt(self, row)
  *   TerminalTreeNodeId nodeAtOffset(self, offset)
- *   size_t rowOf(self, id)
+ *   bytes rowOf(self, id)
  * Queries: bool isNode(self, id)
  *   const char *getLabel(self, id)
- *   size_t depthOf/childCountOf/subtreeCountOf/nodeCount/capacity/exhaustionCount(self)
+ *   bytes depthOf/childCountOf/subtreeCountOf/nodeCount/capacity/exhaustionCount(self)
  *   void clearExhaustion(self)
  * Projections: TerminalProjection TerminalTreeView_toString/toStringStruct(self)
  * CONTRACT: every operation validates its id and refuses an unknown one by returning
@@ -98,8 +98,8 @@
  * and a refused growth is counted and reported once per epoch, naming the resource.
  * ======================================================================== */
 
-#define TERMINAL_TREE_NO_INDEX ((size_t) -1)
-#define TERMINAL_TREE_NO_PARENT ((int32_t) -1)
+#define TERMINAL_TREE_NO_INDEX ((bytes) -1)
+#define TERMINAL_TREE_NO_PARENT ((i32) -1)
 
 static void refuseNode(TerminalTreeView *self, const char *reason) {
     if ((*self).nodeRefusals == 0)
@@ -118,7 +118,7 @@ static void refuseRow(TerminalTreeView *self, const char *reason) {
 }
 
 static bool growNodes(TerminalTreeView *self) {
-    size_t next = (*self).nodeCapacity == 0 ? TERMINAL_TREE_CHILDREN_DEFAULT
+    bytes next = (*self).nodeCapacity == 0 ? TERMINAL_TREE_CHILDREN_DEFAULT
                                             : (*self).nodeCapacity * 2;
     if (next < (*self).nodeCapacity || next > SIZE_MAX / sizeof(TerminalTreeNode)) {
         refuseNode(self, "node capacity overflow");
@@ -139,19 +139,19 @@ static bool growNodes(TerminalTreeView *self) {
 }
 
 static bool growRows(TerminalTreeView *self) {
-    size_t next = (*self).rowsCapacity == 0 ? TERMINAL_TREE_CHILDREN_DEFAULT
+    bytes next = (*self).rowsCapacity == 0 ? TERMINAL_TREE_CHILDREN_DEFAULT
                                             : (*self).rowsCapacity * 2;
-    if (next < (*self).rowsCapacity || next > SIZE_MAX / sizeof(uint32_t)) {
+    if (next < (*self).rowsCapacity || next > SIZE_MAX / sizeof(u32)) {
         refuseRow(self, "row capacity overflow");
         return false;
     }
-    uint32_t *grown = Memory_alloc(TYPE_BYTE_ARRAY, next * sizeof(uint32_t));
+    u32 *grown = Memory_alloc(TYPE_BYTE_ARRAY, next * sizeof(u32));
     if (grown == nullptr) {
         refuseRow(self, "row array allocation refused");
         return false;
     }
     if ((*self).rowsCapacity != 0)
-        memcpy(grown, (*self).rows, (*self).rowsCapacity * sizeof(uint32_t));
+        memcpy(grown, (*self).rows, (*self).rowsCapacity * sizeof(u32));
     Memory_free((*self).rows);
     (*self).rows = grown;
     (*self).rowsCapacity = next;
@@ -161,19 +161,19 @@ static bool growRows(TerminalTreeView *self) {
 // Identity is never positional: a node keeps its id when its neighbours shift, which
 // they do on every insertion because the array is pre-order. Cold, and deliberately a
 // scan — the alternative is a second index to keep in step with this one.
-static size_t indexFor(const TerminalTreeView *self, TerminalTreeNodeId id) {
+static bytes indexFor(const TerminalTreeView *self, TerminalTreeNodeId id) {
     if (self == nullptr || id == TERMINAL_TREE_NO_NODE)
         return TERMINAL_TREE_NO_INDEX;
-    for (size_t index = 0; index < (*self).nodeCount; ++index)
+    for (bytes index = 0; index < (*self).nodeCount; ++index)
         if ((*self).nodes[index].id == id)
             return index;
     return TERMINAL_TREE_NO_INDEX;
 }
 
-static bool appendRow(TerminalTreeView *self, size_t index) {
+static bool appendRow(TerminalTreeView *self, bytes index) {
     if ((*self).visibleCount == (*self).rowsCapacity && !growRows(self))
         return false;
-    (*self).rows[(*self).visibleCount] = (uint32_t) index;
+    (*self).rows[(*self).visibleCount] = (u32) index;
     ++(*self).visibleCount;
     return true;
 }
@@ -183,7 +183,7 @@ static bool appendRow(TerminalTreeView *self, size_t index) {
 // unfolding descends into it one node at a time.
 static void rebuild(TerminalTreeView *self) {
     (*self).visibleCount = 0;
-    size_t at = 0;
+    bytes at = 0;
     while (at < (*self).nodeCount) {
         if (!appendRow(self, at))
             break;                       // reported and counted; keep what we resolved
@@ -193,7 +193,7 @@ static void rebuild(TerminalTreeView *self) {
         else
             at += (*node).subtreeCount;
     }
-    size_t maximum = TerminalTreeView_maxScrollRow(self);
+    bytes maximum = TerminalTreeView_maxScrollRow(self);
     if ((*self).scrollRow > maximum)
         (*self).scrollRow = maximum;
 }
@@ -224,7 +224,7 @@ TerminalTreeNodeId TerminalTreeView_addChild(TerminalTreeView *self, TerminalTre
                                              const char *label, bool folder) {
     if (self == nullptr || label == nullptr)
         return TERMINAL_TREE_NO_NODE;
-    size_t parentIndex = TERMINAL_TREE_NO_INDEX;
+    bytes parentIndex = TERMINAL_TREE_NO_INDEX;
     if (parent != TERMINAL_TREE_NO_NODE) {
         parentIndex = indexFor(self, parent);
         if (parentIndex == TERMINAL_TREE_NO_INDEX)
@@ -235,7 +235,7 @@ TerminalTreeNodeId TerminalTreeView_addChild(TerminalTreeView *self, TerminalTre
     // A new node lands at the END of its parent's subtree. Everything after that point
     // shifts up by one, and every ancestor's subtreeCount grows to swallow it — which is
     // what keeps the array in pre-order without a single child list.
-    size_t at = parentIndex == TERMINAL_TREE_NO_INDEX
+    bytes at = parentIndex == TERMINAL_TREE_NO_INDEX
                     ? (*self).nodeCount
                     : parentIndex + (*self).nodes[parentIndex].subtreeCount;
     if (at < (*self).nodeCount)
@@ -245,7 +245,7 @@ TerminalTreeNodeId TerminalTreeView_addChild(TerminalTreeView *self, TerminalTre
     *node = (TerminalTreeNode) {
         .id = (*self).nextId,
         .parent = parentIndex == TERMINAL_TREE_NO_INDEX ? TERMINAL_TREE_NO_PARENT
-                                                        : (int32_t) parentIndex,
+                                                        : (i32) parentIndex,
         .subtreeCount = 1,
         .depth = parentIndex == TERMINAL_TREE_NO_INDEX
                      ? 0
@@ -256,11 +256,11 @@ TerminalTreeNodeId TerminalTreeView_addChild(TerminalTreeView *self, TerminalTre
     };
     ++(*self).nodeCount;
     ++(*self).nextId;
-    for (size_t walk = parentIndex; walk != TERMINAL_TREE_NO_INDEX; ) {
+    for (bytes walk = parentIndex; walk != TERMINAL_TREE_NO_INDEX; ) {
         ++(*self).nodes[walk].subtreeCount;
         walk = (*self).nodes[walk].parent == TERMINAL_TREE_NO_PARENT
                    ? TERMINAL_TREE_NO_INDEX
-                   : (size_t) (*self).nodes[walk].parent;
+                   : (bytes) (*self).nodes[walk].parent;
     }
     // A node that gains its first child is a folder, and it opens. A caller that just
     // added a child plainly wants it seen, and the alternative — rows that exist in the
@@ -277,7 +277,7 @@ TerminalTreeNodeId TerminalTreeView_addChild(TerminalTreeView *self, TerminalTre
 bool TerminalTreeView_setLabel(TerminalTreeView *self, TerminalTreeNodeId id, const char *label) {
     if (label == nullptr)
         return false;
-    size_t index = indexFor(self, id);
+    bytes index = indexFor(self, id);
     if (index == TERMINAL_TREE_NO_INDEX)
         return false;
     (*self).nodes[index].label = label;
@@ -285,26 +285,26 @@ bool TerminalTreeView_setLabel(TerminalTreeView *self, TerminalTreeNodeId id, co
 }
 
 bool TerminalTreeView_remove(TerminalTreeView *self, TerminalTreeNodeId id) {
-    size_t index = indexFor(self, id);
+    bytes index = indexFor(self, id);
     if (index == TERMINAL_TREE_NO_INDEX)
         return false;
-    const size_t removed = (*self).nodes[index].subtreeCount;
-    const int32_t parent = (*self).nodes[index].parent;
+    const bytes removed = (*self).nodes[index].subtreeCount;
+    const i32 parent = (*self).nodes[index].parent;
     // A selection inside the subtree is cleared rather than silently re-pointed: the
     // selected thing went away, and ids are never reused, so there is nothing to fall
     // back to that would be honest.
-    for (size_t at = index; at < index + removed; ++at) {
+    for (bytes at = index; at < index + removed; ++at) {
         if ((*self).nodes[at].id == (*self).selected) {
             (*self).selected = TERMINAL_TREE_NO_NODE;
             break;
         }
     }
-    for (size_t walk = parent == TERMINAL_TREE_NO_PARENT ? TERMINAL_TREE_NO_INDEX : (size_t) parent;
+    for (bytes walk = parent == TERMINAL_TREE_NO_PARENT ? TERMINAL_TREE_NO_INDEX : (bytes) parent;
          walk != TERMINAL_TREE_NO_INDEX; ) {
         (*self).nodes[walk].subtreeCount -= removed;
         walk = (*self).nodes[walk].parent == TERMINAL_TREE_NO_PARENT
                    ? TERMINAL_TREE_NO_INDEX
-                   : (size_t) (*self).nodes[walk].parent;
+                   : (bytes) (*self).nodes[walk].parent;
     }
     if (index + removed < (*self).nodeCount)
         memmove(&(*self).nodes[index], &(*self).nodes[index + removed],
@@ -326,7 +326,7 @@ void TerminalTreeView_clear(TerminalTreeView *self) {
 }
 
 bool TerminalTreeView_setExpanded(TerminalTreeView *self, TerminalTreeNodeId id, bool expanded) {
-    size_t index = indexFor(self, id);
+    bytes index = indexFor(self, id);
     if (index == TERMINAL_TREE_NO_INDEX)
         return false;
     if ((*self).nodes[index].expanded == expanded)
@@ -337,7 +337,7 @@ bool TerminalTreeView_setExpanded(TerminalTreeView *self, TerminalTreeNodeId id,
 }
 
 bool TerminalTreeView_toggle(TerminalTreeView *self, TerminalTreeNodeId id) {
-    size_t index = indexFor(self, id);
+    bytes index = indexFor(self, id);
     if (index == TERMINAL_TREE_NO_INDEX)
         return false;
     (*self).nodes[index].expanded = !(*self).nodes[index].expanded;
@@ -346,25 +346,25 @@ bool TerminalTreeView_toggle(TerminalTreeView *self, TerminalTreeNodeId id) {
 }
 
 bool TerminalTreeView_isExpanded(const TerminalTreeView *self, TerminalTreeNodeId id) {
-    size_t index = indexFor(self, id);
+    bytes index = indexFor(self, id);
     return index != TERMINAL_TREE_NO_INDEX && (*self).nodes[index].expanded;
 }
 
 bool TerminalTreeView_isFolder(const TerminalTreeView *self, TerminalTreeNodeId id) {
-    size_t index = indexFor(self, id);
+    bytes index = indexFor(self, id);
     return index != TERMINAL_TREE_NO_INDEX && (*self).nodes[index].folder;
 }
 
 bool TerminalTreeView_reveal(TerminalTreeView *self, TerminalTreeNodeId id) {
-    size_t index = indexFor(self, id);
+    bytes index = indexFor(self, id);
     if (index == TERMINAL_TREE_NO_INDEX)
         return false;
-    size_t walk = index;
+    bytes walk = index;
     while (walk != TERMINAL_TREE_NO_INDEX) {
         (*self).nodes[walk].expanded = true;
         walk = (*self).nodes[walk].parent == TERMINAL_TREE_NO_PARENT
                    ? TERMINAL_TREE_NO_INDEX
-                   : (size_t) (*self).nodes[walk].parent;
+                   : (bytes) (*self).nodes[walk].parent;
     }
     rebuild(self);
     return true;
@@ -387,52 +387,52 @@ bool TerminalTreeView_isSelected(const TerminalTreeView *self, TerminalTreeNodeI
     return self != nullptr && id != TERMINAL_TREE_NO_NODE && (*self).selected == id;
 }
 
-size_t TerminalTreeView_visibleCount(const TerminalTreeView *self) {
+bytes TerminalTreeView_visibleCount(const TerminalTreeView *self) {
     return self == nullptr ? 0 : (*self).visibleCount;
 }
 
-bool TerminalTreeView_setViewportRows(TerminalTreeView *self, size_t rows) {
+bool TerminalTreeView_setViewportRows(TerminalTreeView *self, bytes rows) {
     if (self == nullptr)
         return false;
     (*self).viewportRows = rows;
-    size_t maximum = TerminalTreeView_maxScrollRow(self);
+    bytes maximum = TerminalTreeView_maxScrollRow(self);
     if ((*self).scrollRow > maximum)
         (*self).scrollRow = maximum;
     return true;
 }
 
-size_t TerminalTreeView_viewportRows(const TerminalTreeView *self) {
+bytes TerminalTreeView_viewportRows(const TerminalTreeView *self) {
     return self == nullptr ? 0 : (*self).viewportRows;
 }
 
-size_t TerminalTreeView_scrollRow(const TerminalTreeView *self) {
+bytes TerminalTreeView_scrollRow(const TerminalTreeView *self) {
     return self == nullptr ? 0 : (*self).scrollRow;
 }
 
-size_t TerminalTreeView_maxScrollRow(const TerminalTreeView *self) {
+bytes TerminalTreeView_maxScrollRow(const TerminalTreeView *self) {
     if (self == nullptr || (*self).visibleCount <= (*self).viewportRows)
         return 0;
     return (*self).visibleCount - (*self).viewportRows;
 }
 
-size_t TerminalTreeView_setScrollRow(TerminalTreeView *self, size_t row) {
+bytes TerminalTreeView_setScrollRow(TerminalTreeView *self, bytes row) {
     if (self == nullptr)
         return 0;
-    size_t maximum = TerminalTreeView_maxScrollRow(self);
+    bytes maximum = TerminalTreeView_maxScrollRow(self);
     (*self).scrollRow = row > maximum ? maximum : row;
     return (*self).scrollRow;
 }
 
-size_t TerminalTreeView_scrollBy(TerminalTreeView *self, long rows) {
+bytes TerminalTreeView_scrollBy(TerminalTreeView *self, long rows) {
     if (self == nullptr)
         return 0;
     long wanted = (long) (*self).scrollRow + rows;
     if (wanted < 0)
         wanted = 0;
-    return TerminalTreeView_setScrollRow(self, (size_t) wanted);
+    return TerminalTreeView_setScrollRow(self, (bytes) wanted);
 }
 
-TerminalTreeRow TerminalTreeView_rowAt(const TerminalTreeView *self, size_t row) {
+TerminalTreeRow TerminalTreeView_rowAt(const TerminalTreeView *self, bytes row) {
     TerminalTreeRow empty = {0};
     if (self == nullptr || row >= (*self).visibleCount)
         return empty;
@@ -448,19 +448,19 @@ TerminalTreeRow TerminalTreeView_rowAt(const TerminalTreeView *self, size_t row)
     return record;
 }
 
-TerminalTreeNodeId TerminalTreeView_nodeAtOffset(const TerminalTreeView *self, size_t offset) {
+TerminalTreeNodeId TerminalTreeView_nodeAtOffset(const TerminalTreeView *self, bytes offset) {
     if (self == nullptr || offset >= (*self).viewportRows)
         return TERMINAL_TREE_NO_NODE;
-    size_t row = (*self).scrollRow + offset;
+    bytes row = (*self).scrollRow + offset;
     if (row >= (*self).visibleCount)
         return TERMINAL_TREE_NO_NODE;
     return (*self).nodes[(*self).rows[row]].id;
 }
 
-size_t TerminalTreeView_rowOf(const TerminalTreeView *self, TerminalTreeNodeId id) {
+bytes TerminalTreeView_rowOf(const TerminalTreeView *self, TerminalTreeNodeId id) {
     if (self == nullptr || id == TERMINAL_TREE_NO_NODE)
         return TERMINAL_TREE_NO_ROW;
-    for (size_t row = 0; row < (*self).visibleCount; ++row)
+    for (bytes row = 0; row < (*self).visibleCount; ++row)
         if ((*self).nodes[(*self).rows[row]].id == id)
             return row;
     return TERMINAL_TREE_NO_ROW;
@@ -471,47 +471,47 @@ bool TerminalTreeView_isNode(const TerminalTreeView *self, TerminalTreeNodeId id
 }
 
 const char *TerminalTreeView_getLabel(const TerminalTreeView *self, TerminalTreeNodeId id) {
-    size_t index = indexFor(self, id);
+    bytes index = indexFor(self, id);
     return index == TERMINAL_TREE_NO_INDEX ? nullptr : (*self).nodes[index].label;
 }
 
-size_t TerminalTreeView_depthOf(const TerminalTreeView *self, TerminalTreeNodeId id) {
-    size_t index = indexFor(self, id);
+bytes TerminalTreeView_depthOf(const TerminalTreeView *self, TerminalTreeNodeId id) {
+    bytes index = indexFor(self, id);
     return index == TERMINAL_TREE_NO_INDEX ? 0 : (*self).nodes[index].depth;
 }
 
-size_t TerminalTreeView_childCountOf(const TerminalTreeView *self, TerminalTreeNodeId id) {
-    size_t index = indexFor(self, id);
+bytes TerminalTreeView_childCountOf(const TerminalTreeView *self, TerminalTreeNodeId id) {
+    bytes index = indexFor(self, id);
     if (index == TERMINAL_TREE_NO_INDEX)
         return 0;
     // Direct children only, and they are not adjacent in a pre-order array — a child's
     // own subtree sits between it and its next sibling — so this walks the node's own
     // range rather than reading two numbers.
-    size_t count = 0;
-    size_t end = index + (*self).nodes[index].subtreeCount;
-    for (size_t at = index + 1; at < end; ++at)
-        if ((*self).nodes[at].parent == (int32_t) index)
+    bytes count = 0;
+    bytes end = index + (*self).nodes[index].subtreeCount;
+    for (bytes at = index + 1; at < end; ++at)
+        if ((*self).nodes[at].parent == (i32) index)
             ++count;
     return count;
 }
 
-size_t TerminalTreeView_subtreeCountOf(const TerminalTreeView *self, TerminalTreeNodeId id) {
-    size_t index = indexFor(self, id);
+bytes TerminalTreeView_subtreeCountOf(const TerminalTreeView *self, TerminalTreeNodeId id) {
+    bytes index = indexFor(self, id);
     return index == TERMINAL_TREE_NO_INDEX ? 0 : (*self).nodes[index].subtreeCount;
 }
 
-size_t TerminalTreeView_nodeCount(const TerminalTreeView *self) {
+bytes TerminalTreeView_nodeCount(const TerminalTreeView *self) {
     return self == nullptr ? 0 : (*self).nodeCount;
 }
 
-size_t TerminalTreeView_capacity(const TerminalTreeView *self) {
+bytes TerminalTreeView_capacity(const TerminalTreeView *self) {
     return self == nullptr ? 0 : (*self).nodeCapacity;
 }
 
 // Both resources are counted, because "the tree refused" is only half an answer: the
 // caller needs to know whether it ran out of NODES or of ROWS, and the diagnostic above
 // names which. This total is what a test asserts against.
-size_t TerminalTreeView_exhaustionCount(const TerminalTreeView *self) {
+bytes TerminalTreeView_exhaustionCount(const TerminalTreeView *self) {
     if (self == nullptr)
         return 0;
     if (SIZE_MAX - (*self).nodeRefusals < (*self).rowRefusals)
@@ -526,14 +526,14 @@ void TerminalTreeView_clearExhaustion(TerminalTreeView *self) {
     (*self).rowRefusals = 0;
 }
 
-bool TerminalTreeView_setIndent(TerminalTreeView *self, size_t indentSpaces) {
+bool TerminalTreeView_setIndent(TerminalTreeView *self, bytes indentSpaces) {
     if (self == nullptr)
         return false;
     (*self).indentSpaces = indentSpaces;
     return true;
 }
 
-size_t TerminalTreeView_getIndent(const TerminalTreeView *self) {
+bytes TerminalTreeView_getIndent(const TerminalTreeView *self) {
     return self != nullptr ? (*self).indentSpaces : 2u;
 }
 
@@ -551,19 +551,19 @@ bool TerminalTreeView_getNerdIcons(const TerminalTreeView *self) {
 void TerminalTreeView_paint(const TerminalTreeView *self, TerminalCanvas *canvas) {
     if (self == nullptr || canvas == nullptr || !TerminalCanvas_isValid(canvas))
         return;
-    size_t visible = (*self).visibleCount;
-    size_t scroll = (*self).scrollRow;
-    size_t height = TerminalCanvas_getHeight(canvas);
-    size_t width = TerminalCanvas_getWidth(canvas);
-    size_t rowsToPaint = visible > scroll ? (visible - scroll) : 0u;
+    bytes visible = (*self).visibleCount;
+    bytes scroll = (*self).scrollRow;
+    bytes height = TerminalCanvas_getHeight(canvas);
+    bytes width = TerminalCanvas_getWidth(canvas);
+    bytes rowsToPaint = visible > scroll ? (visible - scroll) : 0u;
     if (rowsToPaint > height)
         rowsToPaint = height;
 
-    for (size_t y = 0u; y < rowsToPaint; ++y) {
+    for (bytes y = 0u; y < rowsToPaint; ++y) {
         TerminalTreeRow row = TerminalTreeView_rowAt(self, scroll + y);
         if (row.id == TERMINAL_TREE_NO_NODE)
             continue;
-        size_t indent = row.depth * (*self).indentSpaces;
+        bytes indent = row.depth * (*self).indentSpaces;
         if (indent >= width)
             continue;
 
@@ -584,15 +584,15 @@ void TerminalTreeView_paint(const TerminalTreeView *self, TerminalCanvas *canvas
         if (row.selected)
             pen.style |= TERMINAL_STYLE_REVERSE;
 
-        for (size_t i = 0u; i < indent; ++i)
+        for (bytes i = 0u; i < indent; ++i)
             TerminalCanvas_text(canvas, i, y, " ", 1u, pen);
 
-        size_t iconLen = strlen(icon);
+        bytes iconLen = strlen(icon);
         if (indent + 2u <= width)
             TerminalCanvas_text(canvas, indent, y, icon, iconLen, pen);
 
         if (row.label != nullptr) {
-            size_t labelX = indent + ((*self).nerdIcons ? 3u : 4u);
+            bytes labelX = indent + ((*self).nerdIcons ? 3u : 4u);
             if (labelX < width)
                 TerminalCanvas_text(canvas, labelX, y, row.label, strlen(row.label), pen);
         }

@@ -28,10 +28,10 @@
 // themselves: every following row that is deeper than this one is inside its subtree, and
 // the first row that is not deeper ends it. This is the pre-order invariant restated as a
 // question about the screen, which is why it is a fair check on the internal array.
-static size_t countedDescendants(const TerminalTreeView *view, size_t row) {
-    size_t depth = TerminalTreeView_rowAt(view, row).depth;
-    size_t count = 0;
-    for (size_t at = row + 1; at < TerminalTreeView_visibleCount(view); ++at) {
+static bytes countedDescendants(const TerminalTreeView *view, bytes row) {
+    bytes depth = TerminalTreeView_rowAt(view, row).depth;
+    bytes count = 0;
+    for (bytes at = row + 1; at < TerminalTreeView_visibleCount(view); ++at) {
         if (TerminalTreeView_rowAt(view, at).depth <= depth)
             break;
         ++count;
@@ -40,11 +40,11 @@ static size_t countedDescendants(const TerminalTreeView *view, size_t row) {
 }
 
 // Direct children only: the rows exactly one level deeper, inside the same subtree.
-static size_t countedChildren(const TerminalTreeView *view, size_t row) {
-    size_t depth = TerminalTreeView_rowAt(view, row).depth;
-    size_t count = 0;
-    for (size_t at = row + 1; at < TerminalTreeView_visibleCount(view); ++at) {
-        size_t here = TerminalTreeView_rowAt(view, at).depth;
+static bytes countedChildren(const TerminalTreeView *view, bytes row) {
+    bytes depth = TerminalTreeView_rowAt(view, row).depth;
+    bytes count = 0;
+    for (bytes at = row + 1; at < TerminalTreeView_visibleCount(view); ++at) {
+        bytes here = TerminalTreeView_rowAt(view, at).depth;
         if (here <= depth)
             break;
         if (here == depth + 1u)
@@ -59,23 +59,23 @@ static size_t countedChildren(const TerminalTreeView *view, size_t row) {
 #define ORDER_MAX 64u
 typedef struct RowOrder {
     TerminalTreeNodeId ids[ORDER_MAX];
-    size_t count;
+    bytes count;
 } RowOrder;
 
 static RowOrder captureOrder(const TerminalTreeView *view) {
     RowOrder order = {0};
-    size_t count = TerminalTreeView_visibleCount(view);
+    bytes count = TerminalTreeView_visibleCount(view);
     if (count > ORDER_MAX)
         count = ORDER_MAX;
-    for (size_t row = 0; row < count; ++row)
+    for (bytes row = 0; row < count; ++row)
         order.ids[row] = TerminalTreeView_rowAt(view, row).id;
     order.count = count;
     return order;
 }
 
 static bool isSubsequenceOf(const TerminalTreeView *view, RowOrder order) {
-    size_t at = 0;
-    for (size_t row = 0; row < TerminalTreeView_visibleCount(view); ++row) {
+    bytes at = 0;
+    for (bytes row = 0; row < TerminalTreeView_visibleCount(view); ++row) {
         TerminalTreeNodeId id = TerminalTreeView_rowAt(view, row).id;
         while (at < order.count && order.ids[at] != id)
             ++at;
@@ -88,7 +88,7 @@ static bool isSubsequenceOf(const TerminalTreeView *view, RowOrder order) {
 
 // A tiny deterministic generator, so a fold fuzz repeats exactly and a failure can be
 // reproduced from the seed printed on failure.
-static uint32_t lcg(uint32_t *state) {
+static u32 lcg(u32 *state) {
     *state = (*state * 1664525u) + 1013904223u;
     return *state >> 8;
 }
@@ -168,7 +168,7 @@ int main(void) {
     // --- The design's tree ---
     TerminalTreeNodeId id[8];
     TerminalTreeView *view = buildTree(id);
-    for (size_t index = 0; index < 8; ++index)
+    for (bytes index = 0; index < 8; ++index)
         assert(id[index] == (TerminalTreeNodeId) (index + 1u));  // ids start at one, never zero
     // A node that gains its first child becomes a FOLDER and opens: `example.java` was
     // declared a leaf, and hiding its new child behind a stale flag would be a trap.
@@ -216,7 +216,7 @@ int main(void) {
     assert(TerminalTreeView_visibleCount(view) == 8u);
 
     // --- The pre-order invariant, checked from the rows rather than from the array ---
-    for (size_t row = 0; row + 1u < TerminalTreeView_visibleCount(view); ++row) {
+    for (bytes row = 0; row + 1u < TerminalTreeView_visibleCount(view); ++row) {
         TerminalTreeNodeId node = TerminalTreeView_rowAt(view, row).id;
         assert(TerminalTreeView_subtreeCountOf(view, node) == countedDescendants(view, row) + 1u);
         assert(TerminalTreeView_childCountOf(view, node) == countedChildren(view, row));
@@ -241,8 +241,8 @@ int main(void) {
     assert(TerminalTreeView_depthOf(view, 999u) == 0u);          // unknown reads as the top
     static const char *expected[] = { "vexgraph", "src", "opencode.json", "hello.txt",
                                       "example.java", "nested", "deep.c", "whatever.c" };
-    static const size_t expectedDepths[] = { 0, 1, 2, 2, 2, 3, 4, 1 };
-    for (size_t row = 0; row < 8; ++row) {
+    static const bytes expectedDepths[] = { 0, 1, 2, 2, 2, 3, 4, 1 };
+    for (bytes row = 0; row < 8; ++row) {
         TerminalTreeRow record = TerminalTreeView_rowAt(view, row);
         assert(record.label != nullptr && strcmp(record.label, expected[row]) == 0);
         assert(record.depth == expectedDepths[row]);
@@ -281,7 +281,7 @@ int main(void) {
     assert(TerminalTreeView_isExpanded(view, id[5]));
     assert(TerminalTreeView_visibleCount(view) == 8u);
     assert(TerminalTreeView_rowOf(view, id[6]) == 6u);
-    for (size_t row = 0; row + 1u < TerminalTreeView_visibleCount(view); ++row) {
+    for (bytes row = 0; row + 1u < TerminalTreeView_visibleCount(view); ++row) {
         TerminalTreeNodeId node = TerminalTreeView_rowAt(view, row).id;
         assert(TerminalTreeView_subtreeCountOf(view, node) == countedDescendants(view, row) + 1u);
     }
@@ -366,7 +366,7 @@ int main(void) {
     // The selection went away WITH the node, rather than surviving as a dangling id.
     assert(TerminalTreeView_getSelected(view) == TERMINAL_TREE_NO_NODE);
     static const char *surviving[] = { "vexgraph", "src", "opencode.json", "hello.txt", "whatever.c" };
-    for (size_t row = 0; row < 5; ++row) {
+    for (bytes row = 0; row < 5; ++row) {
         assert(strcmp(TerminalTreeView_rowAt(view, row).label, surviving[row]) == 0);
         TerminalTreeNodeId node = TerminalTreeView_rowAt(view, row).id;
         assert(TerminalTreeView_subtreeCountOf(view, node) == countedDescendants(view, row) + 1u);
@@ -388,7 +388,7 @@ int main(void) {
     // interleaved tree — the case where a pre-order memmove or a missed ancestor update
     // would put a row in the wrong place.
     TerminalTreeNodeId branch = TerminalTreeView_addChild(view, id[0], "many", true);
-    for (size_t index = 0; index < 40; ++index) {
+    for (bytes index = 0; index < 40; ++index) {
         TerminalTreeNodeId leaf = TerminalTreeView_addChild(view, branch, "leaf", false);
         assert(leaf != TERMINAL_TREE_NO_NODE);
         assert(TerminalTreeView_depthOf(view, leaf) == 2u);
@@ -407,7 +407,7 @@ int main(void) {
     assert(strcmp(TerminalTreeView_rowAt(view, 5).label, "whatever.c") == 0);
     assert(TerminalTreeView_setExpanded(view, branch, true));
     assert(TerminalTreeView_visibleCount(view) == 47u);
-    for (size_t row = 0; row + 1u < TerminalTreeView_visibleCount(view); ++row) {
+    for (bytes row = 0; row + 1u < TerminalTreeView_visibleCount(view); ++row) {
         TerminalTreeNodeId node = TerminalTreeView_rowAt(view, row).id;
         assert(TerminalTreeView_subtreeCountOf(view, node) == countedDescendants(view, row) + 1u);
     }
@@ -426,11 +426,11 @@ int main(void) {
     // --- A fold fuzz: every fold state is a subsequence of the expanded order ---
     // Deterministic, so a failure names a seed that reproduces it exactly.
     {
-        uint32_t seed = 0x5eed1u;
-        uint32_t state = seed;
+        u32 seed = 0x5eed1u;
+        u32 state = seed;
         RowOrder reference = captureOrder(view);
         TerminalTreeNodeId folders[] = { id[0], id[1], branch };
-        for (size_t round = 0; round < 200; ++round) {
+        for (bytes round = 0; round < 200; ++round) {
             TerminalTreeNodeId target = folders[lcg(&state) % 3u];
             bool want = (lcg(&state) & 1u) != 0u;
             assert(TerminalTreeView_setExpanded(view, target, want));
@@ -441,7 +441,7 @@ int main(void) {
             assert(TerminalTreeView_rowOf(view, id[0]) != TERMINAL_TREE_NO_ROW);
             // Every visible row is a real node, and every offset inside the viewport
             // resolves to one of them or to nothing at all.
-            for (size_t offset = 0; offset < TerminalTreeView_viewportRows(view); ++offset) {
+            for (bytes offset = 0; offset < TerminalTreeView_viewportRows(view); ++offset) {
                 TerminalTreeNodeId hit = TerminalTreeView_nodeAtOffset(view, offset);
                 if (hit == TERMINAL_TREE_NO_NODE)
                     continue;
@@ -457,7 +457,7 @@ int main(void) {
 
     // --- clear keeps the storage and rewinds every offset ---
     {
-        size_t capacity = TerminalTreeView_capacity(view);
+        bytes capacity = TerminalTreeView_capacity(view);
         assert(capacity > 0u);
         assert(TerminalTreeView_setSelected(view, id[1]));
         assert(TerminalTreeView_setScrollRow(view, 10) == 10u);
@@ -526,7 +526,7 @@ int main(void) {
     static const char *fields[] = { "nodes", "nodeCount", "nodeCapacity", "rows", "visibleCount",
                                     "rowsCapacity", "nextId", "selected", "scrollRow",
                                     "viewportRows", "nodeRefusals", "rowRefusals" };
-    for (size_t index = 0; index < sizeof fields / sizeof fields[0]; ++index)
+    for (bytes index = 0; index < sizeof fields / sizeof fields[0]; ++index)
         assert(strstr(dump.text, fields[index]) != nullptr);
     assert(TerminalTreeView_exhaustionCount(view) == 0u);        // nothing ran out
     TerminalTreeView_clearExhaustion(view);
@@ -540,8 +540,8 @@ int main(void) {
     assert(TerminalTreeView_setNerdIcons(view, false));
     assert(!TerminalTreeView_getNerdIcons(view));
 
-    uint32_t cells[20 * 5];
-    for (size_t i = 0; i < 20 * 5; ++i)
+    u32 cells[20 * 5];
+    for (bytes i = 0; i < 20 * 5; ++i)
         cells[i] = ' ';
     TerminalCanvas canvas = TerminalCanvas_4(cells, nullptr, 20, 5);
     TerminalTreeView_paint(view, &canvas);

@@ -24,11 +24,11 @@
  * scalar never starts a row by itself; a null span measures zero.
  * ============================================================================ */
 
-size_t TerminalMarkdownText_cells(const char *text, size_t length) {
+bytes TerminalMarkdownText_cells(const char *text, bytes length) {
     if (text == nullptr)
         return 0;
-    size_t cells = 0;
-    size_t at = 0;
+    bytes cells = 0;
+    bytes at = 0;
     while (at < length) {
         TerminalCanvasDecodedScalar decoded = TerminalCanvas_utf8Decode(text + at, length - at);
         if (decoded.bytes == 0) {
@@ -42,13 +42,13 @@ size_t TerminalMarkdownText_cells(const char *text, size_t length) {
     return cells;
 }
 
-size_t TerminalMarkdownText_bytesForCells(const char *text, size_t length, size_t cells,
-                                  size_t *usedCells) {
-    size_t at = 0;
-    size_t used = 0;
+bytes TerminalMarkdownText_bytesForCells(const char *text, bytes length, bytes cells,
+                                  bytes *usedCells) {
+    bytes at = 0;
+    bytes used = 0;
     while (text != nullptr && at < length) {
         TerminalCanvasDecodedScalar decoded = TerminalCanvas_utf8Decode(text + at, length - at);
-        size_t width = decoded.bytes == 0 ? 1u : TerminalCanvas_widthOf(decoded.codepoint);
+        bytes width = decoded.bytes == 0 ? 1u : TerminalCanvas_widthOf(decoded.codepoint);
         if (width != 0 && used + width > cells)
             break;
         used += width;
@@ -59,35 +59,35 @@ size_t TerminalMarkdownText_bytesForCells(const char *text, size_t length, size_
     return at;
 }
 
-size_t TerminalMarkdownText_scalarBytes(const char *text, size_t length) {
+bytes TerminalMarkdownText_scalarBytes(const char *text, bytes length) {
     if (text == nullptr || length == 0)
         return 0;
     TerminalCanvasDecodedScalar decoded = TerminalCanvas_utf8Decode(text, length);
     return decoded.bytes == 0 ? 1u : decoded.bytes;
 }
 
-size_t TerminalMarkdownText_find(const char *text, size_t length, size_t from,
-                         const char *needle, size_t needleLength) {
+bytes TerminalMarkdownText_find(const char *text, bytes length, bytes from,
+                         const char *needle, bytes needleLength) {
     if (needle == nullptr || needleLength == 0 || from >= length
         || needleLength > length - from)
         return SIZE_MAX;
-    for (size_t at = from; at + needleLength <= length; ++at)
+    for (bytes at = from; at + needleLength <= length; ++at)
         if (memcmp(text + at, needle, needleLength) == 0)
             return at;
     return SIZE_MAX;
 }
 
-size_t TerminalMarkdownText_findRun(const char *text, size_t length, size_t from, char glyph,
-                            size_t run) {
+bytes TerminalMarkdownText_findRun(const char *text, bytes length, bytes from, char glyph,
+                            bytes run) {
     if (run == 0 || from >= length)
         return SIZE_MAX;
-    size_t at = from;
+    bytes at = from;
     while (at < length) {
         if (text[at] != glyph) {
             ++at;
             continue;
         }
-        size_t count = 0;
+        bytes count = 0;
         while (at + count < length && text[at + count] == glyph)
             ++count;
         if (count == run)
@@ -106,23 +106,23 @@ bool TerminalMarkdownText_isPunctuation(char character) {
         || (character >= '[' && character <= '`') || (character >= '{' && character <= '~');
 }
 
-size_t TerminalMarkdownText_leadingSpaces(const char *text, size_t length) {
-    size_t at = 0;
+bytes TerminalMarkdownText_leadingSpaces(const char *text, bytes length) {
+    bytes at = 0;
     while (text != nullptr && at < length && TerminalMarkdownText_isSpace(text[at]))
         ++at;
     return at;
 }
 
-size_t TerminalMarkdownText_trimRight(const char *text, size_t length) {
+bytes TerminalMarkdownText_trimRight(const char *text, bytes length) {
     while (length > 0 && text != nullptr && TerminalMarkdownText_isSpace(text[length - 1u]))
         --length;
     return length;
 }
 
-bool TerminalMarkdownText_blank(const char *text, size_t length) {
+bool TerminalMarkdownText_blank(const char *text, bytes length) {
     if (text == nullptr)
         return true;
-    for (size_t at = 0; at < length; ++at)
+    for (bytes at = 0; at < length; ++at)
         if (!TerminalMarkdownText_isSpace(text[at]))
             return false;
     return true;

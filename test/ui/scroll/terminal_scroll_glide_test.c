@@ -6,7 +6,7 @@
 #include <math.h>
 #include <stdint.h>
 
-static void assertNear(double actual, double expected) {
+static void assertNear(d64 actual, d64 expected) {
     assert(fabs(actual - expected) < 1e-9);
 }
 
@@ -131,7 +131,7 @@ int main(void) {
     assert(position.row == 10u && position.column == 10u);
     assert(!TerminalScrollGlide_isActive(&glide));
 
-    // A saturated bound is a whole-cell value, never an out-of-range double cast.
+    // A saturated bound is a whole-cell value, never an out-of-range d64 cast.
     // The huge epsilon snaps instead of easing, so the conversion is exercised.
     glide = TerminalScrollGlide(0.5, 1e300);
     TerminalScrollGlide_setTarget(&glide, SIZE_MAX, SIZE_MAX, SIZE_MAX, SIZE_MAX);

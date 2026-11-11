@@ -23,20 +23,20 @@
  * CLASS: TerminalCodeView (ui/code/terminal_code_view.c)
  * STRUCT FIELDS (Mirroring ui/code/terminal_code_view.h)
  *   const char *text                    borrowed UTF-8 source line
- *   size_t length                       source byte length
+ *   bytes length                       source byte length
  *   const TerminalCodeSpan *spans       borrowed ordered style ranges
- *   size_t spanCount                    number of admitted style ranges
+ *   bytes spanCount                    number of admitted style ranges
  *   const TerminalCodeHint *hints       borrowed sorted virtual labels
- *   size_t hintCount                    number of admitted hints
- *   size_t scroll                       horizontal viewport offset in cells
+ *   bytes hintCount                    number of admitted hints
+ *   bytes scroll                       horizontal viewport offset in cells
  * SLOT RECORD: TerminalCodeSpan
- *   size_t startByte                    inclusive UTF-8 source byte offset
- *   size_t endByte                      exclusive UTF-8 source byte offset
+ *   bytes startByte                    inclusive UTF-8 source byte offset
+ *   bytes endByte                      exclusive UTF-8 source byte offset
  *   TerminalPen pen                     style/foreground/background for range
  * SLOT RECORD: TerminalCodeHint
- *   size_t byteOffset                   source byte anchor before rendered label
+ *   bytes byteOffset                   source byte anchor before rendered label
  *   const char *text                    borrowed virtual label text
- *   size_t length                       borrowed label byte length
+ *   bytes length                       borrowed label byte length
  *   TerminalPen pen                     style/foreground/background for label
  * PRIVATE HELPERS
  *   scalarBytes(text, length)           valid UTF-8 scalar byte count, or one
@@ -50,7 +50,7 @@
  *                                            hints, count)
  *              getters return borrowed source/span/hint views and counts
  *   Scroll: bool TerminalCodeView_setScroll(self, cells)
- *           size_t TerminalCodeView_getScroll(self)
+ *           bytes TerminalCodeView_getScroll(self)
  *   Render: void TerminalCodeView_render(self, canvas, x, y)
  *   Projections: TerminalProjection TerminalCodeView_toString/toStringStruct(self)
  * CONTRACT:
@@ -64,34 +64,34 @@
 
 struct TerminalCodeView {
     const char *text;
-    size_t length;
+    bytes length;
     const TerminalCodeSpan *spans;
-    size_t spanCount;
+    bytes spanCount;
     const TerminalCodeHint *hints;
-    size_t hintCount;
-    size_t scroll;
+    bytes hintCount;
+    bytes scroll;
 };
 
-static size_t scalarBytes(const char *text, size_t length) {
+static bytes scalarBytes(const char *text, bytes length) {
     TerminalCanvasDecodedScalar decoded = TerminalCanvas_utf8Decode(text, length);
     return decoded.bytes == 0 ? 1u : decoded.bytes;
 }
 
-static size_t cellWidth(const char *text, size_t length) {
+static bytes cellWidth(const char *text, bytes length) {
     TerminalCanvasDecodedScalar decoded = TerminalCanvas_utf8Decode(text, length);
     return decoded.bytes == 0 ? 1u : TerminalCanvas_widthOf(decoded.codepoint);
 }
 
-static bool isBoundary(const char *text, size_t length, size_t offset) {
+static bool isBoundary(const char *text, bytes length, bytes offset) {
     if (offset > length)
         return false;
-    size_t at = 0;
+    bytes at = 0;
     while (at < offset) {
         TerminalCanvasDecodedScalar decoded = TerminalCanvas_utf8Decode(text + at,
                                                                           length - at);
         if (decoded.bytes == 0)
             return false;
-        size_t bytes = scalarBytes(text + at, length - at);
+        bytes bytes = scalarBytes(text + at, length - at);
         if (bytes > offset - at)
             return false;
         at += bytes;
@@ -99,10 +99,10 @@ static bool isBoundary(const char *text, size_t length, size_t offset) {
     return at == offset;
 }
 
-static bool validSpans(const char *text, size_t length,
-                       const TerminalCodeSpan *spans, size_t count) {
-    size_t previousEnd = 0;
-    for (size_t index = 0; index < count; ++index) {
+static bool validSpans(const char *text, bytes length,
+                       const TerminalCodeSpan *spans, bytes count) {
+    bytes previousEnd = 0;
+    for (bytes index = 0; index < count; ++index) {
         const TerminalCodeSpan *span = &spans[index];
         if ((*span).startByte > (*span).endByte || (*span).endByte > length
             || (*span).startByte < previousEnd
@@ -114,10 +114,10 @@ static bool validSpans(const char *text, size_t length,
     return true;
 }
 
-static bool validHints(const char *text, size_t length,
-                       const TerminalCodeHint *hints, size_t count) {
-    size_t previousOffset = 0;
-    for (size_t index = 0; index < count; ++index) {
+static bool validHints(const char *text, bytes length,
+                       const TerminalCodeHint *hints, bytes count) {
+    bytes previousOffset = 0;
+    for (bytes index = 0; index < count; ++index) {
         const TerminalCodeHint *hint = &hints[index];
         if ((*hint).byteOffset > length || (*hint).text == nullptr
             || (*hint).length == 0 || (*hint).byteOffset < previousOffset
@@ -128,8 +128,8 @@ static bool validHints(const char *text, size_t length,
     return true;
 }
 
-static TerminalPen penAt(const TerminalCodeView *self, size_t byte) {
-    for (size_t index = 0; index < (*self).spanCount; ++index) {
+static TerminalPen penAt(const TerminalCodeView *self, bytes byte) {
+    for (bytes index = 0; index < (*self).spanCount; ++index) {
         const TerminalCodeSpan *span = &(*self).spans[index];
         if (byte >= (*span).startByte && byte < (*span).endByte)
             return (*span).pen;
@@ -140,12 +140,12 @@ static TerminalPen penAt(const TerminalCodeView *self, size_t byte) {
 }
 
 static void paintRange(const TerminalCodeView *self, TerminalCanvas *canvas,
-                       size_t x, size_t y, size_t first, size_t end,
-                       size_t *cell, size_t left, size_t right) {
-    size_t at = first;
+                       bytes x, bytes y, bytes first, bytes end,
+                       bytes *cell, bytes left, bytes right) {
+    bytes at = first;
     while (at < end) {
-        size_t bytes = scalarBytes((*self).text + at, end - at);
-        size_t width = cellWidth((*self).text + at, end - at);
+        bytes bytes = scalarBytes((*self).text + at, end - at);
+        bytes width = cellWidth((*self).text + at, end - at);
         if ((*cell) >= left && (*cell) + width <= right)
             TerminalCanvas_text(canvas, x + (*cell) - left, y,
                                 (*self).text + at, bytes, penAt(self, at));
@@ -162,9 +162,9 @@ void TerminalCodeView_free(TerminalCodeView *self) {
     free(self);
 }
 
-bool TerminalCodeView_setLine(TerminalCodeView *self, const char *text, size_t length,
-                              const TerminalCodeSpan *spans, size_t spanCount,
-                              const TerminalCodeHint *hints, size_t hintCount) {
+bool TerminalCodeView_setLine(TerminalCodeView *self, const char *text, bytes length,
+                              const TerminalCodeSpan *spans, bytes spanCount,
+                              const TerminalCodeHint *hints, bytes hintCount) {
     const char *admittedText = text == nullptr ? "" : text;
     if (self == nullptr || (text == nullptr && length != 0)
         || (spans == nullptr && spanCount != 0) || (hints == nullptr && hintCount != 0)
@@ -182,14 +182,14 @@ bool TerminalCodeView_setLine(TerminalCodeView *self, const char *text, size_t l
     return true;
 }
 
-bool TerminalCodeView_setScroll(TerminalCodeView *self, size_t cells) {
+bool TerminalCodeView_setScroll(TerminalCodeView *self, bytes cells) {
     if (self == nullptr)
         return false;
     (*self).scroll = cells;
     return true;
 }
 
-size_t TerminalCodeView_getScroll(const TerminalCodeView *self) {
+bytes TerminalCodeView_getScroll(const TerminalCodeView *self) {
     return self == nullptr ? 0u : (*self).scroll;
 }
 
@@ -197,7 +197,7 @@ const char *TerminalCodeView_getText(const TerminalCodeView *self) {
     return self == nullptr ? nullptr : (*self).text;
 }
 
-size_t TerminalCodeView_getLength(const TerminalCodeView *self) {
+bytes TerminalCodeView_getLength(const TerminalCodeView *self) {
     return self == nullptr ? 0u : (*self).length;
 }
 
@@ -205,7 +205,7 @@ const TerminalCodeSpan *TerminalCodeView_getSpans(const TerminalCodeView *self) 
     return self == nullptr ? nullptr : (*self).spans;
 }
 
-size_t TerminalCodeView_getSpanCount(const TerminalCodeView *self) {
+bytes TerminalCodeView_getSpanCount(const TerminalCodeView *self) {
     return self == nullptr ? 0u : (*self).spanCount;
 }
 
@@ -213,29 +213,29 @@ const TerminalCodeHint *TerminalCodeView_getHints(const TerminalCodeView *self) 
     return self == nullptr ? nullptr : (*self).hints;
 }
 
-size_t TerminalCodeView_getHintCount(const TerminalCodeView *self) {
+bytes TerminalCodeView_getHintCount(const TerminalCodeView *self) {
     return self == nullptr ? 0u : (*self).hintCount;
 }
 
 void TerminalCodeView_render(const TerminalCodeView *self, TerminalCanvas *canvas,
-                             size_t x, size_t y) {
+                             bytes x, bytes y) {
     if (self == nullptr || !TerminalCanvas_isValid(canvas)
         || x >= TerminalCanvas_getWidth(canvas) || y >= TerminalCanvas_getHeight(canvas))
         return;
-    size_t width = TerminalCanvas_getWidth(canvas) - x;
-    size_t left = (*self).scroll;
-    size_t right = left > SIZE_MAX - width ? SIZE_MAX : left + width;
-    size_t cell = 0;
-    size_t at = 0;
-    size_t hintIndex = 0;
+    bytes width = TerminalCanvas_getWidth(canvas) - x;
+    bytes left = (*self).scroll;
+    bytes right = left > SIZE_MAX - width ? SIZE_MAX : left + width;
+    bytes cell = 0;
+    bytes at = 0;
+    bytes hintIndex = 0;
     while (at <= (*self).length) {
         while (hintIndex < (*self).hintCount
                && (*self).hints[hintIndex].byteOffset == at) {
             const TerminalCodeHint *hint = &(*self).hints[hintIndex++];
-            size_t hintAt = 0;
+            bytes hintAt = 0;
             while (hintAt < (*hint).length) {
-                size_t bytes = scalarBytes((*hint).text + hintAt, (*hint).length - hintAt);
-                size_t glyphWidth = cellWidth((*hint).text + hintAt, (*hint).length - hintAt);
+                bytes bytes = scalarBytes((*hint).text + hintAt, (*hint).length - hintAt);
+                bytes glyphWidth = cellWidth((*hint).text + hintAt, (*hint).length - hintAt);
                 if (cell >= left && cell + glyphWidth <= right)
                     TerminalCanvas_text(canvas, x + cell - left, y,
                                         (*hint).text + hintAt, bytes, (*hint).pen);
@@ -245,7 +245,7 @@ void TerminalCodeView_render(const TerminalCodeView *self, TerminalCanvas *canva
         }
         if (at == (*self).length)
             break;
-        size_t next = at + scalarBytes((*self).text + at, (*self).length - at);
+        bytes next = at + scalarBytes((*self).text + at, (*self).length - at);
         paintRange(self, canvas, x, y, at, next, &cell, left, right);
         at = next;
     }

@@ -62,11 +62,11 @@ TerminalStatusBarPens TerminalStatusBar_getPens(const TerminalStatusBar *self) {
 void TerminalStatusBar_render(const TerminalStatusBar *self, TerminalCanvas *canvas) {
     if (self == nullptr || !TerminalCanvas_isValid(canvas))
         return;
-    size_t width = TerminalCanvas_getWidth(canvas);
-    size_t leftLen = (*self).left ? strlen((*self).left) : 0;
-    size_t rightLen = (*self).right ? strlen((*self).right) : 0;
+    bytes width = TerminalCanvas_getWidth(canvas);
+    bytes leftLen = (*self).left ? strlen((*self).left) : 0;
+    bytes rightLen = (*self).right ? strlen((*self).right) : 0;
     bool rightFits = rightLen > 0 && leftLen + rightLen + 1 <= width;
-    size_t leftCap = rightFits ? width - rightLen - 1 : width;
+    bytes leftCap = rightFits ? width - rightLen - 1 : width;
     if ((*self).left != nullptr && leftCap > 0) {
         TerminalCanvas region = TerminalCanvas_sub(canvas, 0, 0, leftCap, 1);
         TerminalCanvas_text(&region, 0, 0, (*self).left, leftLen, (*self).leftPen);

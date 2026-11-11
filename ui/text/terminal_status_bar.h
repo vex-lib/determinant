@@ -6,7 +6,7 @@
 
 #include "ui/surface/terminal_canvas.h"
 #include "ui/surface/terminal_projection.h"
-#include "c23/constructor.h"
+#include "util/constructor.h"
 
 // ui/text/terminal_status_bar.h — a bare, generic one-row status line.
 //

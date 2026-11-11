@@ -295,26 +295,26 @@ typedef struct CommandInfo {
 } CommandInfo;
 typedef struct CommandChain {
     CommandInfo **entries;
-    size_t count;
+    bytes count;
 } CommandChain;
 const char *CommandKind_title(CommandKind kind);
 const char *CommandOperation_title(CommandOperation operation);
 CommandInfo *CommandInfo_fromCommand(Command *command);
 CommandInfo *CommandInfo_3(CommandKind kind, CommandOperation operation, Command *command);
 #define CommandInfo(...) CONSTRUCTOR_DISPATCH(CommandInfo, __VA_ARGS__)
-CommandChain *CommandChain_2(CommandInfo **entries, size_t count);
+CommandChain *CommandChain_2(CommandInfo **entries, bytes count);
 #define CommandChain(...) CONSTRUCTOR_DISPATCH(CommandChain, __VA_ARGS__)
 CommandKind CommandInfo_getKind(const CommandInfo *self);
 CommandOperation CommandInfo_getOperation(const CommandInfo *self);
 Command *CommandInfo_getCommand(const CommandInfo *self);
 bool CommandInfo_isRecursiveDelete(const CommandInfo *self);
 bool CommandInfo_isDelete(const CommandInfo *self);
-size_t CommandChain_getCount(const CommandChain *self);
-CommandInfo *CommandChain_getEntry(const CommandChain *self, size_t index);
+bytes CommandChain_getCount(const CommandChain *self);
+CommandInfo *CommandChain_getEntry(const CommandChain *self, bytes index);
 void CommandInfo_free(CommandInfo *self);
 void CommandChain_free(CommandChain *self);
-bool CommandInfo_toString(const CommandInfo *self, char *dest, size_t cap, bool *outTruncated);
-bool CommandInfo_toStringStruct(const CommandInfo *self, char *dest, size_t cap, bool *outTruncated);
-bool CommandChain_toString(const CommandChain *self, char *dest, size_t cap, bool *outTruncated);
-bool CommandChain_toStringStruct(const CommandChain *self, char *dest, size_t cap, bool *outTruncated);
+bool CommandInfo_toString(const CommandInfo *self, char *dest, bytes cap, bool *outTruncated);
+bool CommandInfo_toStringStruct(const CommandInfo *self, char *dest, bytes cap, bool *outTruncated);
+bool CommandChain_toString(const CommandChain *self, char *dest, bytes cap, bool *outTruncated);
+bool CommandChain_toStringStruct(const CommandChain *self, char *dest, bytes cap, bool *outTruncated);
 #endif

@@ -4,7 +4,7 @@
 #include "test_support.h"
 #include "determinant/test/support.h"
 #include <dlfcn.h>
-static bool sink(void *context, const char *text, size_t length) {
+static bool sink(void *context, const char *text, bytes length) {
     (void) context; assert(text && length == 4); return true;
 }
 int main(void) {
@@ -23,7 +23,7 @@ int main(void) {
     assert(getA && getB);
     TerminalModule first = getA(), second = getB();
     char cells[4];
-    size_t resident = 0;
+    bytes resident = 0;
     Terminal t = Terminal();
     beginDiagnostics();
     assert(Terminal_bind(&t, cells, 4, 4, 1, sink, nullptr));

@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-// Determinant terminal colour — packed 0xRRGGBBAA, the vexgraph-ecosystem-gitrepo's Strict
+// Determinant terminal colour — packed 0xRRGGBBAA, the ecosystem's Strict
 // 0xRRGGBBAA Color Law applied to cells. Red is the high byte, alpha the low
 // byte, so a hex literal reads R,G,B,A left to right and the same value means
 // the same thing in a terminal cell, a graphvex Image or a brush.
@@ -22,15 +22,15 @@
 #define TERMINAL_COLOR_DEFAULT 0x00000000u
 
 #define TERMINAL_RGBA(r, g, b, a) \
-    ((((uint32_t) (r) & 0xFFu) << 24) | (((uint32_t) (g) & 0xFFu) << 16) | \
-     (((uint32_t) (b) & 0xFFu) << 8) | ((uint32_t) (a) & 0xFFu))
+    ((((u32) (r) & 0xFFu) << 24) | (((u32) (g) & 0xFFu) << 16) | \
+     (((u32) (b) & 0xFFu) << 8) | ((u32) (a) & 0xFFu))
 
 #define TERMINAL_RGB(r, g, b) TERMINAL_RGBA(r, g, b, 0xFFu)
 
-#define TERMINAL_COLOR_RED(c)   ((uint8_t) (((c) >> 24) & 0xFFu))
-#define TERMINAL_COLOR_GREEN(c) ((uint8_t) (((c) >> 16) & 0xFFu))
-#define TERMINAL_COLOR_BLUE(c)  ((uint8_t) (((c) >> 8) & 0xFFu))
-#define TERMINAL_COLOR_ALPHA(c) ((uint8_t) ((c) & 0xFFu))
+#define TERMINAL_COLOR_RED(c)   ((u8) (((c) >> 24) & 0xFFu))
+#define TERMINAL_COLOR_GREEN(c) ((u8) (((c) >> 16) & 0xFFu))
+#define TERMINAL_COLOR_BLUE(c)  ((u8) (((c) >> 8) & 0xFFu))
+#define TERMINAL_COLOR_ALPHA(c) ((u8) ((c) & 0xFFu))
 // A colour is "set" when its alpha is non-zero; the default has alpha 0.
 #define TERMINAL_COLOR_IS_SET(c) (((c) & 0xFFu) != 0u)
 
@@ -50,21 +50,21 @@
 // feeding an unset foreground through here would silently paint the ink in the backdrop
 // colour and make the text vanish. A caller keeps the planes distinct — composite what
 // is set, pass what is unset straight through.
-static inline uint32_t TerminalColor_over(uint32_t top, uint32_t bottom) {
-    uint32_t alpha = (uint32_t) TERMINAL_COLOR_ALPHA(top);
+static inline u32 TerminalColor_over(u32 top, u32 bottom) {
+    u32 alpha = (u32) TERMINAL_COLOR_ALPHA(top);
     if (alpha == 0u)
         return bottom;
     if (alpha == 0xFFu)
         return top;
-    uint32_t keep = 0xFFu - alpha;
+    u32 keep = 0xFFu - alpha;
     // +127 rounds to nearest, so the two ends stay exact and no channel drifts by a step
     // when a fade passes through the middle.
-    uint32_t red = ((uint32_t) TERMINAL_COLOR_RED(top) * alpha
-                    + (uint32_t) TERMINAL_COLOR_RED(bottom) * keep + 127u) / 255u;
-    uint32_t green = ((uint32_t) TERMINAL_COLOR_GREEN(top) * alpha
-                      + (uint32_t) TERMINAL_COLOR_GREEN(bottom) * keep + 127u) / 255u;
-    uint32_t blue = ((uint32_t) TERMINAL_COLOR_BLUE(top) * alpha
-                     + (uint32_t) TERMINAL_COLOR_BLUE(bottom) * keep + 127u) / 255u;
+    u32 red = ((u32) TERMINAL_COLOR_RED(top) * alpha
+                    + (u32) TERMINAL_COLOR_RED(bottom) * keep + 127u) / 255u;
+    u32 green = ((u32) TERMINAL_COLOR_GREEN(top) * alpha
+                      + (u32) TERMINAL_COLOR_GREEN(bottom) * keep + 127u) / 255u;
+    u32 blue = ((u32) TERMINAL_COLOR_BLUE(top) * alpha
+                     + (u32) TERMINAL_COLOR_BLUE(bottom) * keep + 127u) / 255u;
     return TERMINAL_RGB(red, green, blue);
 }
 

@@ -36,24 +36,24 @@
  * STRUCT FIELDS (Mirroring ui/panel/terminal_panel.h)
  * TerminalPanelLayout layout    FLEX (bands reserve) or LAYERED (stack)
  * TerminalChild *children       owned growable slot array
- * size_t capacity               admitted slots
- * size_t usedCount              live children
- * size_t paintCount             completed paints
- * size_t refusalCount           refusals in this epoch
+ * bytes capacity               admitted slots
+ * bytes usedCount              live children
+ * bytes paintCount             completed paints
+ * bytes refusalCount           refusals in this epoch
  * TerminalPen pen               inherited by the children added directly here
  * const TerminalImage *image    borrowed background (nullable)
  * TerminalPanelImageFit fit     how the background fills the area
  * bool painting                 a paint is in flight (reentrancy guard)
  * SLOT RECORD: TerminalChild
  * bool used                     slot holds a live child
- * uint32_t generation           bumped on slot reuse, so a stale id is detectable
+ * u32 generation           bumped on slot reuse, so a stale id is detectable
  * TerminalComponentKind kind    which payload is live
  * TerminalAnchor anchor         placement in the parent
  * TerminalPanel *panel          owned nested panel when kind == PANEL
  * TerminalText *text            owned text leaf when kind == TEXT
  * SLOT RECORD: TerminalChildId
- * size_t index                  slot index
- * uint32_t generation           the generation expected at that slot (0 = invalid)
+ * bytes index                  slot index
+ * u32 generation           the generation expected at that slot (0 = invalid)
  * PRIVATE HELPERS
  * TERMINAL_PANEL_NO_SLOT      sentinel index meaning "no live child here"
  * invalidId()                 the zero id every refusal returns
@@ -77,7 +77,7 @@
  *   setForegroundColor/getForegroundColor, setBackgroundColor/getBackgroundColor,
  *   setImage/getImage/getFit, setAnchor/getAnchor
  * Paint: void TerminalPanel_paint(self, canvas)
- * Queries: size_t childCount/capacity/paintCount/exhaustionCount(self)
+ * Queries: bytes childCount/capacity/paintCount/exhaustionCount(self)
  *   bool isValid(self, id), isPainting(self), isChildId(id)
  *   bool TerminalChildId_equal(a, b.sh), void clearExhaustion(self)
  * Projections: TerminalProjection TerminalPanel_toString/toStringStruct(self)
@@ -90,7 +90,7 @@
  * here: a panel is a panel, and its flavour is a field.
  * ======================================================================== */
 
-#define TERMINAL_PANEL_NO_SLOT ((size_t) -1)
+#define TERMINAL_PANEL_NO_SLOT ((bytes) -1)
 
 static TerminalChildId invalidId(void) { return (TerminalChildId) { 0, 0 }; }
 
@@ -105,7 +105,7 @@ static void refuse(TerminalPanel *self, const char *reason) {
 // Resolve an id to a live slot. Zero generation, out-of-range index, a retired
 // slot and a generation mismatch all mean "no such child" — never a silent
 // substitute for a recycled one.
-static size_t slotFor(const TerminalPanel *self, TerminalChildId id) {
+static bytes slotFor(const TerminalPanel *self, TerminalChildId id) {
     if (self == nullptr || id.generation == 0 || id.index >= (*self).capacity)
         return TERMINAL_PANEL_NO_SLOT;
     const TerminalChild *child = &(*self).children[id.index];
@@ -117,7 +117,7 @@ static size_t slotFor(const TerminalPanel *self, TerminalChildId id) {
 // Cold doubling growth. Every live child survives; a failed allocation leaves the
 // panel exactly as it was and is reported through the refusal channel.
 static bool growChildren(TerminalPanel *self) {
-    size_t next = (*self).capacity == 0 ? TERMINAL_PANEL_CHILDREN_DEFAULT : (*self).capacity * 2;
+    bytes next = (*self).capacity == 0 ? TERMINAL_PANEL_CHILDREN_DEFAULT : (*self).capacity * 2;
     if (next < (*self).capacity || next > SIZE_MAX / sizeof(TerminalChild)) {
         refuse(self, "child capacity overflow");
         return false;
@@ -172,7 +172,7 @@ static void paintChildren(TerminalPanel *self, TerminalCanvas *canvas) {
         TerminalCanvas_fill(canvas, ' ', pen);
     bool flowing = (*self).layout == TERMINAL_PANEL_FLEX;
     TerminalRect cursor = { 0, 0, TerminalCanvas_getWidth(canvas), TerminalCanvas_getHeight(canvas) };
-    for (size_t i = 0; i < (*self).capacity; ++i) {
+    for (bytes i = 0; i < (*self).capacity; ++i) {
         TerminalChild *child = &(*self).children[i];
         if (!(*child).used)
             continue;
@@ -205,7 +205,7 @@ void TerminalPanel_free(TerminalPanel *self) {
         THROW("TerminalPanel free: mid-paint");
         return;
     }
-    for (size_t i = 0; i < (*self).capacity; ++i) {
+    for (bytes i = 0; i < (*self).capacity; ++i) {
         TerminalChild *child = &(*self).children[i];
         if ((*child).used)
             freeChild(child);
@@ -236,8 +236,8 @@ static TerminalChildId adoptChild(TerminalPanel *self, TerminalComponentKind kin
         THROW("TerminalPanel add: null panel, null child or mid-paint");
         return invalidId();
     }
-    size_t slot = TERMINAL_PANEL_NO_SLOT;
-    for (size_t i = 0; i < (*self).capacity; ++i) {
+    bytes slot = TERMINAL_PANEL_NO_SLOT;
+    for (bytes i = 0; i < (*self).capacity; ++i) {
         TerminalChild *candidate = &(*self).children[i];
         if (!(*candidate).used) {
             slot = i;
@@ -245,7 +245,7 @@ static TerminalChildId adoptChild(TerminalPanel *self, TerminalComponentKind kin
         }
     }
     if (slot == TERMINAL_PANEL_NO_SLOT) {
-        size_t previous = (*self).capacity;
+        bytes previous = (*self).capacity;
         if (!growChildren(self))
             return invalidId();
         slot = previous;
@@ -255,7 +255,7 @@ static TerminalChildId adoptChild(TerminalPanel *self, TerminalComponentKind kin
         THROW("TerminalPanel add: child slot generation exhausted");
         return invalidId();
     }
-    uint32_t generation = (*child).generation + 1;
+    u32 generation = (*child).generation + 1;
     memset(child, 0, sizeof *child);
     (*child).generation = generation;
     (*child).used = true;
@@ -295,7 +295,7 @@ bool TerminalPanel_remove(TerminalPanel *self, TerminalChildId id) {
         THROW("TerminalPanel remove: null panel or mid-paint");
         return false;
     }
-    size_t slot = slotFor(self, id);
+    bytes slot = slotFor(self, id);
     if (slot == TERMINAL_PANEL_NO_SLOT) {
         THROW("TerminalPanel remove: unknown or stale child id");
         return false;
@@ -312,7 +312,7 @@ bool TerminalPanel_remove(TerminalPanel *self, TerminalChildId id) {
 static void *detachChild(TerminalPanel *self, TerminalChildId id, TerminalComponentKind kind) {
     if (self == nullptr || (*self).painting)
         return nullptr;
-    size_t slot = slotFor(self, id);
+    bytes slot = slotFor(self, id);
     if (slot == TERMINAL_PANEL_NO_SLOT)
         return nullptr;
     TerminalChild *child = &(*self).children[slot];
@@ -346,7 +346,7 @@ bool TerminalPanel_setPen(TerminalPanel *self, TerminalPen pen) {
 TerminalPen TerminalPanel_getPen(const TerminalPanel *self) {
     return self ? (*self).pen : TerminalPen_0();
 }
-bool TerminalPanel_setStyle(TerminalPanel *self, uint8_t style) {
+bool TerminalPanel_setStyle(TerminalPanel *self, u8 style) {
     if (self == nullptr) {
         THROW("TerminalPanel style: null panel");
         return false;
@@ -355,13 +355,13 @@ bool TerminalPanel_setStyle(TerminalPanel *self, uint8_t style) {
     (*pen).style = style;
     return true;
 }
-uint8_t TerminalPanel_getStyle(const TerminalPanel *self) {
+u8 TerminalPanel_getStyle(const TerminalPanel *self) {
     if (self == nullptr)
         return TERMINAL_STYLE_NONE;
     const TerminalPen *pen = &(*self).pen;
     return (*pen).style;
 }
-bool TerminalPanel_setForegroundColor(TerminalPanel *self, uint32_t color) {
+bool TerminalPanel_setForegroundColor(TerminalPanel *self, u32 color) {
     if (self == nullptr) {
         THROW("TerminalPanel foreground: null panel");
         return false;
@@ -370,13 +370,13 @@ bool TerminalPanel_setForegroundColor(TerminalPanel *self, uint32_t color) {
     (*pen).fg = color;
     return true;
 }
-uint32_t TerminalPanel_getForegroundColor(const TerminalPanel *self) {
+u32 TerminalPanel_getForegroundColor(const TerminalPanel *self) {
     if (self == nullptr)
         return TERMINAL_COLOR_DEFAULT;
     const TerminalPen *pen = &(*self).pen;
     return (*pen).fg;
 }
-bool TerminalPanel_setBackgroundColor(TerminalPanel *self, uint32_t color) {
+bool TerminalPanel_setBackgroundColor(TerminalPanel *self, u32 color) {
     if (self == nullptr) {
         THROW("TerminalPanel background: null panel");
         return false;
@@ -385,7 +385,7 @@ bool TerminalPanel_setBackgroundColor(TerminalPanel *self, uint32_t color) {
     (*pen).bg = color;
     return true;
 }
-uint32_t TerminalPanel_getBackgroundColor(const TerminalPanel *self) {
+u32 TerminalPanel_getBackgroundColor(const TerminalPanel *self) {
     if (self == nullptr)
         return TERMINAL_COLOR_DEFAULT;
     const TerminalPen *pen = &(*self).pen;
@@ -416,7 +416,7 @@ bool TerminalPanel_setAnchor(TerminalPanel *self, TerminalChildId id, TerminalAn
         THROW("TerminalPanel anchor: null panel");
         return false;
     }
-    size_t slot = slotFor(self, id);
+    bytes slot = slotFor(self, id);
     if (slot == TERMINAL_PANEL_NO_SLOT) {
         THROW("TerminalPanel anchor: unknown or stale child id");
         return false;
@@ -426,7 +426,7 @@ bool TerminalPanel_setAnchor(TerminalPanel *self, TerminalChildId id, TerminalAn
     return true;
 }
 TerminalAnchor TerminalPanel_getAnchor(const TerminalPanel *self, TerminalChildId id) {
-    size_t slot = slotFor(self, id);
+    bytes slot = slotFor(self, id);
     if (slot == TERMINAL_PANEL_NO_SLOT)
         return TerminalAnchor_0();
     const TerminalChild *child = &(*self).children[slot];
@@ -455,7 +455,7 @@ TerminalRect TerminalPanel_childRegion(const TerminalPanel *self, const Terminal
         return none;
     bool flowing = (*self).layout == TERMINAL_PANEL_FLEX;
     TerminalRect cursor = { 0, 0, TerminalCanvas_getWidth(canvas), TerminalCanvas_getHeight(canvas) };
-    for (size_t i = 0; i < (*self).capacity; ++i) {
+    for (bytes i = 0; i < (*self).capacity; ++i) {
         const TerminalChild *child = &(*self).children[i];
         if (!(*child).used)
             continue;
@@ -469,13 +469,13 @@ TerminalRect TerminalPanel_childRegion(const TerminalPanel *self, const Terminal
 }
 
 TerminalChildId TerminalPanel_childAt(const TerminalPanel *self, const TerminalCanvas *canvas,
-                                      size_t x, size_t y) {
+                                      bytes x, bytes y) {
     TerminalChildId hit = invalidId();
     if (self == nullptr || canvas == nullptr || !TerminalCanvas_isValid(canvas))
         return hit;
     bool flowing = (*self).layout == TERMINAL_PANEL_FLEX;
     TerminalRect cursor = { 0, 0, TerminalCanvas_getWidth(canvas), TerminalCanvas_getHeight(canvas) };
-    for (size_t i = 0; i < (*self).capacity; ++i) {
+    for (bytes i = 0; i < (*self).capacity; ++i) {
         const TerminalChild *child = &(*self).children[i];
         if (!(*child).used)
             continue;
@@ -493,7 +493,7 @@ TerminalChildId TerminalPanel_childAt(const TerminalPanel *self, const TerminalC
 }
 
 TerminalComponentKind TerminalPanel_childKind(const TerminalPanel *self, TerminalChildId id) {
-    size_t slot = slotFor(self, id);
+    bytes slot = slotFor(self, id);
     if (slot == TERMINAL_PANEL_NO_SLOT)
         return TERMINAL_COMPONENT_TEXT;
     const TerminalChild *child = &(*self).children[slot];
@@ -501,7 +501,7 @@ TerminalComponentKind TerminalPanel_childKind(const TerminalPanel *self, Termina
 }
 
 TerminalPanel *TerminalPanel_childPanel(const TerminalPanel *self, TerminalChildId id) {
-    size_t slot = slotFor(self, id);
+    bytes slot = slotFor(self, id);
     if (slot == TERMINAL_PANEL_NO_SLOT)
         return nullptr;
     const TerminalChild *child = &(*self).children[slot];
@@ -509,17 +509,17 @@ TerminalPanel *TerminalPanel_childPanel(const TerminalPanel *self, TerminalChild
 }
 
 TerminalText *TerminalPanel_childText(const TerminalPanel *self, TerminalChildId id) {
-    size_t slot = slotFor(self, id);
+    bytes slot = slotFor(self, id);
     if (slot == TERMINAL_PANEL_NO_SLOT)
         return nullptr;
     const TerminalChild *child = &(*self).children[slot];
     return (*child).kind == TERMINAL_COMPONENT_TEXT ? (*child).text : nullptr;
 }
 
-size_t TerminalPanel_childCount(const TerminalPanel *self) { return self ? (*self).usedCount : 0; }
-size_t TerminalPanel_capacity(const TerminalPanel *self) { return self ? (*self).capacity : 0; }
-size_t TerminalPanel_paintCount(const TerminalPanel *self) { return self ? (*self).paintCount : 0; }
-size_t TerminalPanel_exhaustionCount(const TerminalPanel *self) { return self ? (*self).refusalCount : 0; }
+bytes TerminalPanel_childCount(const TerminalPanel *self) { return self ? (*self).usedCount : 0; }
+bytes TerminalPanel_capacity(const TerminalPanel *self) { return self ? (*self).capacity : 0; }
+bytes TerminalPanel_paintCount(const TerminalPanel *self) { return self ? (*self).paintCount : 0; }
+bytes TerminalPanel_exhaustionCount(const TerminalPanel *self) { return self ? (*self).refusalCount : 0; }
 bool TerminalPanel_isPainting(const TerminalPanel *self) { return self != nullptr && (*self).painting; }
 bool TerminalPanel_isValid(const TerminalPanel *self, TerminalChildId id) {
     return slotFor(self, id) != TERMINAL_PANEL_NO_SLOT;

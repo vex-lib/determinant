@@ -11,8 +11,8 @@ int main(void) {
     assert(empty && Command_argumentCount(empty) == 0);
     assert(strcmp((const char*) Command_name(empty), "") == 0);
     Command_free(empty);
-    uint8_t *name = String("go");
-    uint8_t *args[] = {String("a"), String("b.sh")};
+    u8 *name = String("go");
+    u8 *args[] = {String("a"), String("b.sh")};
     Command *cmd = Command(name, args, 2);
     assert(cmd && Command_argumentCount(cmd) == 2);
     assert(Command_name(cmd) == name && Command_argument(cmd, 1) == args[1]);
@@ -24,11 +24,11 @@ int main(void) {
     REJECT(Command_3(nullptr, args, 2), "null input");
     REJECT(Command_3(name, nullptr, 1), "null input");
     REJECT(Command_3(name, args, SIZE_MAX), "overflow");
-    uint8_t *duplicate[] = {args[0], args[0]};
+    u8 *duplicate[] = {args[0], args[0]};
     REJECT(Command_3(name, duplicate, 2), "duplicate");
-    uint8_t *alias[] = {name};
+    u8 *alias[] = {name};
     REJECT(Command_3(name, alias, 1), "owned argument");
-    uint8_t *missing[] = {nullptr};
+    u8 *missing[] = {nullptr};
     REJECT(Command_3(name, missing, 1), "owned argument");
     assert(strcmp((const char*) args[0], "a") == 0); // rejection did not consume
     beginDiagnostics();

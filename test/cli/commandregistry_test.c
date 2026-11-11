@@ -4,11 +4,11 @@
 #include "cli/commandparser.h"
 #include "nio/mem.h"
 #include "determinant/test/support.h"
-static size_t calls, notices;
+static bytes calls, notices;
 static CommandRegistry *current;
 static void target(Command *cmd) { assert(cmd); ++calls; }
 static void replacement(Command *cmd) { assert(cmd); calls += 10; }
-static bool sink(void *hostContext, const char *text, size_t length) {
+static bool sink(void *hostContext, const char *text, bytes length) {
     assert(hostContext == &notices && length == strlen("Unknown command"));
     assert(memcmp(text, "Unknown command", length) == 0);
     ++notices;

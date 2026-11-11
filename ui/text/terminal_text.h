@@ -7,7 +7,7 @@
 
 #include "ui/surface/terminal_canvas.h"
 #include "ui/surface/terminal_projection.h"
-#include "c23/constructor.h"
+#include "util/constructor.h"
 
 // ui/text/terminal_text.h — the addressable LEAF.
 //
@@ -41,44 +41,44 @@ typedef enum TerminalTextAlign {
 
 typedef struct TerminalText {
     const char *glyphs;      // borrowed UTF-8, must outlive the text
-    size_t length;           // bytes in `glyphs`
+    bytes length;           // bytes in `glyphs`
     TerminalPen pen;         // this text's own style/foreground/background
-    uint32_t bracketLeft;    // codepoint drawn before the text (0 = none)
-    uint32_t bracketRight;   // codepoint drawn after the text (0 = none)
+    u32 bracketLeft;    // codepoint drawn before the text (0 = none)
+    u32 bracketRight;   // codepoint drawn after the text (0 = none)
     TerminalTextAlign align;  // placement inside the resolved region
 } TerminalText;
 
 TerminalText *TerminalText_0(void);
 TerminalText *TerminalText_1(const char *glyphs);
-TerminalText *TerminalText_2(const char *glyphs, size_t length);
+TerminalText *TerminalText_2(const char *glyphs, bytes length);
 #define TerminalText(...) CONSTRUCTOR_DISPATCH(TerminalText, __VA_ARGS__)
 #define TerminalText_zero() TerminalText_0()
 
 // Frees the text and its record. The borrowed glyph string is never freed.
 void TerminalText_free(TerminalText *self);
 
-bool TerminalText_setText(TerminalText *self, const char *glyphs, size_t length);
+bool TerminalText_setText(TerminalText *self, const char *glyphs, bytes length);
 const char *TerminalText_getText(const TerminalText *self);
-size_t TerminalText_getLength(const TerminalText *self);
+bytes TerminalText_getLength(const TerminalText *self);
 bool TerminalText_setPen(TerminalText *self, TerminalPen pen);
 TerminalPen TerminalText_getPen(const TerminalText *self);
-bool TerminalText_setStyle(TerminalText *self, uint8_t style);
-uint8_t TerminalText_getStyle(const TerminalText *self);
-bool TerminalText_setForegroundColor(TerminalText *self, uint32_t color);
-uint32_t TerminalText_getForegroundColor(const TerminalText *self);
-bool TerminalText_setBackgroundColor(TerminalText *self, uint32_t color);
-uint32_t TerminalText_getBackgroundColor(const TerminalText *self);
+bool TerminalText_setStyle(TerminalText *self, u8 style);
+u8 TerminalText_getStyle(const TerminalText *self);
+bool TerminalText_setForegroundColor(TerminalText *self, u32 color);
+u32 TerminalText_getForegroundColor(const TerminalText *self);
+bool TerminalText_setBackgroundColor(TerminalText *self, u32 color);
+u32 TerminalText_getBackgroundColor(const TerminalText *self);
 // Bracket glyphs are CODEPOINTS, so box-drawing and CJK brackets both work.
 // Setting both to 0 removes them.
-bool TerminalText_setBrackets(TerminalText *self, uint32_t left, uint32_t right);
-uint32_t TerminalText_getBracketLeft(const TerminalText *self);
-uint32_t TerminalText_getBracketRight(const TerminalText *self);
+bool TerminalText_setBrackets(TerminalText *self, u32 left, u32 right);
+u32 TerminalText_getBracketLeft(const TerminalText *self);
+u32 TerminalText_getBracketRight(const TerminalText *self);
 bool TerminalText_setAlign(TerminalText *self, TerminalTextAlign align);
 TerminalTextAlign TerminalText_getAlign(const TerminalText *self);
 
 // Cells this text occupies on one row, brackets included. Wide glyphs count two,
 // which is why this is measured rather than a byte count.
-size_t TerminalText_measure(const TerminalText *self);
+bytes TerminalText_measure(const TerminalText *self);
 
 // Draw on row 0 of `region`, inheriting `parentPen` where this text sets nothing.
 // Clipped to the region; a null text or invalid region is a silent no-op.

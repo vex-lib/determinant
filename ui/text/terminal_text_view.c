@@ -14,8 +14,8 @@
  * CLASS: TerminalTextView (ui/text/terminal_text_view.c)
  * STRUCT FIELDS (Mirroring ui/text/terminal_text_view.h)
  * const char *const *lines  borrowed lines (one row each)
- * size_t count              line count
- * size_t scroll             lines scrolled up from the tail
+ * bytes count              line count
+ * bytes scroll             lines scrolled up from the tail
  * bool tail                 keep the newest line visible (default true)
  * TerminalPen pen           text pen
  * FUNCTION REGISTRY (exports)
@@ -35,14 +35,14 @@ TerminalTextView TerminalTextView_0(void) {
     return view;
 }
 
-TerminalTextView TerminalTextView_2(const char *const *lines, size_t count) {
+TerminalTextView TerminalTextView_2(const char *const *lines, bytes count) {
     TerminalTextView view = TerminalTextView_0();
     view.lines = (count != 0) ? lines : nullptr;
     view.count = (lines != nullptr) ? count : 0;
     return view;
 }
 
-bool TerminalTextView_setLines(TerminalTextView *self, const char *const *lines, size_t count) {
+bool TerminalTextView_setLines(TerminalTextView *self, const char *const *lines, bytes count) {
     if (self == nullptr || (count != 0 && lines == nullptr)) {
         THROW("TerminalTextView lines: null list");
         return false;
@@ -55,30 +55,30 @@ TerminalTextViewLines TerminalTextView_getLines(const TerminalTextView *self) {
     return self ? (TerminalTextViewLines) { (*self).lines, (*self).count }
                 : (TerminalTextViewLines) { nullptr, 0u };
 }
-bool TerminalTextView_setScroll(TerminalTextView *self, size_t scroll) {
+bool TerminalTextView_setScroll(TerminalTextView *self, bytes scroll) {
     if (self == nullptr) { THROW("TerminalTextView scroll: null"); return false; }
     (*self).scroll = scroll;
     return true;
 }
-size_t TerminalTextView_getScroll(const TerminalTextView *self) { return self ? (*self).scroll : 0; }
+bytes TerminalTextView_getScroll(const TerminalTextView *self) { return self ? (*self).scroll : 0; }
 void TerminalTextView_setTail(TerminalTextView *self, bool tail) { if (self != nullptr) (*self).tail = tail; }
 bool TerminalTextView_isTail(const TerminalTextView *self) { return self && (*self).tail; }
 void TerminalTextView_setPen(TerminalTextView *self, TerminalPen pen) { if (self != nullptr) (*self).pen = pen; }
 TerminalPen TerminalTextView_getPen(const TerminalTextView *self) { return self ? (*self).pen : TerminalPen_0(); }
 
-bool TerminalTextView_scrollBy(TerminalTextView *self, long delta, size_t visibleRows) {
+bool TerminalTextView_scrollBy(TerminalTextView *self, long delta, bytes visibleRows) {
     (void) visibleRows;
     if (self == nullptr)
         return false;
     if (delta > 0) {
         if ((*self).scroll == 0)
             return false;
-        size_t step = (size_t) delta;
+        bytes step = (bytes) delta;
         (*self).scroll = step < (*self).scroll ? (*self).scroll - step : 0;
         return true;
     }
     if (delta < 0) {
-        (*self).scroll += (size_t) -delta;
+        (*self).scroll += (bytes) -delta;
         return true;
     }
     return false;
@@ -87,12 +87,12 @@ bool TerminalTextView_scrollBy(TerminalTextView *self, long delta, size_t visibl
 void TerminalTextView_render(const TerminalTextView *self, TerminalCanvas *canvas) {
     if (self == nullptr || !TerminalCanvas_isValid(canvas))
         return;
-    size_t rows = TerminalCanvas_getHeight(canvas);
-    size_t first = 0;
+    bytes rows = TerminalCanvas_getHeight(canvas);
+    bytes first = 0;
     if ((*self).count > rows)
         first = (*self).count - rows;
     first = (*self).scroll <= first ? first - (*self).scroll : 0;
-    for (size_t row = 0; row < rows && first + row < (*self).count; ++row) {
+    for (bytes row = 0; row < rows && first + row < (*self).count; ++row) {
         const char *line = (*self).lines[first + row];
         if (line != nullptr)
             TerminalCanvas_text(canvas, 0, row, line, strlen(line), (*self).pen);

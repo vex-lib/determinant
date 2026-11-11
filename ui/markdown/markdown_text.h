@@ -14,33 +14,33 @@
 // borrowed span.
 
 // Display width of `length` bytes, decoding UTF-8 scalars.
-size_t TerminalMarkdownText_cells(const char *text, size_t length);
+bytes TerminalMarkdownText_cells(const char *text, bytes length);
 
 // Bytes of `text` that fit in `cells` cells without splitting a scalar. A
 // combining mark rides with the scalar before it. `usedCells` receives the width
 // actually consumed (nullable).
-size_t TerminalMarkdownText_bytesForCells(const char *text, size_t length, size_t cells,
-                                  size_t *usedCells);
+bytes TerminalMarkdownText_bytesForCells(const char *text, bytes length, bytes cells,
+                                  bytes *usedCells);
 
 // Bytes of the first scalar, or 1 for malformed input.
-size_t TerminalMarkdownText_scalarBytes(const char *text, size_t length);
+bytes TerminalMarkdownText_scalarBytes(const char *text, bytes length);
 
 // First byte offset of `needle` at or after `from`, or SIZE_MAX.
-size_t TerminalMarkdownText_find(const char *text, size_t length, size_t from,
-                         const char *needle, size_t needleLength);
+bytes TerminalMarkdownText_find(const char *text, bytes length, bytes from,
+                         const char *needle, bytes needleLength);
 
 // First byte offset of a run of exactly `run` copies of `glyph`, or SIZE_MAX.
-size_t TerminalMarkdownText_findRun(const char *text, size_t length, size_t from, char glyph,
-                            size_t run);
+bytes TerminalMarkdownText_findRun(const char *text, bytes length, bytes from, char glyph,
+                            bytes run);
 
 bool TerminalMarkdownText_isSpace(char character);
 bool TerminalMarkdownText_isPunctuation(char character);
 
 // Leading spaces/tabs, and the offset after the last non-space byte.
-size_t TerminalMarkdownText_leadingSpaces(const char *text, size_t length);
-size_t TerminalMarkdownText_trimRight(const char *text, size_t length);
+bytes TerminalMarkdownText_leadingSpaces(const char *text, bytes length);
+bytes TerminalMarkdownText_trimRight(const char *text, bytes length);
 
 // True when the span is empty or only spaces/tabs.
-bool TerminalMarkdownText_blank(const char *text, size_t length);
+bool TerminalMarkdownText_blank(const char *text, bytes length);
 
 #endif

@@ -3,7 +3,7 @@
 // loses focus outside/on escape/disable and renders distinct deterministic cells.
 #include "ui/button/terminal_button.h"
 #include "determinant/test/support.h"
-static bool sink(void *context, const char *text, size_t length) {
+static bool sink(void *context, const char *text, bytes length) {
     (void) context; (void) text; (void) length; return true;
 }
 int main(void) {

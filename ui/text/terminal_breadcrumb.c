@@ -17,7 +17,7 @@
  *   const char *root       borrowed root directory or project label (nullable)
  *   const char *path       borrowed target file path
  *   const char *separator  borrowed arrow separator (default " › ")
- *   size_t maxCells        horizontal column budget (0 = unconstrained)
+ *   bytes maxCells        horizontal column budget (0 = unconstrained)
  *   TerminalPen pen        presentation style and color
  *
  * FUNCTION REGISTRY
@@ -57,7 +57,7 @@ TerminalBreadcrumb TerminalBreadcrumb_3(const char *rootDirectory, const char *t
 }
 
 TerminalBreadcrumb TerminalBreadcrumb_4(const char *rootDirectory, const char *targetPath,
-                                        const char *customSeparator, size_t maximumCells) {
+                                        const char *customSeparator, bytes maximumCells) {
     TerminalBreadcrumb breadcrumbInstance = TerminalBreadcrumb_3(rootDirectory, targetPath, customSeparator);
     breadcrumbInstance.maxCells = maximumCells;
     return breadcrumbInstance;
@@ -91,7 +91,7 @@ bool TerminalBreadcrumb_setSeparator(TerminalBreadcrumb *self, const char *custo
     return true;
 }
 
-bool TerminalBreadcrumb_setMaxCells(TerminalBreadcrumb *self, size_t maximumCells) {
+bool TerminalBreadcrumb_setMaxCells(TerminalBreadcrumb *self, bytes maximumCells) {
     if (self == nullptr) {
         THROW("TerminalBreadcrumb setMaxCells: null self");
         return false;
@@ -117,7 +117,7 @@ const char *TerminalBreadcrumb_getSeparator(const TerminalBreadcrumb *self) {
     return self != nullptr ? (*self).separator : nullptr;
 }
 
-size_t TerminalBreadcrumb_getMaxCells(const TerminalBreadcrumb *self) {
+bytes TerminalBreadcrumb_getMaxCells(const TerminalBreadcrumb *self) {
     return self != nullptr ? (*self).maxCells : 0u;
 }
 
@@ -125,11 +125,11 @@ TerminalPen TerminalBreadcrumb_getPen(const TerminalBreadcrumb *self) {
     return self != nullptr ? (*self).pen : TerminalPen_0();
 }
 
-static size_t TerminalBreadcrumb_measureStringCells(const char *byteSpan, size_t byteLength) {
+static bytes TerminalBreadcrumb_measureStringCells(const char *byteSpan, bytes byteLength) {
     if (byteSpan == nullptr || byteLength == 0u)
         return 0u;
-    size_t totalCells = 0u;
-    size_t byteOffset = 0u;
+    bytes totalCells = 0u;
+    bytes byteOffset = 0u;
     while (byteOffset < byteLength) {
         TerminalCanvasDecodedScalar decodedScalar = TerminalCanvas_utf8Decode(byteSpan + byteOffset,
                                                                              byteLength - byteOffset);
@@ -144,12 +144,12 @@ static size_t TerminalBreadcrumb_measureStringCells(const char *byteSpan, size_t
     return totalCells;
 }
 
-static size_t TerminalBreadcrumb_bytesForCellBudget(const char *byteSpan, size_t byteLength,
-                                                    size_t cellBudget) {
+static bytes TerminalBreadcrumb_bytesForCellBudget(const char *byteSpan, bytes byteLength,
+                                                    bytes cellBudget) {
     if (byteSpan == nullptr || byteLength == 0u || cellBudget == 0u)
         return 0u;
-    size_t consumedCells = 0u;
-    size_t byteOffset = 0u;
+    bytes consumedCells = 0u;
+    bytes byteOffset = 0u;
     while (byteOffset < byteLength && consumedCells < cellBudget) {
         TerminalCanvasDecodedScalar decodedScalar = TerminalCanvas_utf8Decode(byteSpan + byteOffset,
                                                                              byteLength - byteOffset);
@@ -158,7 +158,7 @@ static size_t TerminalBreadcrumb_bytesForCellBudget(const char *byteSpan, size_t
             ++byteOffset;
             continue;
         }
-        size_t cellWidth = TerminalCanvas_widthOf(decodedScalar.codepoint);
+        bytes cellWidth = TerminalCanvas_widthOf(decodedScalar.codepoint);
         if (consumedCells + cellWidth > cellBudget)
             break;
         consumedCells += cellWidth;
@@ -167,8 +167,8 @@ static size_t TerminalBreadcrumb_bytesForCellBudget(const char *byteSpan, size_t
     return byteOffset;
 }
 
-size_t TerminalBreadcrumb_format(const TerminalBreadcrumb *self, char *destinationBuffer,
-                                 size_t destinationCapacity) {
+bytes TerminalBreadcrumb_format(const TerminalBreadcrumb *self, char *destinationBuffer,
+                                 bytes destinationCapacity) {
     if (self == nullptr || destinationBuffer == nullptr || destinationCapacity == 0u)
         return 0u;
 
@@ -184,7 +184,7 @@ size_t TerminalBreadcrumb_format(const TerminalBreadcrumb *self, char *destinati
     const char *rootBaseName = "";
 
     if (rootDirectory != nullptr && rootDirectory[0] != '\0') {
-        size_t rootLength = strlen(rootDirectory);
+        bytes rootLength = strlen(rootDirectory);
         if (strncmp((*self).path, rootDirectory, rootLength) == 0
             && ((*self).path[rootLength] == '/' || (*self).path[rootLength] == '\0')) {
             isInsideRoot = true;
@@ -199,15 +199,15 @@ size_t TerminalBreadcrumb_format(const TerminalBreadcrumb *self, char *destinati
 
     const char *firstSegmentPointers[2] = { nullptr, nullptr };
     const char *lastSegmentPointers[2] = { nullptr, nullptr };
-    size_t firstSegmentLengths[2] = { 0u, 0u };
-    size_t lastSegmentLengths[2] = { 0u, 0u };
-    size_t segmentCount = 0u;
+    bytes firstSegmentLengths[2] = { 0u, 0u };
+    bytes lastSegmentLengths[2] = { 0u, 0u };
+    bytes segmentCount = 0u;
 
     const char *scanPointer = relativeCursor;
     while (*scanPointer != '\0') {
         const char *endPointer = strchr(scanPointer, '/');
-        size_t segmentLength = endPointer == nullptr ? strlen(scanPointer)
-                                                     : (size_t) (endPointer - scanPointer);
+        bytes segmentLength = endPointer == nullptr ? strlen(scanPointer)
+                                                     : (bytes) (endPointer - scanPointer);
         if (segmentLength != 0u) {
             if (segmentCount < 2u) {
                 firstSegmentPointers[segmentCount] = scanPointer;
@@ -245,14 +245,14 @@ size_t TerminalBreadcrumb_format(const TerminalBreadcrumb *self, char *destinati
         if (segmentCount == 0u) {
             (void) snprintf(scratchBuffer, sizeof scratchBuffer, "%s", rootBaseName);
         } else if (segmentCount <= 4u) {
-            size_t writtenBytes = (size_t) snprintf(scratchBuffer, sizeof scratchBuffer, "%s", rootBaseName);
+            bytes writtenBytes = (bytes) snprintf(scratchBuffer, sizeof scratchBuffer, "%s", rootBaseName);
             const char *componentScanner = relativeCursor;
             while (*componentScanner != '\0' && writtenBytes + 2u < sizeof scratchBuffer) {
                 const char *nextSlash = strchr(componentScanner, '/');
-                size_t componentLength = nextSlash == nullptr ? strlen(componentScanner)
-                                                              : (size_t) (nextSlash - componentScanner);
+                bytes componentLength = nextSlash == nullptr ? strlen(componentScanner)
+                                                              : (bytes) (nextSlash - componentScanner);
                 if (componentLength != 0u) {
-                    writtenBytes += (size_t) snprintf(scratchBuffer + writtenBytes,
+                    writtenBytes += (bytes) snprintf(scratchBuffer + writtenBytes,
                                                      sizeof scratchBuffer - writtenBytes,
                                                      "%s%.*s", activeSeparator,
                                                      (int) componentLength, componentScanner);
@@ -272,12 +272,12 @@ size_t TerminalBreadcrumb_format(const TerminalBreadcrumb *self, char *destinati
         }
     }
 
-    size_t rawByteLength = strlen(scratchBuffer);
+    bytes rawByteLength = strlen(scratchBuffer);
     if ((*self).maxCells > 0u) {
-        size_t measuredCells = TerminalBreadcrumb_measureStringCells(scratchBuffer, rawByteLength);
+        bytes measuredCells = TerminalBreadcrumb_measureStringCells(scratchBuffer, rawByteLength);
         if (measuredCells > (*self).maxCells) {
-            size_t keepBudget = (*self).maxCells > 1u ? (*self).maxCells - 1u : 0u;
-            size_t byteCut = TerminalBreadcrumb_bytesForCellBudget(scratchBuffer, rawByteLength, keepBudget);
+            bytes keepBudget = (*self).maxCells > 1u ? (*self).maxCells - 1u : 0u;
+            bytes byteCut = TerminalBreadcrumb_bytesForCellBudget(scratchBuffer, rawByteLength, keepBudget);
             if (byteCut + 4u < sizeof scratchBuffer) {
                 memcpy(scratchBuffer + byteCut, "…", 3u);
                 scratchBuffer[byteCut + 3u] = '\0';
@@ -293,20 +293,20 @@ size_t TerminalBreadcrumb_format(const TerminalBreadcrumb *self, char *destinati
     return rawByteLength;
 }
 
-size_t TerminalBreadcrumb_measure(const TerminalBreadcrumb *self) {
+bytes TerminalBreadcrumb_measure(const TerminalBreadcrumb *self) {
     if (self == nullptr)
         return 0u;
     char measureBuffer[1024];
-    size_t formattedBytes = TerminalBreadcrumb_format(self, measureBuffer, sizeof measureBuffer);
+    bytes formattedBytes = TerminalBreadcrumb_format(self, measureBuffer, sizeof measureBuffer);
     return TerminalBreadcrumb_measureStringCells(measureBuffer, formattedBytes);
 }
 
 void TerminalBreadcrumb_render(const TerminalBreadcrumb *self, TerminalCanvas *canvas,
-                               size_t xCoordinate, size_t yCoordinate) {
+                               bytes xCoordinate, bytes yCoordinate) {
     if (self == nullptr || canvas == nullptr || !TerminalCanvas_isValid(canvas))
         return;
     char renderBuffer[1024];
-    size_t formattedBytes = TerminalBreadcrumb_format(self, renderBuffer, sizeof renderBuffer);
+    bytes formattedBytes = TerminalBreadcrumb_format(self, renderBuffer, sizeof renderBuffer);
     if (formattedBytes == 0u)
         return;
     TerminalCanvas_text(canvas, xCoordinate, yCoordinate, renderBuffer, formattedBytes, (*self).pen);

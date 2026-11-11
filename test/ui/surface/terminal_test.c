@@ -3,26 +3,26 @@
 // External serialized API; no arbitrary native rollback or OS acquisition.
 #include "ui/surface/terminal.h"
 #include "determinant/test/support.h"
-static size_t deliveries;
-static bool sink(void *context, const char *text, size_t length) {
+static bytes deliveries;
+static bool sink(void *context, const char *text, bytes length) {
     assert(context == &deliveries && length == 8 && text);
     ++deliveries;
     return true;
 }
-static bool failedSink(void *context, const char *text, size_t length) {
+static bool failedSink(void *context, const char *text, bytes length) {
     (void) context; (void) text; (void) length; return false;
 }
 static bool viewA(void *state, Terminal *terminal) {
-    ++*(size_t*) state;
+    ++*(bytes*) state;
     return Terminal_text(terminal, 0, 0, "A", 1);
 }
 static bool viewB(void *state, Terminal *terminal) {
-    ++*(size_t*) state;
+    ++*(bytes*) state;
     return Terminal_text(terminal, 0, 0, "B", 1);
 }
-static bool command(void *state, const char *text, size_t length) {
+static bool command(void *state, const char *text, bytes length) {
     assert(length == 2 && memcmp(text, "go", 2) == 0);
-    ++*(size_t*) state;
+    ++*(bytes*) state;
     return true;
 }
 static bool busy(void *state, Terminal *terminal) {
@@ -38,7 +38,7 @@ static bool busy(void *state, Terminal *terminal) {
 int main(void) {
     char cells[8], bigger[16];
     Terminal t = Terminal();
-    size_t state = 0;
+    bytes state = 0;
     assert(Terminal_isPaused(&t));
     REJECT(Terminal_bind(&t, cells, 8, SIZE_MAX, 2, sink, &deliveries), "geometry");
     REJECT(Terminal_bind(&t, cells, 8, 4, 3, sink, &deliveries), "geometry");

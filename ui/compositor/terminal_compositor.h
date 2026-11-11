@@ -9,7 +9,7 @@
 #include "ui/surface/terminal_projection.h"
 #include "format/terminal_color.h"
 #include "format/terminal_style.h"
-#include "c23/constructor.h"
+#include "util/constructor.h"
 
 // ui/compositor/terminal_compositor.h — the terminal output compositor.
 //
@@ -37,17 +37,17 @@ typedef enum TerminalCompositorColorMode {
 typedef struct TerminalCompositor {
     int fd;
     TerminalCompositorColorMode colorMode;
-    uint32_t deviceBg;
-    size_t presentWidth;
-    size_t cursorColumn;
-    size_t cursorRow;
+    u32 deviceBg;
+    bytes presentWidth;
+    bytes cursorColumn;
+    bytes cursorRow;
     char pen[TERMINAL_COMPOSITOR_PEN_CAPACITY];
-    size_t penLength;
+    bytes penLength;
     bool penValid;
     bool inAlternate;
     bool inTransaction;
     bool outFailed;
-    size_t outLength;
+    bytes outLength;
     char out[TERMINAL_COMPOSITOR_BUFFER_CAPACITY];
 } TerminalCompositor;
 
@@ -70,14 +70,14 @@ void TerminalCompositor_phase(void *context, TerminalPresentPhase phase);
 
 bool TerminalCompositor_setFd(TerminalCompositor *self, int fd);
 int TerminalCompositor_getFd(const TerminalCompositor *self);
-bool TerminalCompositor_setDeviceBackground(TerminalCompositor *self, uint32_t bg);
-uint32_t TerminalCompositor_getDeviceBackground(const TerminalCompositor *self);
-bool TerminalCompositor_setPresentWidth(TerminalCompositor *self, size_t width);
-size_t TerminalCompositor_getPresentWidth(const TerminalCompositor *self);
+bool TerminalCompositor_setDeviceBackground(TerminalCompositor *self, u32 bg);
+u32 TerminalCompositor_getDeviceBackground(const TerminalCompositor *self);
+bool TerminalCompositor_setPresentWidth(TerminalCompositor *self, bytes width);
+bytes TerminalCompositor_getPresentWidth(const TerminalCompositor *self);
 bool TerminalCompositor_setColorMode(TerminalCompositor *self, TerminalCompositorColorMode mode);
 TerminalCompositorColorMode TerminalCompositor_getColorMode(const TerminalCompositor *self);
 bool TerminalCompositor_getFailed(const TerminalCompositor *self);
-size_t TerminalCompositor_getBufferedLength(const TerminalCompositor *self);
+bytes TerminalCompositor_getBufferedLength(const TerminalCompositor *self);
 
 TerminalProjection TerminalCompositor_toString(const TerminalCompositor *self);
 TerminalProjection TerminalCompositor_toStringStruct(const TerminalCompositor *self);

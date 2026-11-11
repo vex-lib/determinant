@@ -26,7 +26,7 @@
  *   Command *CommandInfo_getCommand(const CommandInfo *self)
  * Lifecycle: void CommandInfo_free(CommandInfo *self)
  * Projections: bool CommandInfo_toString/CommandInfo_toStringStruct(
- *   const CommandInfo *self, char *dest, size_t cap, bool *outTruncated)
+ *   const CommandInfo *self, char *dest, bytes cap, bool *outTruncated)
  * CONTRACT: takes ownership of command only on success; null command rejects
  * before transfer. Free null is harmless. Projections redact owned strings.
  * ======================================================================== */
@@ -414,18 +414,18 @@ static const struct { const char *name; CommandKind kind; } kindRows[] = {
     {"sudo", COMMAND_SUDO},
     {"export", COMMAND_EXPORT},
 };
-static CommandKind classify(const char *name) { if (name == nullptr) return COMMAND_UNKNOWN; for (size_t i = 0; i < sizeof(kindRows)/sizeof(kindRows[0]); ++i) if (strcmp(name, kindRows[i].name) == 0) return kindRows[i].kind; return COMMAND_UNKNOWN; }
+static CommandKind classify(const char *name) { if (name == nullptr) return COMMAND_UNKNOWN; for (bytes i = 0; i < sizeof(kindRows)/sizeof(kindRows[0]); ++i) if (strcmp(name, kindRows[i].name) == 0) return kindRows[i].kind; return COMMAND_UNKNOWN; }
 static bool flagHas(const char *arg, char letter) {
     if (arg == nullptr || arg[0] != '-')
         return false;
-    for (size_t j = 1; arg[j] != 0; ++j)
+    for (bytes j = 1; arg[j] != 0; ++j)
         if (arg[j] == letter)
             return true;
     return false;
 }
 static bool anyFlag(Command *command, char letter) {
-    size_t argc = Command_argumentCount(command);
-    for (size_t i = 0; i < argc; ++i) {
+    bytes argc = Command_argumentCount(command);
+    for (bytes i = 0; i < argc; ++i) {
         const char *arg = (const char*) Command_argument(command, i);
         if (flagHas(arg, letter) || (letter == 'r' && flagHas(arg, 'R')))
             return true;
@@ -433,7 +433,7 @@ static bool anyFlag(Command *command, char letter) {
     return false;
 }
 static CommandOperation classifyOperation(CommandKind kind, Command *command) {
-    size_t argc = Command_argumentCount(command);
+    bytes argc = Command_argumentCount(command);
     const char *arg0 = argc > 0 ? (const char*) Command_argument(command, 0) : nullptr;
     switch (kind) {
         case COMMAND_CD:
@@ -598,7 +598,7 @@ static CommandOperation classifyOperation(CommandKind kind, Command *command) {
                 {"stash", COMMAND_GIT_STASH}
             };
             if (arg0 != nullptr)
-                for (size_t i = 0; i < sizeof(gitOps) / sizeof(gitOps[0]); ++i)
+                for (bytes i = 0; i < sizeof(gitOps) / sizeof(gitOps[0]); ++i)
                     if (strcmp(arg0, gitOps[i].sub) == 0)
                         return gitOps[i].op;
             return COMMAND_OPERATION_UNKNOWN;
@@ -886,7 +886,7 @@ CommandInfo *CommandInfo_3(CommandKind kind, CommandOperation operation, Command
         THROW("CommandInfo construct: null command");
         return nullptr;
     }
-    if ((size_t) kind >= (size_t) COMMAND_KIND_COUNT || (size_t) operation >= (size_t) COMMAND_OPERATION_COUNT) {
+    if ((bytes) kind >= (bytes) COMMAND_KIND_COUNT || (bytes) operation >= (bytes) COMMAND_OPERATION_COUNT) {
         THROW("CommandInfo construct: kind or operation out of range");
         return nullptr;
     }
@@ -921,10 +921,10 @@ void CommandInfo_free(CommandInfo *self) {
     Command_free((*self).command);
     Memory_free(self);
 }
-bool CommandInfo_toString(const CommandInfo *self, char *dest, size_t cap, bool *outTruncated) {
+bool CommandInfo_toString(const CommandInfo *self, char *dest, bytes cap, bool *outTruncated) {
     return CommandInfo_toStringStruct(self, dest, cap, outTruncated);
 }
-bool CommandInfo_toStringStruct(const CommandInfo *self, char *dest, size_t cap, bool *outTruncated) {
+bool CommandInfo_toStringStruct(const CommandInfo *self, char *dest, bytes cap, bool *outTruncated) {
     if (outTruncated != nullptr)
         *outTruncated = false;
     if (dest == nullptr || cap == 0) {
@@ -935,7 +935,7 @@ bool CommandInfo_toStringStruct(const CommandInfo *self, char *dest, size_t cap,
     }
     int n = self ? snprintf(dest, cap, "CommandInfo{kind=%s,command=<owned>}", CommandKind_title((*self).kind))
                  : snprintf(dest, cap, "nullptr");
-    bool cut = n < 0 || (size_t) n >= cap;
+    bool cut = n < 0 || (bytes) n >= cap;
     if (outTruncated != nullptr)
         *outTruncated = cut;
     if (cut)

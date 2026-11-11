@@ -28,10 +28,10 @@
  * returned pen never carries a span's emphasis flags — the caller ORs those.
  * ============================================================================ */
 
-static uint8_t headingIndex(uint8_t level) {
+static u8 headingIndex(u8 level) {
     if (level == 0)
         return 0;
-    return (uint8_t) (level - 1u > 5u ? 5u : level - 1u);
+    return (u8) (level - 1u > 5u ? 5u : level - 1u);
 }
 
 TerminalMarkdownTheme TerminalMarkdownTheme_0(void) {
@@ -76,7 +76,7 @@ TerminalMarkdownTheme TerminalMarkdownTheme_0(void) {
 }
 
 TerminalPen TerminalMarkdownTheme_pen(const TerminalMarkdownTheme *self,
-                                      TerminalMarkdownRole role, uint8_t variant,
+                                      TerminalMarkdownRole role, u8 variant,
                                       bool hovered) {
     if (self == nullptr)
         return TerminalPen_0();
@@ -96,7 +96,7 @@ TerminalPen TerminalMarkdownTheme_pen(const TerminalMarkdownTheme *self,
         case TERMINAL_MARKDOWN_FENCE:
             return (*self).fence;
         case TERMINAL_MARKDOWN_CALLOUT: {
-            size_t index = TerminalMarkdownCallout_penIndex((TerminalMarkdownCalloutKind) variant);
+            bytes index = TerminalMarkdownCallout_penIndex((TerminalMarkdownCalloutKind) variant);
             return index < TERMINAL_MARKDOWN_CALLOUT_KIND_COUNT ? (*self).callout[index] : (*self).body;
         }
         case TERMINAL_MARKDOWN_TABLE_HEADER:
@@ -110,7 +110,7 @@ TerminalPen TerminalMarkdownTheme_pen(const TerminalMarkdownTheme *self,
 
 TerminalMarkdownTheme TerminalMarkdownTheme_fromStyle(TerminalMarkdownStyle style) {
     TerminalMarkdownTheme theme = TerminalMarkdownTheme_0();
-    for (size_t level = 0; level < 6u; ++level)
+    for (bytes level = 0; level < 6u; ++level)
         theme.heading[level] = style.heading;
     theme.body = style.body;
     theme.code = style.code;

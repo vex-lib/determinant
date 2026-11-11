@@ -16,7 +16,7 @@
  * CLASS: TerminalAppearance (ui/theme/terminal_appearance.c)
  * STRUCT FIELDS (Mirroring ui/theme/terminal_appearance.h)
  * TerminalRule rule            connector glyph set
- * uint32_t colorAccent, colorMuted, colorText, colorError   palette
+ * u32 colorAccent, colorMuted, colorText, colorError   palette
  * FILE-LOCAL CONSTANTS
  * PRESETS[] / PRESET_NAMES[]   the named appearance table
  * FUNCTION REGISTRY (exports)
@@ -36,10 +36,10 @@
 #define CP_LIGHT_T  0x252Cu   // ┬ (rail drops from the run)
 #define CP_LIGHT_L  0x251Cu   // ├ (rail top, no run)
 #define CP_EMDASH   0x2014u   // —
-#define CP_DOUBLE_H 0x2550u   // ═
-#define CP_DOUBLE_V 0x2551u   // ║
-#define CP_DOUBLE_T 0x2566u   // ╦
-#define CP_DOUBLE_L 0x2560u   // ╠
+#define CP_f64_H 0x2550u   // ═
+#define CP_f64_V 0x2551u   // ║
+#define CP_f64_T 0x2566u   // ╦
+#define CP_f64_L 0x2560u   // ╠
 // Detached-box corners and cut endpoints. A panel gets its OWN corners instead of
 // meeting its neighbours at a junction, and a divider stops short ('╶───╴').
 #define CP_TL       0x250Cu   // ┌
@@ -56,7 +56,7 @@
 #define CP_CUT_DR   0x2561u   // ╡
 // Every preset frames its panels with real corners and cuts its dividers short.
 #define BOX_LIGHT   CP_TL, CP_TR, CP_BL, CP_BR, CP_CUT_L, CP_CUT_R
-#define BOX_DOUBLE  CP_DTL, CP_DTR, CP_DBL, CP_DBR, CP_CUT_DL, CP_CUT_DR
+#define BOX_f64  CP_DTL, CP_DTR, CP_DBL, CP_DBR, CP_CUT_DL, CP_CUT_DR
 
 typedef struct AppearancePreset {
     const char *name;
@@ -69,13 +69,13 @@ static const AppearancePreset PRESETS[] = {
     { "ascii-dashed",  { '-', '|', '+', '+', ' ',          2, BOX_LIGHT } },
     { "unicode-light", { CP_LIGHT_H, CP_LIGHT_V, CP_LIGHT_T, CP_LIGHT_L, 0, 0, BOX_LIGHT } },
     { "unicode-emdash",{ CP_EMDASH,  CP_LIGHT_V, CP_LIGHT_T, CP_LIGHT_L, 0, 0, BOX_LIGHT } },
-    { "unicode-double",{ CP_DOUBLE_H, CP_DOUBLE_V, CP_DOUBLE_T, CP_DOUBLE_L, 0, 0, BOX_DOUBLE } },
+    { "unicode-d64",{ CP_f64_H, CP_f64_V, CP_f64_T, CP_f64_L, 0, 0, BOX_f64 } },
 };
 
-static const size_t PRESET_COUNT = sizeof(PRESETS) / sizeof(PRESETS[0]);
-static const size_t PRESET_DEFAULT = 1;   // "ascii-striped"
+static const bytes PRESET_COUNT = sizeof(PRESETS) / sizeof(PRESETS[0]);
+static const bytes PRESET_DEFAULT = 1;   // "ascii-striped"
 
-static TerminalAppearance makeAppearance(size_t index) {
+static TerminalAppearance makeAppearance(bytes index) {
     TerminalAppearance appearance = {0};
     appearance.rule = PRESETS[index].rule;
     appearance.colorAccent = TERMINAL_RGB(0x7A, 0xC8, 0xFF);
@@ -89,19 +89,19 @@ TerminalAppearance TerminalAppearance_0(void) {
     return makeAppearance(PRESET_DEFAULT);
 }
 
-size_t TerminalAppearance_presetCount(void) { return PRESET_COUNT; }
+bytes TerminalAppearance_presetCount(void) { return PRESET_COUNT; }
 
-const char *TerminalAppearance_presetName(size_t index) {
+const char *TerminalAppearance_presetName(bytes index) {
     return index < PRESET_COUNT ? PRESETS[index].name : nullptr;
 }
 
-TerminalAppearance TerminalAppearance_preset(size_t index) {
+TerminalAppearance TerminalAppearance_preset(bytes index) {
     return makeAppearance(index < PRESET_COUNT ? index : PRESET_DEFAULT);
 }
 
 TerminalAppearance TerminalAppearance_named(const char *name) {
     if (name != nullptr) {
-        for (size_t i = 0; i < PRESET_COUNT; ++i)
+        for (bytes i = 0; i < PRESET_COUNT; ++i)
             if (strcmp(name, PRESETS[i].name) == 0)
                 return makeAppearance(i);
     }
@@ -116,8 +116,8 @@ bool TerminalAppearance_setRule(TerminalAppearance *self, TerminalRule rule) {
 TerminalRule TerminalAppearance_getRule(const TerminalAppearance *self) {
     return self ? (*self).rule : TerminalRule_0();
 }
-bool TerminalAppearance_setColors(TerminalAppearance *self, uint32_t accent, uint32_t muted,
-                                  uint32_t text, uint32_t error) {
+bool TerminalAppearance_setColors(TerminalAppearance *self, u32 accent, u32 muted,
+                                  u32 text, u32 error) {
     if (self == nullptr) { THROW("TerminalAppearance colors: null self"); return false; }
     (*self).colorAccent = accent;
     (*self).colorMuted = muted;
@@ -138,7 +138,7 @@ void TerminalAppearance_applyTo(const TerminalAppearance *self, TerminalFrame *f
 }
 
 void TerminalAppearance_drawRule(const TerminalAppearance *self, TerminalCanvas *canvas,
-                                 size_t ly, TerminalPen pen) {
+                                 bytes ly, TerminalPen pen) {
     if (self == nullptr || !TerminalCanvas_isValid(canvas))
         return;
     TerminalRule_draw(&(*self).rule, canvas, ly, pen);

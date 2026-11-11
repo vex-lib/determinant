@@ -14,21 +14,21 @@
  * CLASS: CommandRegistry (cli/commandregistry.c)
  * STRUCT FIELDS (Mirroring cli/commandregistry.h)
  * CommandRegistryRow *rows       borrowed flat directory
- * size_t capacity               admitted row extent
- * size_t count                  initialized rows
+ * bytes capacity               admitted row extent
+ * bytes count                  initialized rows
  * DeterminantOutputFn output     borrowed presentation callback
  * void *hostContext             opaque host-defined presentation state
- * size_t refusalCount           counted capacity refusals, reset by free
+ * bytes refusalCount           counted capacity refusals, reset by free
  * bool active                   callback exclusion/reentrant admission guard
  * SLOT RECORD: CommandRegistryRow
  * const char *name               borrowed immutable ASCII command identity
  * CommandFn target              borrowed resident callback
  * FUNCTION REGISTRY (exports)
  * Constructors: CommandRegistry CommandRegistry_0(void)
- *   CommandRegistry CommandRegistry_4(CommandRegistryRow *rows, size_t capacity,
+ *   CommandRegistry CommandRegistry_4(CommandRegistryRow *rows, bytes capacity,
  *     DeterminantOutputFn output, void *hostContext)
  * Admission: bool CommandRegistry_reserve(CommandRegistry *self,
- *     CommandRegistryRow *rows, size_t capacity)
+ *     CommandRegistryRow *rows, bytes capacity)
  *   bool CommandRegistry_register(CommandRegistry *self, const char *name,
  *     CommandFn target) [CommandRegistry_add alias]
  * Dispatch: bool CommandRegistry_execute(CommandRegistry *self, Command *command)
@@ -37,15 +37,15 @@
  * Queries: DeterminantOutputFn CommandRegistry_getOutput(const CommandRegistry *self)
  *   void *CommandRegistry_getHostContext(const CommandRegistry *self)
  *   const CommandRegistryRow *CommandRegistry_getRows(const CommandRegistry *self)
- *   size_t CommandRegistry_getCount(const CommandRegistry *self)
- *   size_t CommandRegistry_getCapacity(const CommandRegistry *self)
- *   size_t CommandRegistry_exhaustionCount(const CommandRegistry *self)
+ *   bytes CommandRegistry_getCount(const CommandRegistry *self)
+ *   bytes CommandRegistry_getCapacity(const CommandRegistry *self)
+ *   bytes CommandRegistry_exhaustionCount(const CommandRegistry *self)
  *   bool CommandRegistry_isActive(const CommandRegistry *self)
  * Lifecycle: bool CommandRegistry_free(CommandRegistry *self), detaches borrows
  * Projections: bool CommandRegistry_toString(const CommandRegistry *self,
- *     char *dest, size_t cap, bool *outTruncated)
+ *     char *dest, bytes cap, bool *outTruncated)
  *   bool CommandRegistry_toStringStruct(const CommandRegistry *self,
- *     char *dest, size_t cap, bool *outTruncated)
+ *     char *dest, bytes cap, bool *outTruncated)
  * CONTRACT: no internal thread safety; mutation/free rejected during callback.
  * Duplicate name replaces target in-place. Capacity refusal counts every time,
  * reports only first per epoch. reserve requires disjoint live caller spans;
@@ -53,7 +53,7 @@
  * never stdout; absent/failing sink rejects loudly. No owned allocation.
  * ======================================================================== */
 CommandRegistry CommandRegistry_0(void) { return (CommandRegistry) {0}; }
-CommandRegistry CommandRegistry_4(CommandRegistryRow *rows, size_t capacity, DeterminantOutputFn output,
+CommandRegistry CommandRegistry_4(CommandRegistryRow *rows, bytes capacity, DeterminantOutputFn output,
                                   void *hostContext) {
     CommandRegistry self = CommandRegistry_0();
     if ((capacity != 0 && rows == nullptr) || capacity > SIZE_MAX / sizeof(*rows)) {
@@ -66,7 +66,7 @@ CommandRegistry CommandRegistry_4(CommandRegistryRow *rows, size_t capacity, Det
     self.hostContext = hostContext;
     return self;
 }
-bool CommandRegistry_reserve(CommandRegistry *self, CommandRegistryRow *rows, size_t capacity) {
+bool CommandRegistry_reserve(CommandRegistry *self, CommandRegistryRow *rows, bytes capacity) {
     if (self == nullptr || (*self).active || rows == nullptr || capacity < (*self).count
         || capacity < (*self).capacity || capacity > SIZE_MAX / sizeof(*rows)
         || (rows == (*self).rows && capacity != (*self).capacity)) {
@@ -90,7 +90,7 @@ bool CommandRegistry_register(CommandRegistry *self, const char *name, CommandFn
             return false;
         }
     CommandRegistryRow *rows = (*self).rows;
-    for (size_t i = 0; i < (*self).count; ++i)
+    for (bytes i = 0; i < (*self).count; ++i)
         if (strcmp(rows[i].name, name) == 0) {
             rows[i].target = target;
             return true;
@@ -112,7 +112,7 @@ bool CommandRegistry_execute(CommandRegistry *self, Command *command) {
     }
     const char *name = (const char*) Command_name(command);
     CommandRegistryRow *rows = (*self).rows;
-    for (size_t i = 0; i < (*self).count; ++i)
+    for (bytes i = 0; i < (*self).count; ++i)
         if (strcmp(rows[i].name, name) == 0) {
             (*self).active = true;
             rows[i].target(command);
@@ -140,9 +140,9 @@ bool CommandRegistry_setOutput(CommandRegistry *self, DeterminantOutputFn output
 }
 DeterminantOutputFn CommandRegistry_getOutput(const CommandRegistry *self) { return self ? (*self).output : nullptr; }
 void *CommandRegistry_getHostContext(const CommandRegistry *self) { return self ? (*self).hostContext : nullptr; }
-size_t CommandRegistry_getCount(const CommandRegistry *self) { return self ? (*self).count : 0; }
-size_t CommandRegistry_getCapacity(const CommandRegistry *self) { return self ? (*self).capacity : 0; }
-size_t CommandRegistry_exhaustionCount(const CommandRegistry *self) { return self ? (*self).refusalCount : 0; }
+bytes CommandRegistry_getCount(const CommandRegistry *self) { return self ? (*self).count : 0; }
+bytes CommandRegistry_getCapacity(const CommandRegistry *self) { return self ? (*self).capacity : 0; }
+bytes CommandRegistry_exhaustionCount(const CommandRegistry *self) { return self ? (*self).refusalCount : 0; }
 const CommandRegistryRow *CommandRegistry_getRows(const CommandRegistry *self) { return self ? (*self).rows : nullptr; }
 bool CommandRegistry_isActive(const CommandRegistry *self) { return self && (*self).active; }
 bool CommandRegistry_free(CommandRegistry *self) {
@@ -153,10 +153,10 @@ bool CommandRegistry_free(CommandRegistry *self) {
     *self = CommandRegistry_0();
     return true;
 }
-bool CommandRegistry_toString(const CommandRegistry *self, char *dest, size_t cap, bool *outTruncated) {
+bool CommandRegistry_toString(const CommandRegistry *self, char *dest, bytes cap, bool *outTruncated) {
     return CommandRegistry_toStringStruct(self, dest, cap, outTruncated);
 }
-bool CommandRegistry_toStringStruct(const CommandRegistry *self, char *dest, size_t cap, bool *outTruncated) {
+bool CommandRegistry_toStringStruct(const CommandRegistry *self, char *dest, bytes cap, bool *outTruncated) {
     if (outTruncated != nullptr)
         *outTruncated = false;
     if (dest == nullptr || cap == 0) {
@@ -168,7 +168,7 @@ bool CommandRegistry_toStringStruct(const CommandRegistry *self, char *dest, siz
     int n = self ? snprintf(dest, cap, "CommandRegistry{rows=<borrowed>,capacity=%zu,count=%zu,output=%s,hostContext=<opaque>,refusalCount=%zu,active=%d}",
         (*self).capacity, (*self).count, (*self).output ? "bound" : "none", (*self).refusalCount, (*self).active)
         : snprintf(dest, cap, "nullptr");
-    bool cut = n < 0 || (size_t) n >= cap;
+    bool cut = n < 0 || (bytes) n >= cap;
     if (outTruncated != nullptr)
         *outTruncated = cut;
     if (cut)

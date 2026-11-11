@@ -20,10 +20,10 @@
  * STRUCT FIELDS (Mirroring ui/field/terminal_text_area.h)
  *
  * char *buffer                            storage buffer (NUL-terminated at [length])
- * size_t capacity                         usable byte capacity
- * size_t length                           live byte length
- * size_t cursorByte                       active caret offset
- * size_t scrollRow, scrollCol             viewport offsets
+ * bytes capacity                         usable byte capacity
+ * bytes length                           live byte length
+ * bytes cursorByte                       active caret offset
+ * bytes scrollRow, scrollCol             viewport offsets
  * bool wrap                               soft-wrap flag
  * TerminalPen pen, cursorPen              text and cursor brush pens
  * ======================================================================== */
@@ -32,7 +32,7 @@ TerminalTextArea *TerminalTextArea_0(void) {
     return TerminalTextArea_2(nullptr, 0u);
 }
 
-TerminalTextArea *TerminalTextArea_2(char *buffer, size_t capacity) {
+TerminalTextArea *TerminalTextArea_2(char *buffer, bytes capacity) {
     TerminalTextArea *self = (TerminalTextArea*) Memory_alloc(TYPE_BYTE_ARRAY, sizeof(TerminalTextArea));
     if (self == nullptr)
         return nullptr;
@@ -48,7 +48,7 @@ TerminalTextArea *TerminalTextArea_2(char *buffer, size_t capacity) {
         .cursorPen = TerminalPen_1(TERMINAL_STYLE_REVERSE)
     };
     if (buffer != nullptr && capacity > 0u) {
-        size_t slen = strlen(buffer);
+        bytes slen = strlen(buffer);
         if (slen >= capacity)
             slen = capacity - 1u;
         (*self).length = slen;
@@ -64,12 +64,12 @@ void TerminalTextArea_free(TerminalTextArea *self) {
     Memory_free(self);
 }
 
-bool TerminalTextArea_bind(TerminalTextArea *self, char *buffer, size_t capacity) {
+bool TerminalTextArea_bind(TerminalTextArea *self, char *buffer, bytes capacity) {
     if (self == nullptr || buffer == nullptr || capacity == 0u)
         return false;
     (*self).buffer = buffer;
     (*self).capacity = capacity;
-    size_t slen = strlen(buffer);
+    bytes slen = strlen(buffer);
     if (slen >= capacity)
         slen = capacity - 1u;
     (*self).length = slen;
@@ -82,11 +82,11 @@ const char *TerminalTextArea_getBuffer(const TerminalTextArea *self) {
     return (self != nullptr && (*self).buffer != nullptr) ? (*self).buffer : "";
 }
 
-size_t TerminalTextArea_getCapacity(const TerminalTextArea *self) {
+bytes TerminalTextArea_getCapacity(const TerminalTextArea *self) {
     return self != nullptr ? (*self).capacity : 0u;
 }
 
-size_t TerminalTextArea_getLength(const TerminalTextArea *self) {
+bytes TerminalTextArea_getLength(const TerminalTextArea *self) {
     return self != nullptr ? (*self).length : 0u;
 }
 
@@ -97,8 +97,8 @@ bool TerminalTextArea_insertChar(TerminalTextArea *self, int character) {
         return false;
 
     char *buf = (*self).buffer;
-    size_t at = (*self).cursorByte;
-    size_t moveCount = (*self).length - at;
+    bytes at = (*self).cursorByte;
+    bytes moveCount = (*self).length - at;
     if (moveCount > 0u)
         memmove(buf + at + 1u, buf + at, moveCount);
 
@@ -109,15 +109,15 @@ bool TerminalTextArea_insertChar(TerminalTextArea *self, int character) {
     return true;
 }
 
-bool TerminalTextArea_insertText(TerminalTextArea *self, const char *text, size_t length) {
+bool TerminalTextArea_insertText(TerminalTextArea *self, const char *text, bytes length) {
     if (self == nullptr || (*self).buffer == nullptr || text == nullptr || length == 0u)
         return false;
     if ((*self).length + length >= (*self).capacity)
         return false;
 
     char *buf = (*self).buffer;
-    size_t at = (*self).cursorByte;
-    size_t moveCount = (*self).length - at;
+    bytes at = (*self).cursorByte;
+    bytes moveCount = (*self).length - at;
     if (moveCount > 0u)
         memmove(buf + at + length, buf + at, moveCount);
 
@@ -133,8 +133,8 @@ bool TerminalTextArea_backspace(TerminalTextArea *self) {
         return false;
 
     char *buf = (*self).buffer;
-    size_t at = (*self).cursorByte;
-    size_t moveCount = (*self).length - at;
+    bytes at = (*self).cursorByte;
+    bytes moveCount = (*self).length - at;
     if (moveCount > 0u)
         memmove(buf + at - 1u, buf + at, moveCount);
 
@@ -149,8 +149,8 @@ bool TerminalTextArea_delete(TerminalTextArea *self) {
         return false;
 
     char *buf = (*self).buffer;
-    size_t at = (*self).cursorByte;
-    size_t moveCount = (*self).length - at - 1u;
+    bytes at = (*self).cursorByte;
+    bytes moveCount = (*self).length - at - 1u;
     if (moveCount > 0u)
         memmove(buf + at, buf + at + 1u, moveCount);
 
@@ -183,7 +183,7 @@ void TerminalTextArea_moveCursor(TerminalTextArea *self, int deltaRow, int delta
     }
 
     if (deltaRow < 0) {
-        size_t at = (*self).cursorByte;
+        bytes at = (*self).cursorByte;
         while (at > 0u && (*self).buffer[at - 1u] != '\n')
             at--;
         if (at > 0u) {
@@ -193,7 +193,7 @@ void TerminalTextArea_moveCursor(TerminalTextArea *self, int deltaRow, int delta
             (*self).cursorByte = at;
         }
     } else if (deltaRow > 0) {
-        size_t at = (*self).cursorByte;
+        bytes at = (*self).cursorByte;
         while (at < (*self).length && (*self).buffer[at] != '\n')
             at++;
         if (at < (*self).length)
@@ -201,11 +201,11 @@ void TerminalTextArea_moveCursor(TerminalTextArea *self, int deltaRow, int delta
     }
 }
 
-size_t TerminalTextArea_getCursorByte(const TerminalTextArea *self) {
+bytes TerminalTextArea_getCursorByte(const TerminalTextArea *self) {
     return self != nullptr ? (*self).cursorByte : 0u;
 }
 
-bool TerminalTextArea_setCursorByte(TerminalTextArea *self, size_t byteOffset) {
+bool TerminalTextArea_setCursorByte(TerminalTextArea *self, bytes byteOffset) {
     if (self == nullptr)
         return false;
     if (byteOffset > (*self).length)
@@ -240,23 +240,23 @@ void TerminalTextArea_render(const TerminalTextArea *self, TerminalCanvas *canva
     if (self == nullptr || canvas == nullptr || !TerminalCanvas_isValid(canvas))
         return;
 
-    size_t width = TerminalCanvas_getWidth(canvas);
-    size_t height = TerminalCanvas_getHeight(canvas);
+    bytes width = TerminalCanvas_getWidth(canvas);
+    bytes height = TerminalCanvas_getHeight(canvas);
     if (width == 0u || height == 0u)
         return;
 
     const char *buf = (*self).buffer;
-    size_t len = (*self).length;
-    size_t at = 0u;
-    size_t row = 0u;
-    size_t cursorRow = 0u;
-    size_t cursorCol = 0u;
+    bytes len = (*self).length;
+    bytes at = 0u;
+    bytes row = 0u;
+    bytes cursorRow = 0u;
+    bytes cursorCol = 0u;
 
     while (at <= len) {
-        size_t lineStart = at;
+        bytes lineStart = at;
         while (at < len && buf[at] != '\n')
             at++;
-        size_t lineLen = at - lineStart;
+        bytes lineLen = at - lineStart;
 
         if ((*self).cursorByte >= lineStart && (*self).cursorByte <= at) {
             cursorRow = row;
@@ -264,9 +264,9 @@ void TerminalTextArea_render(const TerminalTextArea *self, TerminalCanvas *canva
         }
 
         if (row >= (*self).scrollRow && (row - (*self).scrollRow) < height) {
-            size_t renderY = row - (*self).scrollRow;
+            bytes renderY = row - (*self).scrollRow;
             if (lineLen > (*self).scrollCol) {
-                size_t showLen = lineLen - (*self).scrollCol;
+                bytes showLen = lineLen - (*self).scrollCol;
                 if (showLen > width)
                     showLen = width;
                 TerminalCanvas_text(canvas, 0u, renderY, buf + lineStart + (*self).scrollCol, showLen, (*self).pen);
@@ -281,8 +281,8 @@ void TerminalTextArea_render(const TerminalTextArea *self, TerminalCanvas *canva
     // Draw cursor if visible
     if (cursorRow >= (*self).scrollRow && (cursorRow - (*self).scrollRow) < height
         && cursorCol >= (*self).scrollCol && (cursorCol - (*self).scrollCol) < width) {
-        size_t cx = cursorCol - (*self).scrollCol;
-        size_t cy = cursorRow - (*self).scrollRow;
+        bytes cx = cursorCol - (*self).scrollCol;
+        bytes cy = cursorRow - (*self).scrollRow;
         char curChar = ' ';
         if ((*self).cursorByte < len && buf[(*self).cursorByte] != '\n')
             curChar = buf[(*self).cursorByte];

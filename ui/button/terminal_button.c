@@ -14,24 +14,24 @@
  * CLASS: TerminalButton (ui/button/terminal_button.c)
  * STRUCT FIELDS (Mirroring ui/button/terminal_button.h)
  * const char *label         borrowed printable ASCII label
- * size_t x                 left column
- * size_t y                 row
+ * bytes x                 left column
+ * bytes y                 row
  * bool focused             admitted keyboard focus
  * bool enabled             interaction enabled
  * FUNCTION REGISTRY (exports)
  * Constructors: TerminalButton TerminalButton_0(void)
- *   TerminalButton TerminalButton_3(const char *label, size_t x, size_t y)
+ *   TerminalButton TerminalButton_3(const char *label, bytes x, bytes y)
  * Setters: bool TerminalButton_setLabel(TerminalButton *self, const char *label)
- *   bool TerminalButton_setPosition(TerminalButton *self, size_t x, size_t y)
+ *   bool TerminalButton_setPosition(TerminalButton *self, bytes x, bytes y)
  *   void TerminalButton_setFocused(TerminalButton *self, bool focused)
  *   void TerminalButton_setEnabled(TerminalButton *self, bool enabled)
  * Getters: const char *TerminalButton_getLabel(const TerminalButton *self)
  *   void TerminalButton_getPosition(const TerminalButton *self,
- *     size_t *outX, size_t *outY)
+ *     bytes *outX, bytes *outY)
  *   bool TerminalButton_isFocused(const TerminalButton *self)
  *   bool TerminalButton_isEnabled(const TerminalButton *self)
  * Input: bool TerminalButton_key(TerminalButton *self, TerminalKey key)
- *   bool TerminalButton_click(TerminalButton *self, size_t x, size_t y)
+ *   bool TerminalButton_click(TerminalButton *self, bytes x, bytes y)
  * Painting: bool TerminalButton_render(const TerminalButton *self, Terminal *terminal)
  * Projections: TerminalProjection TerminalButton_toString/toStringStruct(self)
  * PRIVATE HELPERS: validLabel(label) checks printable ASCII/size arithmetic.
@@ -46,16 +46,16 @@
 static bool validLabel(const char *label) {
     if (label == nullptr)
         return false;
-    size_t n = strlen(label);
+    bytes n = strlen(label);
     if (n > SIZE_MAX - 2)
         return false;
-    for (size_t i = 0; i < n; ++i)
+    for (bytes i = 0; i < n; ++i)
         if ((unsigned char) label[i] < 32 || (unsigned char) label[i] >= 127)
             return false;
     return true;
 }
 TerminalButton TerminalButton_0(void) { return (TerminalButton) {.label = "", .enabled = true}; }
-TerminalButton TerminalButton_3(const char *label, size_t x, size_t y) {
+TerminalButton TerminalButton_3(const char *label, bytes x, bytes y) {
     TerminalButton self = TerminalButton_0();
     if (!TerminalButton_setLabel(&self, label) || !TerminalButton_setPosition(&self, x, y))
         return TerminalButton_0();
@@ -70,7 +70,7 @@ bool TerminalButton_setLabel(TerminalButton *self, const char *label) {
     return true;
 }
 const char *TerminalButton_getLabel(const TerminalButton *self) { return self ? (*self).label : nullptr; }
-bool TerminalButton_setPosition(TerminalButton *self, size_t x, size_t y) {
+bool TerminalButton_setPosition(TerminalButton *self, bytes x, bytes y) {
     if (self == nullptr || strlen((*self).label) + 2 > SIZE_MAX - x) {
         THROW("TerminalButton setPosition: invalid extent");
         return false;
@@ -109,7 +109,7 @@ bool TerminalButton_key(TerminalButton *self, TerminalKey key) {
         (*self).focused = false;
     return (*self).enabled && (*self).focused && (key == TERMINAL_KEY_ENTER || key == TERMINAL_KEY_SPACE);
 }
-bool TerminalButton_click(TerminalButton *self, size_t x, size_t y) {
+bool TerminalButton_click(TerminalButton *self, bytes x, bytes y) {
     if (self == nullptr) {
         THROW("TerminalButton click: null button");
         return false;
@@ -124,8 +124,8 @@ bool TerminalButton_render(const TerminalButton *self, Terminal *terminal) {
         THROW("TerminalButton render: null input");
         return false;
     }
-    size_t length = strlen((*self).label);
-    size_t width = Terminal_getWidth(terminal);
+    bytes length = strlen((*self).label);
+    bytes width = Terminal_getWidth(terminal);
     if ((*self).y >= Terminal_getHeight(terminal) || (*self).x > width || length + 2 > width - (*self).x) {
         THROW("TerminalButton render: outside cell grid");
         return false;

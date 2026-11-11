@@ -22,7 +22,7 @@ with no application content:
   a **connector** glyph set (junctions + optional stripe), not a bare `-`/`|`.
 - `terminal_appearance` — named look presets (connector glyphs + palette) the app
   lists, picks and persists: `ascii-solid`, `ascii-striped`, `ascii-dashed`,
-  `unicode-light`, `unicode-emdash`, `unicode-double`. Glyphs are codepoints, so
+  `unicode-light`, `unicode-emdash`, `unicode-d64`. Glyphs are codepoints, so
   real box drawing works. The toolkit stores no preference; the app owns that.
 - `terminal_list_view`, `terminal_text_view`, `terminal_input_line`,
   `terminal_status_bar` — generic widgets holding no meaning: channels, users,

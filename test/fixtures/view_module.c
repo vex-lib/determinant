@@ -5,15 +5,15 @@
 #define DETERMINANT_FIXTURE_MARK 65
 #endif
 static bool view(void *residentState, Terminal *terminal) {
-    size_t *count = residentState;
+    bytes *count = residentState;
     ++*count;
     (*terminal).cells[0] = DETERMINANT_FIXTURE_MARK;
     return true;
 }
-static bool command(void *residentState, const char *text, size_t length) {
+static bool command(void *residentState, const char *text, bytes length) {
     if (length != 2 || text[0] != 'g' || text[1] != 'o')
         return false;
-    ++*(size_t*) residentState;
+    ++*(bytes*) residentState;
     return true;
 }
 TerminalModule determinantModule(void) {

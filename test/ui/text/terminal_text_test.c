@@ -12,10 +12,10 @@
 enum { W = 12, H = 1 };
 
 int main(void) {
-    uint32_t cells[W * H];
-    uint16_t styles[W * H];
-    uint32_t fg[W * H];
-    uint32_t bg[W * H];
+    u32 cells[W * H];
+    u16 styles[W * H];
+    u32 fg[W * H];
+    u32 bg[W * H];
     TerminalCanvas canvas = TerminalCanvas(cells, styles, fg, bg, W, H);
 
     // --- Constructors: zero / one / two, and the chooser ---

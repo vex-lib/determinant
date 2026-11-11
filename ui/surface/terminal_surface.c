@@ -27,25 +27,25 @@
  * TerminalFrameFn frame          borrowed frame bracket (nullable)
  * void *frameContext             opaque bracket state
  * bool bracketed                 a transaction is currently open
- * size_t gapTolerance            max unchanged run inside one emitted run
- * size_t presentCount            completed presents (lifetime)
- * size_t changedCells            differing cells in the last present
- * size_t changedRuns             runs handed to the sink in the last present
- * size_t emittedCells            cells inside those runs in the last present
- * size_t refusalCount            refusals in this epoch
+ * bytes gapTolerance            max unchanged run inside one emitted run
+ * bytes presentCount            completed presents (lifetime)
+ * bytes changedCells            differing cells in the last present
+ * bytes changedRuns             runs handed to the sink in the last present
+ * bytes emittedCells            cells inside those runs in the last present
+ * bytes refusalCount            refusals in this epoch
  * bool active                    sink in flight (reentrancy guard)
  * SLOT RECORD: TerminalRun
- * size_t x, y, length            absolute origin and cell count of one run
- * const uint32_t *cells          borrowed glyph codepoints at the first cell
- * const uint16_t *styles         borrowed style flags at the first cell (nullable)
- * const uint32_t *fg, *bg        borrowed packed colours at the first cell (nullable)
+ * bytes x, y, length            absolute origin and cell count of one run
+ * const u32 *cells          borrowed glyph codepoints at the first cell
+ * const u16 *styles         borrowed style flags at the first cell (nullable)
+ * const u32 *fg, *bg        borrowed packed colours at the first cell (nullable)
  * SLOT RECORD: TerminalPresentResult
  * bool ok                        every changed run was accepted
  * bool changed                   any cell differed from the last paint
  * bool transactional             a frame transaction opened AND closed
- * size_t changedCells            differing cells found by the scan
- * size_t runs                    runs handed to the sink
- * size_t emittedCells            cells inside those runs
+ * bytes changedCells            differing cells found by the scan
+ * bytes runs                    runs handed to the sink
+ * bytes emittedCells            cells inside those runs
  * PRIVATE HELPERS
  * sameGeometry(a,b.sh)      cold admission identity: grid AND region must match
  * samePlanes(a,b.sh)        cold admission: style/colour plane presence must match
@@ -59,11 +59,11 @@
  *   bool TerminalSurface_setSink(self, sink, hostContext)
  *   bool TerminalSurface_reset(self)
  *   bool setFrame/getFrame/getFrameContext/isBracketed(self, ...)
- * Configuration: bool setGapTolerance(self, tolerance), size_t getGapTolerance(self)
+ * Configuration: bool setGapTolerance(self, tolerance), bytes getGapTolerance(self)
  * Present: TerminalPresentResult TerminalSurface_present(self)
  * Queries: bool isBound/isActive(self)
  *   TerminalCanvas getBack/getFront(self)
- *   size_t presentCount/changedCells/changedRuns/emittedCells/exhaustionCount(self)
+ *   bytes presentCount/changedCells/changedRuns/emittedCells/exhaustionCount(self)
  * Projections: TerminalProjection TerminalSurface_toString/toStringStruct(self)
  * CONTRACT: null/invalid surfaces are safe (queries answer defaults, present
  * refuses); geometry and plane presence are validated once at the cold bind, so
@@ -87,14 +87,14 @@ static bool samePlanes(const TerminalCanvas *a, const TerminalCanvas *b) {
         && ((*a).fg != nullptr) == ((*b).fg != nullptr);
 }
 
-static size_t cellIndex(const TerminalCanvas *canvas, size_t x, size_t y) {
+static bytes cellIndex(const TerminalCanvas *canvas, bytes x, bytes y) {
     return (y + (*canvas).y) * (*canvas).gridWidth + (*canvas).x + x;
 }
 
 // One index, compared across every plane the pair actually carries. A plane the
 // canvases do not carry is not a dimension of difference, which is exactly why
 // bind demands matching presence: a difference can never be invisible.
-static bool cellDiffers(const TerminalCanvas *back, const TerminalCanvas *front, size_t index) {
+static bool cellDiffers(const TerminalCanvas *back, const TerminalCanvas *front, bytes index) {
     if ((*back).cells[index] != (*front).cells[index])
         return true;
     if ((*back).styles != nullptr && (*back).styles[index] != (*front).styles[index])
@@ -105,7 +105,7 @@ static bool cellDiffers(const TerminalCanvas *back, const TerminalCanvas *front,
     return false;
 }
 
-static bool emitRun(TerminalSurface *self, size_t y, size_t start, size_t last) {
+static bool emitRun(TerminalSurface *self, bytes y, bytes start, bytes last) {
     // The transaction opens on the first run that is actually going to be handed over,
     // so a frame carrying no change never opens one.
     if (!(*self).bracketed && (*self).frame != nullptr) {
@@ -113,9 +113,9 @@ static bool emitRun(TerminalSurface *self, size_t y, size_t start, size_t last) 
         (*self).frame((*self).frameContext, TERMINAL_PRESENT_BEGIN);
     }
     const TerminalCanvas *back = &(*self).back;
-    size_t gridY = y + (*back).y;
-    size_t first = cellIndex(back, start, y);
-    size_t length = last - start + 1;
+    bytes gridY = y + (*back).y;
+    bytes first = cellIndex(back, start, y);
+    bytes length = last - start + 1;
     TerminalRun run = {0};
     run.x = (*back).x + start;
     run.y = gridY;
@@ -145,15 +145,15 @@ static bool emitRun(TerminalSurface *self, size_t y, size_t start, size_t last) 
 static void adoptFront(TerminalSurface *self) {
     const TerminalCanvas *back = &(*self).back;
     TerminalCanvas *front = &(*self).front;
-    size_t width = (*back).width;
-    for (size_t y = 0; y < (*back).height; ++y) {
-        size_t origin = (*back).x + (y + (*back).y) * (*back).gridWidth;
-        memcpy(&(*front).cells[origin], &(*back).cells[origin], width * sizeof(uint32_t));
+    bytes width = (*back).width;
+    for (bytes y = 0; y < (*back).height; ++y) {
+        bytes origin = (*back).x + (y + (*back).y) * (*back).gridWidth;
+        memcpy(&(*front).cells[origin], &(*back).cells[origin], width * sizeof(u32));
         if ((*back).styles != nullptr)
-            memcpy(&(*front).styles[origin], &(*back).styles[origin], width * sizeof(uint16_t));
+            memcpy(&(*front).styles[origin], &(*back).styles[origin], width * sizeof(u16));
         if ((*back).fg != nullptr) {
-            memcpy(&(*front).fg[origin], &(*back).fg[origin], width * sizeof(uint32_t));
-            memcpy(&(*front).bg[origin], &(*back).bg[origin], width * sizeof(uint32_t));
+            memcpy(&(*front).fg[origin], &(*back).fg[origin], width * sizeof(u32));
+            memcpy(&(*front).bg[origin], &(*back).bg[origin], width * sizeof(u32));
         }
     }
 }
@@ -212,7 +212,7 @@ bool TerminalSurface_setSink(TerminalSurface *self, TerminalRunFn sink, void *ho
     return true;
 }
 
-bool TerminalSurface_setGapTolerance(TerminalSurface *self, size_t tolerance) {
+bool TerminalSurface_setGapTolerance(TerminalSurface *self, bytes tolerance) {
     if (self == nullptr || (*self).active) {
         THROW("TerminalSurface gapTolerance: null surface or busy");
         return false;
@@ -221,7 +221,7 @@ bool TerminalSurface_setGapTolerance(TerminalSurface *self, size_t tolerance) {
     return true;
 }
 
-size_t TerminalSurface_getGapTolerance(const TerminalSurface *self) {
+bytes TerminalSurface_getGapTolerance(const TerminalSurface *self) {
     return self ? (*self).gapTolerance : TERMINAL_SURFACE_GAP_DEFAULT;
 }
 
@@ -242,11 +242,11 @@ TerminalCanvas TerminalSurface_getFront(const TerminalSurface *self) {
     return self ? (*self).front : TerminalCanvas_0();
 }
 
-size_t TerminalSurface_presentCount(const TerminalSurface *self) { return self ? (*self).presentCount : 0; }
-size_t TerminalSurface_changedCells(const TerminalSurface *self) { return self ? (*self).changedCells : 0; }
-size_t TerminalSurface_changedRuns(const TerminalSurface *self) { return self ? (*self).changedRuns : 0; }
-size_t TerminalSurface_emittedCells(const TerminalSurface *self) { return self ? (*self).emittedCells : 0; }
-size_t TerminalSurface_exhaustionCount(const TerminalSurface *self) { return self ? (*self).refusalCount : 0; }
+bytes TerminalSurface_presentCount(const TerminalSurface *self) { return self ? (*self).presentCount : 0; }
+bytes TerminalSurface_changedCells(const TerminalSurface *self) { return self ? (*self).changedCells : 0; }
+bytes TerminalSurface_changedRuns(const TerminalSurface *self) { return self ? (*self).changedRuns : 0; }
+bytes TerminalSurface_emittedCells(const TerminalSurface *self) { return self ? (*self).emittedCells : 0; }
+bytes TerminalSurface_exhaustionCount(const TerminalSurface *self) { return self ? (*self).refusalCount : 0; }
 
 ;;INTENTION("present is a hot path; per the Exhaustion Loudness Law's failure-only waiver its success path adds no logging, allocation or per-cell revalidation, and only a refused run reports — at most once in the epoch")
 ;;HOTCODE
@@ -265,20 +265,20 @@ TerminalPresentResult TerminalSurface_present(TerminalSurface *self) {
     }
     const TerminalCanvas *back = &(*self).back;
     const TerminalCanvas *front = &(*self).front;
-    size_t width = (*back).width;
-    size_t height = (*back).height;
-    size_t tolerance = (*self).gapTolerance;
+    bytes width = (*back).width;
+    bytes height = (*back).height;
+    bytes tolerance = (*self).gapTolerance;
     (*self).changedCells = 0;
     (*self).changedRuns = 0;
     (*self).emittedCells = 0;
     (*self).active = true;
-    size_t changed = 0;
+    bytes changed = 0;
     bool accepted = true;
-    for (size_t y = 0; y < height && accepted; ++y) {
-        size_t start = 0;
-        size_t last = 0;
+    for (bytes y = 0; y < height && accepted; ++y) {
+        bytes start = 0;
+        bytes last = 0;
         bool open = false;
-        for (size_t x = 0; x < width; ++x) {
+        for (bytes x = 0; x < width; ++x) {
             if (cellDiffers(back, front, cellIndex(back, x, y))) {
                 if (!open) {
                     start = x;

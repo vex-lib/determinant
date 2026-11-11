@@ -22,15 +22,15 @@
 /** ========================================================================
  * CLASS: TerminalScrollGlide (ui/scroll/terminal_scroll_glide.c)
  * STRUCT FIELDS (Mirroring ui/scroll/terminal_scroll_glide.h)
- * double rowShown       rows currently displayed, fractional
- * double rowTarget      rows headed for
- * double columnShown    columns currently displayed, fractional
- * double columnTarget   columns headed for
- * double ease           fraction of remaining distance covered per step
- * double epsilon        remaining distance that snaps to the target
+ * d64 rowShown       rows currently displayed, fractional
+ * d64 rowTarget      rows headed for
+ * d64 columnShown    columns currently displayed, fractional
+ * d64 columnTarget   columns headed for
+ * d64 ease           fraction of remaining distance covered per step
+ * d64 epsilon        remaining distance that snaps to the target
  * SLOT RECORD: TerminalScrollGlidePosition
- * size_t row            whole-cell row to paint
- * size_t column         whole-cell column to paint
+ * bytes row            whole-cell row to paint
+ * bytes column         whole-cell column to paint
  * FUNCTION REGISTRY (exports)
  * Constructors: TerminalScrollGlide_0(void), _2(ease, epsilon)
  * Config: set/getEase, set/getEpsilon
@@ -40,21 +40,21 @@
  *   getPosition
  * Projections: toString, toStringStruct
  * PRIVATE HELPERS
- * static double clampAxis(value, maximum)   clamp one axis into [0, maximum]
- * static double gap(shown, target)           absolute remaining distance
- * static size_t roundAxis(value)             nearest whole cell
- * static double stepAxis(shown, target, ease, epsilon)
+ * static d64 clampAxis(value, maximum)   clamp one axis into [0, maximum]
+ * static d64 gap(shown, target)           absolute remaining distance
+ * static bytes roundAxis(value)             nearest whole cell
+ * static d64 stepAxis(shown, target, ease, epsilon)
  *   one axis of one frame; returns the new shown position
  * CONTRACT: null mutators no-op and null getters return safe defaults. The cold
  * setters/constructors reject invalid ease (must be in (0,1)) and epsilon
  * (must be positive and finite) with one THROW and preserve prior state. step is
  * the frame path: one null guard, no logging, no allocation; it clamps nothing a
  * validated caller already clamped. Positions are never negative, and a saturated
- * double bound converts to SIZE_MAX rather than making an out-of-range cast.
+ * d64 bound converts to SIZE_MAX rather than making an out-of-range cast.
  * ======================================================================== */
 
-static double clampAxis(double value, size_t maximum) {
-    double top = (double) maximum;
+static d64 clampAxis(d64 value, bytes maximum) {
+    d64 top = (d64) maximum;
     if (value < 0.0)
         return 0.0;
     if (value > top)
@@ -62,23 +62,23 @@ static double clampAxis(double value, size_t maximum) {
     return value;
 }
 
-static double gap(double shown, double target) {
-    double difference = target - shown;
+static d64 gap(d64 shown, d64 target) {
+    d64 difference = target - shown;
     return difference < 0.0 ? -difference : difference;
 }
 
-static size_t roundAxis(double value) {
+static bytes roundAxis(d64 value) {
     if (!(value > 0.0))
         return 0u;
-    // (double) SIZE_MAX rounds up to 2^64, so a value at or beyond it would make
+    // (d64) SIZE_MAX rounds up to 2^64, so a value at or beyond it would make
     // the cast below out of range. Clamp before converting; the public bounds are
-    // already size_t, so this only catches a saturated double, never a real cell.
-    if (value >= (double) SIZE_MAX)
+    // already bytes, so this only catches a saturated d64, never a real cell.
+    if (value >= (d64) SIZE_MAX)
         return SIZE_MAX;
-    return (size_t) (value + 0.5);
+    return (bytes) (value + 0.5);
 }
 
-static double stepAxis(double *shown, double target, double ease, double epsilon) {
+static d64 stepAxis(d64 *shown, d64 target, d64 ease, d64 epsilon) {
     if (gap(*shown, target) < epsilon) {
         *shown = target;
         return target;
@@ -94,7 +94,7 @@ TerminalScrollGlide TerminalScrollGlide_0(void) {
     return glide;
 }
 
-TerminalScrollGlide TerminalScrollGlide_2(double ease, double epsilon) {
+TerminalScrollGlide TerminalScrollGlide_2(d64 ease, d64 epsilon) {
     TerminalScrollGlide glide = TerminalScrollGlide_0();
     if (!(ease > 0.0 && ease < 1.0)) {
         THROW("TerminalScrollGlide ease: %.6f outside (0,1)", ease);
@@ -109,7 +109,7 @@ TerminalScrollGlide TerminalScrollGlide_2(double ease, double epsilon) {
     return glide;
 }
 
-bool TerminalScrollGlide_setEase(TerminalScrollGlide *self, double ease) {
+bool TerminalScrollGlide_setEase(TerminalScrollGlide *self, d64 ease) {
     if (self == nullptr) {
         THROW("TerminalScrollGlide ease: null");
         return false;
@@ -122,11 +122,11 @@ bool TerminalScrollGlide_setEase(TerminalScrollGlide *self, double ease) {
     return true;
 }
 
-double TerminalScrollGlide_getEase(const TerminalScrollGlide *self) {
+d64 TerminalScrollGlide_getEase(const TerminalScrollGlide *self) {
     return self ? (*self).ease : TERMINAL_SCROLL_EASE_DEFAULT;
 }
 
-bool TerminalScrollGlide_setEpsilon(TerminalScrollGlide *self, double epsilon) {
+bool TerminalScrollGlide_setEpsilon(TerminalScrollGlide *self, d64 epsilon) {
     if (self == nullptr) {
         THROW("TerminalScrollGlide epsilon: null");
         return false;
@@ -139,7 +139,7 @@ bool TerminalScrollGlide_setEpsilon(TerminalScrollGlide *self, double epsilon) {
     return true;
 }
 
-double TerminalScrollGlide_getEpsilon(const TerminalScrollGlide *self) {
+d64 TerminalScrollGlide_getEpsilon(const TerminalScrollGlide *self) {
     return self ? (*self).epsilon : TERMINAL_SCROLL_EPSILON_DEFAULT;
 }
 
@@ -151,46 +151,46 @@ bool TerminalScrollGlide_isActive(const TerminalScrollGlide *self) {
 }
 
 void TerminalScrollGlide_impulse(TerminalScrollGlide *self, long rows, long columns,
-                                 size_t maxRows, size_t maxColumns) {
+                                 bytes maxRows, bytes maxColumns) {
     if (self == nullptr)
         return;
-    (*self).rowTarget = clampAxis((*self).rowTarget + (double) rows, maxRows);
-    (*self).columnTarget = clampAxis((*self).columnTarget + (double) columns, maxColumns);
+    (*self).rowTarget = clampAxis((*self).rowTarget + (d64) rows, maxRows);
+    (*self).columnTarget = clampAxis((*self).columnTarget + (d64) columns, maxColumns);
 }
 
-void TerminalScrollGlide_setTarget(TerminalScrollGlide *self, size_t row, size_t column,
-                                   size_t maxRows, size_t maxColumns) {
+void TerminalScrollGlide_setTarget(TerminalScrollGlide *self, bytes row, bytes column,
+                                   bytes maxRows, bytes maxColumns) {
     if (self == nullptr)
         return;
-    (*self).rowTarget = clampAxis((double) row, maxRows);
-    (*self).columnTarget = clampAxis((double) column, maxColumns);
+    (*self).rowTarget = clampAxis((d64) row, maxRows);
+    (*self).columnTarget = clampAxis((d64) column, maxColumns);
 }
 
-void TerminalScrollGlide_setPosition(TerminalScrollGlide *self, size_t row, size_t column,
-                                     size_t maxRows, size_t maxColumns) {
+void TerminalScrollGlide_setPosition(TerminalScrollGlide *self, bytes row, bytes column,
+                                     bytes maxRows, bytes maxColumns) {
     if (self == nullptr)
         return;
-    double clampedRow = clampAxis((double) row, maxRows);
-    double clampedColumn = clampAxis((double) column, maxColumns);
+    d64 clampedRow = clampAxis((d64) row, maxRows);
+    d64 clampedColumn = clampAxis((d64) column, maxColumns);
     (*self).rowShown = clampedRow;
     (*self).rowTarget = clampedRow;
     (*self).columnShown = clampedColumn;
     (*self).columnTarget = clampedColumn;
 }
 
-void TerminalScrollGlide_setRowPosition(TerminalScrollGlide *self, size_t row, size_t maxRows) {
+void TerminalScrollGlide_setRowPosition(TerminalScrollGlide *self, bytes row, bytes maxRows) {
     if (self == nullptr)
         return;
-    double clampedRow = clampAxis((double) row, maxRows);
+    d64 clampedRow = clampAxis((d64) row, maxRows);
     (*self).rowShown = clampedRow;
     (*self).rowTarget = clampedRow;
 }
 
-void TerminalScrollGlide_setColumnPosition(TerminalScrollGlide *self, size_t column,
-                                           size_t maxColumns) {
+void TerminalScrollGlide_setColumnPosition(TerminalScrollGlide *self, bytes column,
+                                           bytes maxColumns) {
     if (self == nullptr)
         return;
-    double clampedColumn = clampAxis((double) column, maxColumns);
+    d64 clampedColumn = clampAxis((d64) column, maxColumns);
     (*self).columnShown = clampedColumn;
     (*self).columnTarget = clampedColumn;
 }
@@ -202,7 +202,7 @@ void TerminalScrollGlide_halt(TerminalScrollGlide *self) {
     (*self).columnTarget = (*self).columnShown;
 }
 
-void TerminalScrollGlide_clamp(TerminalScrollGlide *self, size_t maxRows, size_t maxColumns) {
+void TerminalScrollGlide_clamp(TerminalScrollGlide *self, bytes maxRows, bytes maxColumns) {
     if (self == nullptr)
         return;
     (*self).rowTarget = clampAxis((*self).rowTarget, maxRows);
@@ -217,27 +217,27 @@ TerminalScrollGlidePosition TerminalScrollGlide_step(TerminalScrollGlide *self) 
     TerminalScrollGlidePosition position = {0};
     if (self == nullptr)
         return position;
-    double row = stepAxis(&(*self).rowShown, (*self).rowTarget, (*self).ease, (*self).epsilon);
-    double column = stepAxis(&(*self).columnShown, (*self).columnTarget, (*self).ease,
+    d64 row = stepAxis(&(*self).rowShown, (*self).rowTarget, (*self).ease, (*self).epsilon);
+    d64 column = stepAxis(&(*self).columnShown, (*self).columnTarget, (*self).ease,
                              (*self).epsilon);
     position.row = roundAxis(row);
     position.column = roundAxis(column);
     return position;
 }
 
-double TerminalScrollGlide_getRowShown(const TerminalScrollGlide *self) {
+d64 TerminalScrollGlide_getRowShown(const TerminalScrollGlide *self) {
     return self ? (*self).rowShown : 0.0;
 }
 
-double TerminalScrollGlide_getRowTarget(const TerminalScrollGlide *self) {
+d64 TerminalScrollGlide_getRowTarget(const TerminalScrollGlide *self) {
     return self ? (*self).rowTarget : 0.0;
 }
 
-double TerminalScrollGlide_getColumnShown(const TerminalScrollGlide *self) {
+d64 TerminalScrollGlide_getColumnShown(const TerminalScrollGlide *self) {
     return self ? (*self).columnShown : 0.0;
 }
 
-double TerminalScrollGlide_getColumnTarget(const TerminalScrollGlide *self) {
+d64 TerminalScrollGlide_getColumnTarget(const TerminalScrollGlide *self) {
     return self ? (*self).columnTarget : 0.0;
 }
 

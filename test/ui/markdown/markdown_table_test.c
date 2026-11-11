@@ -8,7 +8,7 @@
 
 int main(void) {
     TerminalMarkdownTableAlign aligns[TERMINAL_MARKDOWN_TABLE_COLUMNS] = {0};
-    size_t columns = TerminalMarkdownTable_parseDelimiter("| :--- | :---: | ---: |",
+    bytes columns = TerminalMarkdownTable_parseDelimiter("| :--- | :---: | ---: |",
                                                           strlen("| :--- | :---: | ---: |"),
                                                           aligns, 8u);
     assert(columns == 3u);
@@ -25,9 +25,9 @@ int main(void) {
     // A literal pipe is escaped or inside a code run; neither may invent a
     // column. The optional outer pipes are not cells.
     const char *cells[TERMINAL_MARKDOWN_TABLE_COLUMNS];
-    size_t lengths[TERMINAL_MARKDOWN_TABLE_COLUMNS];
+    bytes lengths[TERMINAL_MARKDOWN_TABLE_COLUMNS];
     const char *row = "| a \\| b.sh | `x|y` |";
-    size_t count = TerminalMarkdownTable_split(row, strlen(row), cells, lengths, 8u);
+    bytes count = TerminalMarkdownTable_split(row, strlen(row), cells, lengths, 8u);
     assert(count == 2u);
     assert(lengths[0] == strlen("a \\| b.sh") && memcmp(cells[0], "a \\| b.sh", lengths[0]) == 0);
     assert(lengths[1] == strlen("`x|y`") && memcmp(cells[1], "`x|y`", lengths[1]) == 0);
@@ -61,9 +61,9 @@ int main(void) {
 
     // Natural widths when they fit, minimums plus slack when they do not, and a
     // refusal — never a zero-width column — when even the minimums overflow.
-    size_t needed[4] = { 10u, 10u, 1u, 1u };
-    size_t minimums[4] = { 3u, 3u, 1u, 1u };
-    size_t widths[4] = {0};
+    bytes needed[4] = { 10u, 10u, 1u, 1u };
+    bytes minimums[4] = { 3u, 3u, 1u, 1u };
+    bytes widths[4] = {0};
     assert(TerminalMarkdownTable_allocate(needed, minimums, widths, 2u, 30u));
     assert(widths[0] == 10u && widths[1] == 10u);
     // The 4-cell spacing floor lands when the padded table still fits, and the exact
@@ -87,7 +87,7 @@ int main(void) {
     assert(!TerminalMarkdownTable_isWarped(nullptr, widths, 2u, 30u));
     assert(!TerminalMarkdownTable_isWarped(needed, widths, 0u, 30u));
 
-    size_t unwarpedWidths[4] = {0};
+    bytes unwarpedWidths[4] = {0};
     assert(TerminalMarkdownTable_allocateUnwarped(needed, unwarpedWidths, 2u) == 31u);
     assert(unwarpedWidths[0] == 12u && unwarpedWidths[1] == 12u);
     assert(TerminalMarkdownTable_allocateUnwarped(nullptr, unwarpedWidths, 0u) == 0u);

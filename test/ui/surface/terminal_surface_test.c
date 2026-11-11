@@ -16,31 +16,31 @@
 enum { W = 8, H = 3 };
 
 typedef struct RunLog {
-    size_t calls;            // sink invocations
-    size_t runs;             // accepted runs
-    size_t cells;            // accepted cells
-    size_t failFromCall;     // 0 = never refuse; else refuse every call from here
+    bytes calls;            // sink invocations
+    bytes runs;             // accepted runs
+    bytes cells;            // accepted cells
+    bytes failFromCall;     // 0 = never refuse; else refuse every call from here
     TerminalRun first;       // first accepted run
     TerminalRun last;        // last accepted run
-    uint32_t firstGlyphs[W];
-    uint32_t lastGlyphs[W];
+    u32 firstGlyphs[W];
+    u32 lastGlyphs[W];
     TerminalSurface *surface; // reentrancy probe target
-    size_t reentered;        // nested presents observed as a clean refusal
+    bytes reentered;        // nested presents observed as a clean refusal
 } RunLog;
 
-static void copyGlyphs(uint32_t *destination, TerminalRun run) {
+static void copyGlyphs(u32 *destination, TerminalRun run) {
     if (run.cells == nullptr)
         return;
-    size_t bounded = run.length < (size_t) W ? run.length : (size_t) W;
-    for (size_t i = 0; i < bounded; ++i)
+    bytes bounded = run.length < (bytes) W ? run.length : (bytes) W;
+    for (bytes i = 0; i < bounded; ++i)
         destination[i] = run.cells[i];
 }
 
 // Records the frame bracket: how many times each phase arrived, and in what order.
 typedef struct FrameLog {
-    size_t begins;
-    size_t ends;
-    size_t order;        // 0 nothing, 1 inside a transaction, 2 closed
+    bytes begins;
+    bytes ends;
+    bytes order;        // 0 nothing, 1 inside a transaction, 2 closed
     bool outOfOrder;     // a phase arrived where none could be expected
     TerminalSurface *probe;   // when set, BEGIN tries to swap the bracket mid-frame
     bool swapRefused;
@@ -112,9 +112,9 @@ static void clearBoth(TerminalCanvas *back, TerminalCanvas *front) {
 
 int main(void) {
     enum { CELLS = W * H };
-    uint32_t backCells[CELLS], frontCells[CELLS];
-    uint16_t backStyles[CELLS], frontStyles[CELLS];
-    uint32_t backFg[CELLS], frontFg[CELLS], backBg[CELLS], frontBg[CELLS];
+    u32 backCells[CELLS], frontCells[CELLS];
+    u16 backStyles[CELLS], frontStyles[CELLS];
+    u32 backFg[CELLS], frontFg[CELLS], backBg[CELLS], frontBg[CELLS];
     TerminalCanvas back = TerminalCanvas(backCells, backStyles, backFg, backBg, W, H);
     TerminalCanvas front = TerminalCanvas(frontCells, frontStyles, frontFg, frontBg, W, H);
     clearBoth(&back, &front);
@@ -156,8 +156,8 @@ int main(void) {
     REJECT(TerminalSurface_bind(&surface, &back, &empty, sink, &log), "bind");
     TerminalCanvas subBack = TerminalCanvas_sub(&back, 0, 0, W - 2, H);
     REJECT(TerminalSurface_bind(&surface, &subBack, &front, sink, &log), "bind");   // region differs
-    uint32_t thinCells[CELLS];
-    uint16_t thinStyles[CELLS];
+    u32 thinCells[CELLS];
+    u16 thinStyles[CELLS];
     TerminalCanvas thin = TerminalCanvas(thinCells, thinStyles, W, H);              // no colour planes
     REJECT(TerminalSurface_bind(&surface, &back, &thin, sink, &log), "bind");       // planes differ
     assert(!TerminalSurface_isBound(&surface));
@@ -269,8 +269,8 @@ int main(void) {
     assert(wide.last.cells[0] == 0x6F22u && wide.last.cells[1] == 0u);
 
     // --- A plane the pair does not carry is not a dimension (thin canvas) ---
-    uint32_t thinBackCells[CELLS], thinFrontCells[CELLS];
-    uint16_t thinBackStyles[CELLS], thinFrontStyles[CELLS];
+    u32 thinBackCells[CELLS], thinFrontCells[CELLS];
+    u16 thinBackStyles[CELLS], thinFrontStyles[CELLS];
     TerminalCanvas thinBack = TerminalCanvas(thinBackCells, thinBackStyles, W, H);
     TerminalCanvas thinFront = TerminalCanvas(thinFrontCells, thinFrontStyles, W, H);
     clearBoth(&thinBack, &thinFront);
@@ -289,8 +289,8 @@ int main(void) {
 
     // --- Region bind: only the region is scanned, coordinates stay absolute ---
     enum { BW = 16, BH = 6 };
-    uint32_t bigBackCells[BW * BH], bigFrontCells[BW * BH];
-    uint16_t bigBackStyles[BW * BH], bigFrontStyles[BW * BH];
+    u32 bigBackCells[BW * BH], bigFrontCells[BW * BH];
+    u16 bigBackStyles[BW * BH], bigFrontStyles[BW * BH];
     TerminalCanvas bigBack = TerminalCanvas(bigBackCells, bigBackStyles, BW, BH);
     TerminalCanvas bigFront = TerminalCanvas(bigFrontCells, bigFrontStyles, BW, BH);
     clearBoth(&bigBack, &bigFront);
@@ -383,9 +383,9 @@ int main(void) {
     assert(TerminalSurface_reset(&surface));
     RunLog silent = {0};
     assert(TerminalSurface_setSink(&surface, sink, &silent));
-    size_t presentsBefore = TerminalSurface_presentCount(&surface);
+    bytes presentsBefore = TerminalSurface_presentCount(&surface);
     beginDiagnostics();
-    for (size_t i = 0; i < 1000; ++i) {
+    for (bytes i = 0; i < 1000; ++i) {
         TerminalPresentResult clean = TerminalSurface_present(&surface);
         assert(clean.ok && !clean.changed && clean.runs == 0);
     }
@@ -394,8 +394,8 @@ int main(void) {
     assert(TerminalSurface_presentCount(&surface) == presentsBefore + 1000);
 
     // --- Determinism: identically prepared surfaces agree exactly ---
-    uint32_t detBackA[CELLS], detFrontA[CELLS], detBackB[CELLS], detFrontB[CELLS];
-    uint16_t detBackStyleA[CELLS], detFrontStyleA[CELLS], detBackStyleB[CELLS], detFrontStyleB[CELLS];
+    u32 detBackA[CELLS], detFrontA[CELLS], detBackB[CELLS], detFrontB[CELLS];
+    u16 detBackStyleA[CELLS], detFrontStyleA[CELLS], detBackStyleB[CELLS], detFrontStyleB[CELLS];
     TerminalCanvas detA = TerminalCanvas(detBackA, detBackStyleA, W, H);
     TerminalCanvas detAFront = TerminalCanvas(detFrontA, detFrontStyleA, W, H);
     TerminalCanvas detB = TerminalCanvas(detBackB, detBackStyleB, W, H);
@@ -416,8 +416,8 @@ int main(void) {
     assert(logA.last.x == logB.last.x && logA.last.y == logB.last.y && logA.last.length == logB.last.length);
 
     // --- A present is a TRANSACTION: bracketed, lazily, and always closed ---
-    uint32_t txnBackCells[CELLS], txnFrontCells[CELLS];
-    uint16_t txnBackStyles[CELLS], txnFrontStyles[CELLS];
+    u32 txnBackCells[CELLS], txnFrontCells[CELLS];
+    u16 txnBackStyles[CELLS], txnFrontStyles[CELLS];
     TerminalCanvas txnBack = TerminalCanvas(txnBackCells, txnBackStyles, W, H);
     TerminalCanvas txnFront = TerminalCanvas(txnFrontCells, txnFrontStyles, W, H);
     TerminalCanvas_fill(&txnBack, ' ', TerminalPen());

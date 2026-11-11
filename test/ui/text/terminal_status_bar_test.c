@@ -4,8 +4,8 @@
 
 int main(void) {
     enum { W = 12, H = 1 };
-    static uint32_t cells[W * H];
-    static uint32_t fg[W * H];
+    static u32 cells[W * H];
+    static u32 fg[W * H];
     TerminalCanvas wide = TerminalCanvas(cells, nullptr, fg, nullptr, W, H);
     TerminalCanvas_fill(&wide, ' ', TerminalPen());
 
@@ -22,7 +22,7 @@ int main(void) {
     assert(pens.left.fg == TERMINAL_RGB(1, 1, 1) && pens.right.fg == TERMINAL_RGB(2, 2, 2));
 
     // Collision: a right string that would touch the left is dropped, not drawn.
-    static uint32_t narrow[8 * 1];
+    static u32 narrow[8 * 1];
     TerminalCanvas tight = TerminalCanvas(narrow, nullptr, nullptr, nullptr, 8, 1);
     TerminalCanvas_fill(&tight, ' ', TerminalPen());
     assert(TerminalStatusBar_setLeft(&bar, "leftside"));      // 8 wide

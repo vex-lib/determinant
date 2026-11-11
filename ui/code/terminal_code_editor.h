@@ -7,7 +7,7 @@
 
 #include "ui/surface/terminal_canvas.h"
 #include "ui/surface/terminal_projection.h"
-#include "c23/constructor.h"
+#include "util/constructor.h"
 
 // ui/code/terminal_code_editor.h — the canonical code editor area (CodeArea).
 //
@@ -22,14 +22,14 @@
 
 typedef struct TerminalCodeEditor {
     char **lines;              // owned array of row strings
-    size_t *lineLengths;       // byte count per line
-    size_t *lineCapacities;    // allocated bytes per line
-    size_t lineCount;          // active line count
-    size_t lineCapacity;       // capacity of lines array
-    size_t cursorLine;         // active line index (0-based)
-    size_t cursorCol;          // active column offset (0-based)
-    size_t scrollTop;          // first visible line in viewport
-    size_t scrollLeft;         // horizontal column scroll offset
+    bytes *lineLengths;       // byte count per line
+    bytes *lineCapacities;    // allocated bytes per line
+    bytes lineCount;          // active line count
+    bytes lineCapacity;       // capacity of lines array
+    bytes cursorLine;         // active line index (0-based)
+    bytes cursorCol;          // active column offset (0-based)
+    bytes scrollTop;          // first visible line in viewport
+    bytes scrollLeft;         // horizontal column scroll offset
     bool showGutter;           // line-number gutter visibility
     TerminalPen gutterPen;     // line-number pen
     TerminalPen textPen;       // code text pen
@@ -44,23 +44,23 @@ TerminalCodeEditor *TerminalCodeEditor_1(const char *initialText);
 void TerminalCodeEditor_free(TerminalCodeEditor *self);
 
 bool TerminalCodeEditor_setText(TerminalCodeEditor *self, const char *text);
-size_t TerminalCodeEditor_getLineCount(const TerminalCodeEditor *self);
-const char *TerminalCodeEditor_getLine(const TerminalCodeEditor *self, size_t lineIndex);
+bytes TerminalCodeEditor_getLineCount(const TerminalCodeEditor *self);
+const char *TerminalCodeEditor_getLine(const TerminalCodeEditor *self, bytes lineIndex);
 
 bool TerminalCodeEditor_insertChar(TerminalCodeEditor *self, int character);
-bool TerminalCodeEditor_insertText(TerminalCodeEditor *self, const char *text, size_t length);
+bool TerminalCodeEditor_insertText(TerminalCodeEditor *self, const char *text, bytes length);
 bool TerminalCodeEditor_backspace(TerminalCodeEditor *self);
 bool TerminalCodeEditor_delete(TerminalCodeEditor *self);
 void TerminalCodeEditor_clear(TerminalCodeEditor *self);
 
 void TerminalCodeEditor_moveCursor(TerminalCodeEditor *self, int deltaLine, int deltaCol);
-size_t TerminalCodeEditor_getCursorLine(const TerminalCodeEditor *self);
-size_t TerminalCodeEditor_getCursorCol(const TerminalCodeEditor *self);
-bool TerminalCodeEditor_setCursor(TerminalCodeEditor *self, size_t line, size_t col);
+bytes TerminalCodeEditor_getCursorLine(const TerminalCodeEditor *self);
+bytes TerminalCodeEditor_getCursorCol(const TerminalCodeEditor *self);
+bool TerminalCodeEditor_setCursor(TerminalCodeEditor *self, bytes line, bytes col);
 
 bool TerminalCodeEditor_setShowGutter(TerminalCodeEditor *self, bool show);
 bool TerminalCodeEditor_getShowGutter(const TerminalCodeEditor *self);
-size_t TerminalCodeEditor_getGutterWidth(const TerminalCodeEditor *self);
+bytes TerminalCodeEditor_getGutterWidth(const TerminalCodeEditor *self);
 
 void TerminalCodeEditor_render(const TerminalCodeEditor *self, TerminalCanvas *canvas);
 

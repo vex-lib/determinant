@@ -15,7 +15,7 @@ int main(void) {
 
     // A wide glyph never splits across the cell boundary; a combining mark rides
     // with the scalar it accents.
-    size_t used = 0;
+    bytes used = 0;
     assert(TerminalMarkdownText_bytesForCells("abc", 3, 2, &used) == 2u && used == 2u);
     assert(TerminalMarkdownText_bytesForCells("日本", 6, 1, &used) == 0u && used == 0u);
     assert(TerminalMarkdownText_bytesForCells("e\xCC\x81x", 4, 1, &used) == 3u && used == 1u);

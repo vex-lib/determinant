@@ -10,7 +10,7 @@
 #include "ui/markdown/markdown_theme.h"
 #include "ui/markdown/markdown_code_block.h"
 #include "ui/markdown/markdown_action.h"
-#include "c23/constructor.h"
+#include "util/constructor.h"
 
 // ui/markdown/terminal_markdown_view.h — rendered Markdown in terminal cells.
 //
@@ -53,29 +53,29 @@ TerminalMarkdownTheme TerminalMarkdownView_getTheme(const TerminalMarkdownView *
 // screen rows. `actionAt` says what a press on that cell means; the view never
 // performs it. `setHover` moves the link highlight; `clearHover` removes it.
 TerminalMarkdownAction TerminalMarkdownView_actionAt(const TerminalMarkdownView *self,
-                                                     size_t row, size_t column);
-bool TerminalMarkdownView_setHover(TerminalMarkdownView *self, size_t row, size_t column);
+                                                     bytes row, bytes column);
+bool TerminalMarkdownView_setHover(TerminalMarkdownView *self, bytes row, bytes column);
 void TerminalMarkdownView_clearHover(TerminalMarkdownView *self);
 
 // Copy the fence at `block` into `dest` (newline-separated, no trailing
 // newline). Atomic and allocation-free; false when it does not fit. The caller
 // then performs the clipboard write and calls setCopied for the check glyph.
-bool TerminalMarkdownView_copyBlock(const TerminalMarkdownView *self, size_t block,
-                                    char *dest, size_t capacity, size_t *written);
-bool TerminalMarkdownView_setCopied(TerminalMarkdownView *self, size_t block, bool copied);
-bool TerminalMarkdownView_isCopied(const TerminalMarkdownView *self, size_t block);
+bool TerminalMarkdownView_copyBlock(const TerminalMarkdownView *self, bytes block,
+                                    char *dest, bytes capacity, bytes *written);
+bool TerminalMarkdownView_setCopied(TerminalMarkdownView *self, bytes block, bool copied);
+bool TerminalMarkdownView_isCopied(const TerminalMarkdownView *self, bytes block);
 
-size_t TerminalMarkdownView_codeBlockCount(const TerminalMarkdownView *self);
+bytes TerminalMarkdownView_codeBlockCount(const TerminalMarkdownView *self);
 // The block whose shaded rows cover `row` (a document row, not a screen row), or
 // an invalid record when that row is not inside a code block. Cold linear/binary
 // lookup; callers may use it per hover frame.
 TerminalMarkdownCodeBlock TerminalMarkdownView_codeBlockAt(const TerminalMarkdownView *self,
-                                                           size_t row);
+                                                           bytes row);
 // One source line of `block` (0..sourceLineCount-1), borrowed from the view's
 // source and with quote markers removed. An invalid block/index returns invalid.
 TerminalMarkdownCodeLine TerminalMarkdownView_codeBlockLine(const TerminalMarkdownView *self,
                                                             TerminalMarkdownCodeBlock block,
-                                                            size_t line);
+                                                            bytes line);
 
 TerminalMarkdownView *TerminalMarkdownView_0(void);
 #define TerminalMarkdownView(...) CONSTRUCTOR_DISPATCH(TerminalMarkdownView, __VA_ARGS__)
@@ -87,42 +87,42 @@ void TerminalMarkdownView_free(TerminalMarkdownView *self);
 // Borrow `count` non-null lines. A null list or null line with a nonzero count is refused. The source
 // stays borrowed: the caller must clear it before freeing the lines. Marking the
 // view dirty is enough; the next setViewport lays it out at the then-current width.
-bool TerminalMarkdownView_setSource(TerminalMarkdownView *self, const char *const *lines, size_t count);
+bool TerminalMarkdownView_setSource(TerminalMarkdownView *self, const char *const *lines, bytes count);
 
 // Cold layout: parse and wrap the borrowed source at `width` content cells. A
 // width of zero is refused. Re-laying out at a new width keeps the scroll row,
 // clamped to the new document; the caller resets the scroll when it wants the top.
-bool TerminalMarkdownView_setViewport(TerminalMarkdownView *self, size_t width);
+bool TerminalMarkdownView_setViewport(TerminalMarkdownView *self, bytes width);
 
-size_t TerminalMarkdownView_rowCount(const TerminalMarkdownView *self);
-size_t TerminalMarkdownView_getWidth(const TerminalMarkdownView *self);
+bytes TerminalMarkdownView_rowCount(const TerminalMarkdownView *self);
+bytes TerminalMarkdownView_getWidth(const TerminalMarkdownView *self);
 
 // The scroll is in WRAPPED ROWS, clamped to [0, maxScroll]. `visibleRows` is what
 // the caller can show; setVisibleRows is trivial so a caller may call it per frame.
-bool TerminalMarkdownView_setVisibleRows(TerminalMarkdownView *self, size_t rows);
-size_t TerminalMarkdownView_visibleRows(const TerminalMarkdownView *self);
-size_t TerminalMarkdownView_maxScroll(const TerminalMarkdownView *self);
-bool TerminalMarkdownView_setScroll(TerminalMarkdownView *self, size_t row);
-size_t TerminalMarkdownView_getScroll(const TerminalMarkdownView *self);
+bool TerminalMarkdownView_setVisibleRows(TerminalMarkdownView *self, bytes rows);
+bytes TerminalMarkdownView_visibleRows(const TerminalMarkdownView *self);
+bytes TerminalMarkdownView_maxScroll(const TerminalMarkdownView *self);
+bool TerminalMarkdownView_setScroll(TerminalMarkdownView *self, bytes row);
+bytes TerminalMarkdownView_getScroll(const TerminalMarkdownView *self);
 bool TerminalMarkdownView_scrollBy(TerminalMarkdownView *self, long delta);
 
 // The horizontal scroll is in COLUMNS, clamped to [0, maxScrollX]. `contentWidth`
 // is the unwarped extent of the widest row/table in the document. The offset is a
 // TABLE pan: prose and code paint at column zero, and every table row is clamped
 // to its own overflow, so reading a wide table never slides the document.
-size_t TerminalMarkdownView_contentWidth(const TerminalMarkdownView *self);
-size_t TerminalMarkdownView_maxScrollX(const TerminalMarkdownView *self);
-bool TerminalMarkdownView_setScrollX(TerminalMarkdownView *self, size_t column);
-size_t TerminalMarkdownView_getScrollX(const TerminalMarkdownView *self);
+bytes TerminalMarkdownView_contentWidth(const TerminalMarkdownView *self);
+bytes TerminalMarkdownView_maxScrollX(const TerminalMarkdownView *self);
+bool TerminalMarkdownView_setScrollX(TerminalMarkdownView *self, bytes column);
+bytes TerminalMarkdownView_getScrollX(const TerminalMarkdownView *self);
 // The pan actually applied to one document row: 0 outside a table, else
 // `min(scrollX, rowExtent - width)`. A caller mapping a pointer to a DOCUMENT
 // column adds this after the content-rect origin.
-size_t TerminalMarkdownView_rowScrollX(const TerminalMarkdownView *self, size_t row);
+bytes TerminalMarkdownView_rowScrollX(const TerminalMarkdownView *self, bytes row);
 bool TerminalMarkdownView_scrollXBy(TerminalMarkdownView *self, long delta);
 
 bool TerminalMarkdownView_isReady(const TerminalMarkdownView *self);
 bool TerminalMarkdownView_isTruncated(const TerminalMarkdownView *self);
-size_t TerminalMarkdownView_exhaustionCount(const TerminalMarkdownView *self);
+bytes TerminalMarkdownView_exhaustionCount(const TerminalMarkdownView *self);
 void TerminalMarkdownView_clearExhaustion(TerminalMarkdownView *self);
 
 bool TerminalMarkdownView_setStyle(TerminalMarkdownView *self, TerminalMarkdownStyle style);

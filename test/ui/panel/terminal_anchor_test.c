@@ -16,7 +16,7 @@
 static bool rectEqual(TerminalRect a, TerminalRect b) {
     return a.x == b.x && a.y == b.y && a.width == b.width && a.height == b.height;
 }
-static TerminalRect rectOf(size_t x, size_t y, size_t w, size_t h) {
+static TerminalRect rectOf(bytes x, bytes y, bytes w, bytes h) {
     return (TerminalRect) { x, y, w, h };
 }
 

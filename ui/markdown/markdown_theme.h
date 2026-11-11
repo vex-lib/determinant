@@ -7,7 +7,7 @@
 
 #include "ui/surface/terminal_canvas.h"
 #include "ui/markdown/markdown_callout.h"
-#include "c23/constructor.h"
+#include "util/constructor.h"
 
 // ui/markdown/markdown_theme.h — the role vocabulary and the pen ladder.
 //
@@ -86,7 +86,7 @@ TerminalMarkdownTheme TerminalMarkdownTheme_0(void);
 // base pen — the span's own BOLD/ITALIC/UNDERLINE flags are ORed by the caller,
 // so emphasis composes without a per-combination pen.
 TerminalPen TerminalMarkdownTheme_pen(const TerminalMarkdownTheme *self,
-                                      TerminalMarkdownRole role, uint8_t variant,
+                                      TerminalMarkdownRole role, u8 variant,
                                       bool hovered);
 
 // Projection to and from the legacy eight-pen style record. `fromStyle` copies

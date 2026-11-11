@@ -19,11 +19,11 @@
 /** ========================================================================
  * CLASS: TerminalCanvas (ui/surface/terminal_canvas.c)
  * STRUCT FIELDS (Mirroring ui/surface/terminal_canvas.h)
- * uint32_t *cells               borrowed row-major glyph CODEPOINTS
- * uint16_t *styles              borrowed parallel style plane (nullable)
- * uint32_t *fg, *bg             borrowed parallel colour planes (nullable)
- * size_t gridWidth, gridHeight  full grid extent (indexing stride)
- * size_t x, y, width, height    this region, absolute, clipped to the grid
+ * u32 *cells               borrowed row-major glyph CODEPOINTS
+ * u16 *styles              borrowed parallel style plane (nullable)
+ * u32 *fg, *bg             borrowed parallel colour planes (nullable)
+ * bytes gridWidth, gridHeight  full grid extent (indexing stride)
+ * bytes x, y, width, height    this region, absolute, clipped to the grid
  * PRIVATE HELPERS
  * widthOf(cp)        deterministic cell width (0 combining, 1, 2 wide)
  * encodeUtf8(cp)     encode a scalar into a byte buffer
@@ -34,8 +34,8 @@
  * Constructors: TerminalCanvas_0(void), _4(cells,styles,w,h),
  *   _6(cells,styles,fg,bg,w,h)
  * Queries: bool TerminalCanvas_isValid
- *   size_t getWidth/getHeight
- *   uint32_t glyphAt, uint8_t styleAt, uint32_t fgAt/bgAt
+ *   bytes getWidth/getHeight
+ *   u32 glyphAt, u8 styleAt, u32 fgAt/bgAt
  *   bool hasStylePlane/hasColorPlane
  * Decode: TerminalCanvasDecodedScalar TerminalCanvas_utf8Decode(text, length)
  * Regions: TerminalCanvas TerminalCanvas_sub(self, lx, ly, w, h)
@@ -51,13 +51,13 @@
 TerminalPen TerminalPen_0(void) {
     return (TerminalPen) { TERMINAL_STYLE_NONE, TERMINAL_COLOR_DEFAULT, TERMINAL_COLOR_DEFAULT };
 }
-TerminalPen TerminalPen_1(uint16_t style) {
+TerminalPen TerminalPen_1(u16 style) {
     return (TerminalPen) { style, TERMINAL_COLOR_DEFAULT, TERMINAL_COLOR_DEFAULT };
 }
-TerminalPen TerminalPen_2(uint16_t style, uint32_t fg) {
+TerminalPen TerminalPen_2(u16 style, u32 fg) {
     return (TerminalPen) { style, fg, TERMINAL_COLOR_DEFAULT };
 }
-TerminalPen TerminalPen_3(uint16_t style, uint32_t fg, uint32_t bg) {
+TerminalPen TerminalPen_3(u16 style, u32 fg, u32 bg) {
     return (TerminalPen) { style, fg, bg };
 }
 
@@ -65,8 +65,8 @@ TerminalCanvas TerminalCanvas_0(void) {
     return (TerminalCanvas) {0};
 }
 
-static TerminalCanvas canvasMake(uint32_t *cells, uint16_t *styles, uint32_t *fg, uint32_t *bg,
-                                 size_t width, size_t height) {
+static TerminalCanvas canvasMake(u32 *cells, u16 *styles, u32 *fg, u32 *bg,
+                                 bytes width, bytes height) {
     TerminalCanvas c = {0};
     if (cells == nullptr || width == 0 || height == 0)
         return c;
@@ -83,12 +83,12 @@ static TerminalCanvas canvasMake(uint32_t *cells, uint16_t *styles, uint32_t *fg
     return c;
 }
 
-TerminalCanvas TerminalCanvas_4(uint32_t *cells, uint16_t *styles, size_t width, size_t height) {
+TerminalCanvas TerminalCanvas_4(u32 *cells, u16 *styles, bytes width, bytes height) {
     return canvasMake(cells, styles, nullptr, nullptr, width, height);
 }
 
-TerminalCanvas TerminalCanvas_6(uint32_t *cells, uint16_t *styles, uint32_t *fg, uint32_t *bg,
-                                size_t width, size_t height) {
+TerminalCanvas TerminalCanvas_6(u32 *cells, u16 *styles, u32 *fg, u32 *bg,
+                                bytes width, bytes height) {
     return canvasMake(cells, styles, fg, bg, width, height);
 }
 
@@ -96,11 +96,11 @@ bool TerminalCanvas_isValid(const TerminalCanvas *self) {
     return self != nullptr && (*self).cells != nullptr && (*self).width > 0 && (*self).height > 0;
 }
 
-static size_t minSize(size_t a, size_t b) { return a < b ? a : b; }
+static bytes minSize(bytes a, bytes b) { return a < b ? a : b; }
 
 // Deterministic, locale-free cell width. 0 = combining mark; 2 = wide (CJK,
 // emoji, fullwidth); 1 = everything else.
-size_t TerminalCanvas_widthOf(uint32_t cp) {
+bytes TerminalCanvas_widthOf(u32 cp) {
     if ((cp >= 0x0300 && cp <= 0x036F) || (cp >= 0x1AB0 && cp <= 0x1AFF) ||
         (cp >= 0x1DC0 && cp <= 0x1DFF) || (cp >= 0x20D0 && cp <= 0x20FF) ||
         (cp >= 0xFE20 && cp <= 0xFE2F))
@@ -114,7 +114,7 @@ size_t TerminalCanvas_widthOf(uint32_t cp) {
     return 1;
 }
 
-TerminalCanvasDecodedScalar TerminalCanvas_utf8Decode(const char *text, size_t length) {
+TerminalCanvasDecodedScalar TerminalCanvas_utf8Decode(const char *text, bytes length) {
     TerminalCanvasDecodedScalar decoded = {0};
     if (text == nullptr || length == 0)
         return decoded;
@@ -125,15 +125,15 @@ TerminalCanvasDecodedScalar TerminalCanvas_utf8Decode(const char *text, size_t l
         decoded.bytes = 1;
         return decoded;
     }
-    size_t need;
-    uint32_t cp;
+    bytes need;
+    u32 cp;
     if ((b0 & 0xE0u) == 0xC0u) { need = 1; cp = b0 & 0x1Fu; }
     else if ((b0 & 0xF0u) == 0xE0u) { need = 2; cp = b0 & 0x0Fu; }
     else if ((b0 & 0xF8u) == 0xF0u) { need = 3; cp = b0 & 0x07u; }
     else return decoded;
     if (length < need + 1)
         return decoded;
-    for (size_t i = 1; i <= need; ++i) {
+    for (bytes i = 1; i <= need; ++i) {
         if ((p[i] & 0xC0u) != 0x80u)
             return decoded;
         cp = (cp << 6) | (p[i] & 0x3Fu);
@@ -143,7 +143,7 @@ TerminalCanvasDecodedScalar TerminalCanvas_utf8Decode(const char *text, size_t l
     return decoded;
 }
 
-static size_t encodeUtf8(uint32_t cp, char *out) {
+static bytes encodeUtf8(u32 cp, char *out) {
     if (cp < 0x80u) { out[0] = (char) cp; return 1; }
     if (cp < 0x800u) {
         out[0] = (char) (0xC0u | (cp >> 6));
@@ -163,19 +163,19 @@ static size_t encodeUtf8(uint32_t cp, char *out) {
     return 4;
 }
 
-TerminalCanvas TerminalCanvas_sub(const TerminalCanvas *self, size_t lx, size_t ly,
-                                  size_t w, size_t h) {
+TerminalCanvas TerminalCanvas_sub(const TerminalCanvas *self, bytes lx, bytes ly,
+                                  bytes w, bytes h) {
     TerminalCanvas out = {0};
     if (!TerminalCanvas_isValid(self))
         return out;
     if (lx >= (*self).width || ly >= (*self).height)
         return out;
-    size_t ax = (*self).x + lx;
-    size_t ay = (*self).y + ly;
+    bytes ax = (*self).x + lx;
+    bytes ay = (*self).y + ly;
     if (ax >= (*self).gridWidth || ay >= (*self).gridHeight)
         return out;
-    size_t cw = minSize(w, (*self).width - lx);
-    size_t ch = minSize(h, (*self).height - ly);
+    bytes cw = minSize(w, (*self).width - lx);
+    bytes ch = minSize(h, (*self).height - ly);
     cw = minSize(cw, (*self).gridWidth - ax);
     ch = minSize(ch, (*self).gridHeight - ay);
     if (cw == 0 || ch == 0)
@@ -193,10 +193,10 @@ TerminalCanvas TerminalCanvas_sub(const TerminalCanvas *self, size_t lx, size_t 
     return out;
 }
 
-static void putCell(const TerminalCanvas *self, size_t ax, size_t ay, uint32_t glyph, TerminalPen pen) {
+static void putCell(const TerminalCanvas *self, bytes ax, bytes ay, u32 glyph, TerminalPen pen) {
     if (ax >= (*self).gridWidth || ay >= (*self).gridHeight)
         return;
-    size_t index = ay * (*self).gridWidth + ax;
+    bytes index = ay * (*self).gridWidth + ax;
     (*self).cells[index] = glyph;
     if ((*self).styles != nullptr)
         (*self).styles[index] = pen.style;
@@ -206,60 +206,60 @@ static void putCell(const TerminalCanvas *self, size_t ax, size_t ay, uint32_t g
         (*self).bg[index] = pen.bg;
 }
 
-void TerminalCanvas_fill(TerminalCanvas *self, uint32_t glyph, TerminalPen pen) {
+void TerminalCanvas_fill(TerminalCanvas *self, u32 glyph, TerminalPen pen) {
     if (!TerminalCanvas_isValid(self))
         return;
-    for (size_t ly = 0; ly < (*self).height; ++ly)
-        for (size_t lx = 0; lx < (*self).width; ++lx)
+    for (bytes ly = 0; ly < (*self).height; ++ly)
+        for (bytes lx = 0; lx < (*self).width; ++lx)
             putCell(self, (*self).x + lx, (*self).y + ly, glyph, pen);
 }
 
 // Write one scalar at a local column, advancing by its width and marking the
 // continuation cell of a wide glyph with 0 so layout stays aligned.
-static void putScalar(const TerminalCanvas *self, size_t *lx, size_t ly, uint32_t cp, TerminalPen pen) {
-    size_t width = TerminalCanvas_widthOf(cp);
+static void putScalar(const TerminalCanvas *self, bytes *lx, bytes ly, u32 cp, TerminalPen pen) {
+    bytes width = TerminalCanvas_widthOf(cp);
     if (width == 0)
         return;   // combining marks are not composed (shaping gap)
-    uint32_t glyph = (cp < 32u || cp == 127u) ? '?' : cp;
+    u32 glyph = (cp < 32u || cp == 127u) ? '?' : cp;
     putCell(self, (*self).x + *lx, (*self).y + ly, glyph, pen);
     if (width == 2 && *lx + 1 < (*self).width)
         putCell(self, (*self).x + *lx + 1, (*self).y + ly, 0, pen);
     *lx += width;
 }
 
-void TerminalCanvas_text(TerminalCanvas *self, size_t lx, size_t ly,
-                         const char *text, size_t length, TerminalPen pen) {
+void TerminalCanvas_text(TerminalCanvas *self, bytes lx, bytes ly,
+                         const char *text, bytes length, TerminalPen pen) {
     if (!TerminalCanvas_isValid(self) || text == nullptr || ly >= (*self).height)
         return;
-    size_t at = 0;
+    bytes at = 0;
     while (at < length && lx < (*self).width) {
         TerminalCanvasDecodedScalar decoded = TerminalCanvas_utf8Decode(text + at, length - at);
-        uint32_t cp = decoded.codepoint;
-        size_t used = decoded.bytes;
+        u32 cp = decoded.codepoint;
+        bytes used = decoded.bytes;
         if (used == 0) { cp = '?'; used = 1; }
         putScalar(self, &lx, ly, cp, pen);
         at += used;
     }
 }
 
-void TerminalCanvas_glyph(TerminalCanvas *self, size_t lx, size_t ly, uint32_t codepoint, TerminalPen pen) {
+void TerminalCanvas_glyph(TerminalCanvas *self, bytes lx, bytes ly, u32 codepoint, TerminalPen pen) {
     if (!TerminalCanvas_isValid(self) || lx >= (*self).width || ly >= (*self).height)
         return;
-    size_t x = lx;
+    bytes x = lx;
     putScalar(self, &x, ly, codepoint, pen);
 }
 
-void TerminalCanvas_hline(TerminalCanvas *self, size_t ly, uint32_t glyph, TerminalPen pen) {
+void TerminalCanvas_hline(TerminalCanvas *self, bytes ly, u32 glyph, TerminalPen pen) {
     if (!TerminalCanvas_isValid(self) || ly >= (*self).height)
         return;
-    for (size_t lx = 0; lx < (*self).width; ++lx)
+    for (bytes lx = 0; lx < (*self).width; ++lx)
         putCell(self, (*self).x + lx, (*self).y + ly, glyph, pen);
 }
 
-void TerminalCanvas_vline(TerminalCanvas *self, size_t lx, uint32_t glyph, TerminalPen pen) {
+void TerminalCanvas_vline(TerminalCanvas *self, bytes lx, u32 glyph, TerminalPen pen) {
     if (!TerminalCanvas_isValid(self) || lx >= (*self).width)
         return;
-    for (size_t ly = 0; ly < (*self).height; ++ly)
+    for (bytes ly = 0; ly < (*self).height; ++ly)
         putCell(self, (*self).x + lx, (*self).y + ly, glyph, pen);
 }
 
@@ -276,49 +276,49 @@ void TerminalCanvas_box(TerminalCanvas *self, TerminalPen pen) {
     putCell(self, (*self).x + (*self).width - 1, (*self).y + (*self).height - 1, '+', pen);
 }
 
-uint32_t TerminalCanvas_glyphAt(const TerminalCanvas *self, size_t lx, size_t ly) {
+u32 TerminalCanvas_glyphAt(const TerminalCanvas *self, bytes lx, bytes ly) {
     if (!TerminalCanvas_isValid(self) || lx >= (*self).width || ly >= (*self).height)
         return 0;
     return (*self).cells[((*self).y + ly) * (*self).gridWidth + ((*self).x + lx)];
 }
 
-uint16_t TerminalCanvas_styleAt(const TerminalCanvas *self, size_t lx, size_t ly) {
+u16 TerminalCanvas_styleAt(const TerminalCanvas *self, bytes lx, bytes ly) {
     if (!TerminalCanvas_isValid(self) || (*self).styles == nullptr
         || lx >= (*self).width || ly >= (*self).height)
         return TERMINAL_STYLE_NONE;
     return (*self).styles[((*self).y + ly) * (*self).gridWidth + ((*self).x + lx)];
 }
 
-uint32_t TerminalCanvas_fgAt(const TerminalCanvas *self, size_t lx, size_t ly) {
+u32 TerminalCanvas_fgAt(const TerminalCanvas *self, bytes lx, bytes ly) {
     if (!TerminalCanvas_isValid(self) || (*self).fg == nullptr
         || lx >= (*self).width || ly >= (*self).height)
         return TERMINAL_COLOR_DEFAULT;
     return (*self).fg[((*self).y + ly) * (*self).gridWidth + ((*self).x + lx)];
 }
 
-uint32_t TerminalCanvas_bgAt(const TerminalCanvas *self, size_t lx, size_t ly) {
+u32 TerminalCanvas_bgAt(const TerminalCanvas *self, bytes lx, bytes ly) {
     if (!TerminalCanvas_isValid(self) || (*self).bg == nullptr
         || lx >= (*self).width || ly >= (*self).height)
         return TERMINAL_COLOR_DEFAULT;
     return (*self).bg[((*self).y + ly) * (*self).gridWidth + ((*self).x + lx)];
 }
 
-size_t TerminalCanvas_getWidth(const TerminalCanvas *self) { return self ? (*self).width : 0; }
-size_t TerminalCanvas_getHeight(const TerminalCanvas *self) { return self ? (*self).height : 0; }
+bytes TerminalCanvas_getWidth(const TerminalCanvas *self) { return self ? (*self).width : 0; }
+bytes TerminalCanvas_getHeight(const TerminalCanvas *self) { return self ? (*self).height : 0; }
 bool TerminalCanvas_hasStylePlane(const TerminalCanvas *self) { return self && (*self).styles != nullptr; }
 bool TerminalCanvas_hasColorPlane(const TerminalCanvas *self) { return self && (*self).fg != nullptr; }
 
-TerminalCanvasTextRow TerminalCanvas_copyRow(const TerminalCanvas *self, size_t ly) {
+TerminalCanvasTextRow TerminalCanvas_copyRow(const TerminalCanvas *self, bytes ly) {
     TerminalCanvasTextRow row = {0};
     if (!TerminalCanvas_isValid(self) || ly >= (*self).height) {
         return row;
     }
-    for (size_t lx = 0; lx < (*self).width; ++lx) {
-        uint32_t cp = TerminalCanvas_glyphAt(self, lx, ly);
+    for (bytes lx = 0; lx < (*self).width; ++lx) {
+        u32 cp = TerminalCanvas_glyphAt(self, lx, ly);
         if (cp == 0)                    // wide-glyph continuation cell
             cp = ' ';
         char encoded[4];
-        size_t n = encodeUtf8(cp, encoded);
+        bytes n = encodeUtf8(cp, encoded);
         if (row.bytes + n >= sizeof row.data) {
             row.truncated = true;
             break;

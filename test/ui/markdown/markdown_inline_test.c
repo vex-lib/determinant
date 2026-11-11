@@ -7,8 +7,8 @@
 #include <stdint.h>
 #include <string.h>
 
-static size_t parse(const char *text, TerminalMarkdownRole base, MarkdownSpan *spans,
-                    size_t capacity, bool *complete) {
+static bytes parse(const char *text, TerminalMarkdownRole base, MarkdownSpan *spans,
+                    bytes capacity, bool *complete) {
     return TerminalMarkdownInline_parse(text, strlen(text), base, 0, spans, capacity, complete);
 }
 
@@ -18,7 +18,7 @@ int main(void) {
 
     // Strong and emphasis are flags on the surrounding role, and the markers are
     // consumed rather than printed.
-    size_t count = parse("a **bold** and *quiet*", TERMINAL_MARKDOWN_BODY, spans,
+    bytes count = parse("a **bold** and *quiet*", TERMINAL_MARKDOWN_BODY, spans,
                          MARKDOWN_INLINE_SPANS, &complete);
     assert(complete && count >= 4u);
     assert(spans[0].role == TERMINAL_MARKDOWN_BODY);
@@ -27,7 +27,7 @@ int main(void) {
     assert((spans[1].style & TERMINAL_STYLE_BOLD) != 0);
     assert((spans[1].style & TERMINAL_STYLE_ITALIC) == 0);
     bool sawItalic = false;
-    for (size_t index = 0; index < count; ++index)
+    for (bytes index = 0; index < count; ++index)
         if (spans[index].length == 5u && memcmp(spans[index].text, "quiet", 5) == 0) {
             assert((spans[index].style & TERMINAL_STYLE_ITALIC) != 0);
             assert((spans[index].style & TERMINAL_STYLE_BOLD) == 0);
@@ -53,7 +53,7 @@ int main(void) {
     assert(spans[0].role == TERMINAL_MARKDOWN_LINK);
     assert(spans[0].link != nullptr && spans[0].linkLength == strlen("https://example.test"));
     assert(memcmp(spans[0].link, "https://example.test", spans[0].linkLength) == 0);
-    for (size_t index = 0; index < count; ++index) {
+    for (bytes index = 0; index < count; ++index) {
         assert(spans[index].role == TERMINAL_MARKDOWN_LINK);
         assert(spans[index].linkLength == strlen("https://example.test"));
         assert(memcmp(spans[index].link, "https://example.test", spans[index].linkLength) == 0);

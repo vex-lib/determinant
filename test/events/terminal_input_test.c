@@ -10,8 +10,8 @@
 #include "determinant/test/support.h"
 
 // Feed a literal sequence, returning how many feed calls completed an event.
-static size_t feedString(TerminalInput *input, const char *bytes) {
-    size_t completions = 0;
+static bytes feedString(TerminalInput *input, const char *bytes) {
+    bytes completions = 0;
     for (const char *at = bytes; *at != '\0'; ++at)
         if (TerminalInput_feed(input, (unsigned char) *at))
             ++completions;
@@ -109,7 +109,7 @@ int main(void) {
     // --- Byte at a time: the same sequence, split by nothing but scheduling ---
     TerminalInput split = TerminalInput_0();
     const char *sequence = "\x1b[<32;40;11M";
-    size_t completions = 0;
+    bytes completions = 0;
     for (const char *at = sequence; *at != '\0'; ++at)
         if (TerminalInput_feed(&split, (unsigned char) *at))
             ++completions;

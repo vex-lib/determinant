@@ -34,8 +34,8 @@ static const CalloutEntry CALLOUT_ENTRIES[] = {
     { "CAUTION", TERMINAL_MARKDOWN_CALLOUT_CAUTION },
 };
 
-static TerminalMarkdownCalloutKind kindForName(const char *name, size_t length) {
-    for (size_t index = 0; index < sizeof(CALLOUT_ENTRIES) / sizeof(CALLOUT_ENTRIES[0]); ++index) {
+static TerminalMarkdownCalloutKind kindForName(const char *name, bytes length) {
+    for (bytes index = 0; index < sizeof(CALLOUT_ENTRIES) / sizeof(CALLOUT_ENTRIES[0]); ++index) {
         const char *candidate = CALLOUT_ENTRIES[index].name;
         if (strlen(candidate) == length && strncasecmp(candidate, name, length) == 0)
             return CALLOUT_ENTRIES[index].kind;
@@ -43,15 +43,15 @@ static TerminalMarkdownCalloutKind kindForName(const char *name, size_t length) 
     return TERMINAL_MARKDOWN_CALLOUT_NONE;
 }
 
-TerminalMarkdownCallout TerminalMarkdownCallout_parse(const char *text, size_t length) {
+TerminalMarkdownCallout TerminalMarkdownCallout_parse(const char *text, bytes length) {
     TerminalMarkdownCallout callout = {0};
     if (text == nullptr || length < 4u)
         return callout;
-    size_t nameStart = 0;
-    size_t nameEnd = 0;
-    size_t markerEnd = 0;
+    bytes nameStart = 0;
+    bytes nameEnd = 0;
+    bytes markerEnd = 0;
     if (text[0] == '[' && text[1] == '!') {
-        size_t close = 2u;
+        bytes close = 2u;
         while (close < length && text[close] != ']')
             ++close;
         if (close >= length)
@@ -60,7 +60,7 @@ TerminalMarkdownCallout TerminalMarkdownCallout_parse(const char *text, size_t l
         nameEnd = close;
         markerEnd = close + 1u;
     } else if (text[0] == '!') {
-        size_t close = 1u;
+        bytes close = 1u;
         while (close < length && text[close] != '!')
             ++close;
         if (close >= length)
@@ -76,7 +76,7 @@ TerminalMarkdownCallout TerminalMarkdownCallout_parse(const char *text, size_t l
     TerminalMarkdownCalloutKind kind = kindForName(text + nameStart, nameEnd - nameStart);
     if (kind == TERMINAL_MARKDOWN_CALLOUT_NONE)
         return callout;
-    size_t content = markerEnd;
+    bytes content = markerEnd;
     if (content < length && text[content] == ' ')
         ++content;
     callout.valid = true;
@@ -88,7 +88,7 @@ TerminalMarkdownCallout TerminalMarkdownCallout_parse(const char *text, size_t l
 }
 
 const char *TerminalMarkdownCallout_name(TerminalMarkdownCalloutKind kind) {
-    for (size_t index = 0; index < sizeof(CALLOUT_ENTRIES) / sizeof(CALLOUT_ENTRIES[0]); ++index)
+    for (bytes index = 0; index < sizeof(CALLOUT_ENTRIES) / sizeof(CALLOUT_ENTRIES[0]); ++index)
         if (CALLOUT_ENTRIES[index].kind == kind)
             return CALLOUT_ENTRIES[index].name;
     return "";
@@ -98,8 +98,8 @@ const char *TerminalMarkdownCallout_bar(void) {
     return TERMINAL_MARKDOWN_CALLOUT_BAR;
 }
 
-size_t TerminalMarkdownCallout_penIndex(TerminalMarkdownCalloutKind kind) {
+bytes TerminalMarkdownCallout_penIndex(TerminalMarkdownCalloutKind kind) {
     if (kind <= TERMINAL_MARKDOWN_CALLOUT_NONE || kind >= TERMINAL_MARKDOWN_CALLOUT_KIND_COUNT)
         return TERMINAL_MARKDOWN_CALLOUT_KIND_COUNT;
-    return (size_t) kind - 1u;
+    return (bytes) kind - 1u;
 }

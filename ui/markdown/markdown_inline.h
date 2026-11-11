@@ -31,19 +31,19 @@
 // label resolves the target without a side table. `link` is nullptr otherwise.
 typedef struct MarkdownSpan {
     const char *text;
-    size_t length;
+    bytes length;
     TerminalMarkdownRole role;
-    uint16_t style;
+    u16 style;
     const char *link;
-    size_t linkLength;
+    bytes linkLength;
 } MarkdownSpan;
 
 // Parse `text` into `spans`. `base` is the role plain text inherits and `style`
 // the flags already in force (a link label passes its link style down).
 // Returns the number of spans written; sets `complete` to false when the buffer
 // filled or the nesting cap was reached. A null/empty span writes nothing.
-size_t TerminalMarkdownInline_parse(const char *text, size_t length, TerminalMarkdownRole base,
-                            uint16_t style, MarkdownSpan *spans, size_t capacity,
+bytes TerminalMarkdownInline_parse(const char *text, bytes length, TerminalMarkdownRole base,
+                            u16 style, MarkdownSpan *spans, bytes capacity,
                             bool *complete);
 
 #endif

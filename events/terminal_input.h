@@ -6,7 +6,7 @@
 #include <stdint.h>
 
 #include "ui/surface/terminal_projection.h"
-#include "c23/constructor.h"
+#include "util/constructor.h"
 
 // events/terminal_input.h — the terminal's MOUSE byte decoder.
 //
@@ -64,8 +64,8 @@ typedef enum TerminalPointerButton {
 typedef struct TerminalPointerEvent {
     TerminalPointerKind kind;     // what happened
     TerminalPointerButton button; // which button, when one applies
-    size_t x;                     // 0-based cell column
-    size_t y;                     // 0-based cell row
+    bytes x;                     // 0-based cell column
+    bytes y;                     // 0-based cell row
     bool shift;
     bool meta;
     bool ctrl;
@@ -82,18 +82,18 @@ typedef enum TerminalInputState {
 } TerminalInputState;
 
 // TERMINAL_INPUT_DIGITS_MAX bounds one numeric field. A fifth digit is refused
-// rather than accumulated, so no field can overflow a size_t.
+// rather than accumulated, so no field can overflow a bytes.
 #define TERMINAL_INPUT_DIGITS_MAX 4u
 // X10 packs three bytes after ESC [ M.
 #define TERMINAL_INPUT_X10_BYTES 3u
 
 typedef struct TerminalInput {
     TerminalInputState state;  // where the byte stream currently is
-    size_t rawCount;           // X10 bytes collected so far
-    size_t field;              // SGR field under construction: 0 button, 1 x, 2 y
-    size_t digits;             // digits seen in the current SGR field
-    size_t values[3];          // button, column, row (1-based as received)
-    size_t malformed;          // refused sequences in this epoch
+    bytes rawCount;           // X10 bytes collected so far
+    bytes field;              // SGR field under construction: 0 button, 1 x, 2 y
+    bytes digits;             // digits seen in the current SGR field
+    bytes values[3];          // button, column, row (1-based as received)
+    bytes malformed;          // refused sequences in this epoch
     TerminalPointerEvent event; // the last completed event
     bool ready;                // set for the feed() call that completed an event
 } TerminalInput;
@@ -117,7 +117,7 @@ bool TerminalInput_isPending(const TerminalInput *self);
 TerminalInputState TerminalInput_getState(const TerminalInput *self);
 // Sequences refused in this epoch: a malformed byte, an over-long numeric field,
 // or a zero coordinate. A count, never a log line — this runs per byte.
-size_t TerminalInput_malformedCount(const TerminalInput *self);
+bytes TerminalInput_malformedCount(const TerminalInput *self);
 void TerminalInput_clearMalformed(TerminalInput *self);
 void TerminalInput_reset(TerminalInput *self);
 

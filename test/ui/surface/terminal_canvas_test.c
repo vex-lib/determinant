@@ -6,10 +6,10 @@
 
 int main(void) {
     enum { W = 12, H = 4 };
-    uint32_t cells[W * H];
-    uint16_t styles[W * H];
-    uint32_t fg[W * H];
-    uint32_t bg[W * H];
+    u32 cells[W * H];
+    u16 styles[W * H];
+    u32 fg[W * H];
+    u32 bg[W * H];
 
     // Pen constructors.
     TerminalPen p0 = TerminalPen();
@@ -51,8 +51,8 @@ int main(void) {
 
     // Full four-plane canvas: colours land and read back (separate buffers so the
     // earlier glyph assertions stand).
-    static uint32_t colorCells[W * H];
-    static uint16_t colorStyles[W * H];
+    static u32 colorCells[W * H];
+    static u16 colorStyles[W * H];
     memset(fg, 0, sizeof fg);
     memset(bg, 0, sizeof bg);
     TerminalCanvas col = TerminalCanvas(colorCells, colorStyles, fg, bg, W, H);
@@ -71,7 +71,7 @@ int main(void) {
     // Row projection + truncation.
     TerminalCanvasTextRow row = TerminalCanvas_copyRow(&c, 2);
     assert(!row.truncated && row.data[5] == '-');
-    static uint32_t wideRowCells[1100];
+    static u32 wideRowCells[1100];
     TerminalCanvas wideRowCanvas = TerminalCanvas(wideRowCells, nullptr, 1100u, 1u);
     TerminalCanvas_fill(&wideRowCanvas, 'x', TerminalPen());
     TerminalCanvasTextRow boundedRow = TerminalCanvas_copyRow(&wideRowCanvas, 0u);

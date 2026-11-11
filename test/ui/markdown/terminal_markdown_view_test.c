@@ -6,18 +6,18 @@
 
 enum { W = 48, H = 12 };
 
-static void clearCanvas(TerminalCanvas *canvas, uint32_t *cells, uint16_t *styles,
-                        uint32_t *fg, uint32_t *bg) {
+static void clearCanvas(TerminalCanvas *canvas, u32 *cells, u16 *styles,
+                        u32 *fg, u32 *bg) {
     *canvas = TerminalCanvas(cells, styles, fg, bg, W, H);
     TerminalCanvas_fill(canvas, ' ', TerminalPen());
 }
 
 static bool canvasContainsText(const TerminalCanvas *canvas, const char *text) {
-    size_t length = strlen(text);
-    for (size_t row = 0; row < TerminalCanvas_getHeight(canvas); ++row)
-        for (size_t column = 0; column + length <= TerminalCanvas_getWidth(canvas); ++column) {
+    bytes length = strlen(text);
+    for (bytes row = 0; row < TerminalCanvas_getHeight(canvas); ++row)
+        for (bytes column = 0; column + length <= TerminalCanvas_getWidth(canvas); ++column) {
             bool matches = true;
-            for (size_t index = 0; index < length; ++index)
+            for (bytes index = 0; index < length; ++index)
                 if (TerminalCanvas_glyphAt(canvas, column + index, row)
                     != (unsigned char) text[index]) {
                     matches = false;
@@ -29,12 +29,12 @@ static bool canvasContainsText(const TerminalCanvas *canvas, const char *text) {
     return false;
 }
 
-static size_t rowOfText(const TerminalCanvas *canvas, const char *text) {
-    size_t length = strlen(text);
-    for (size_t row = 0; row < TerminalCanvas_getHeight(canvas); ++row)
-        for (size_t column = 0; column + length <= TerminalCanvas_getWidth(canvas); ++column) {
+static bytes rowOfText(const TerminalCanvas *canvas, const char *text) {
+    bytes length = strlen(text);
+    for (bytes row = 0; row < TerminalCanvas_getHeight(canvas); ++row)
+        for (bytes column = 0; column + length <= TerminalCanvas_getWidth(canvas); ++column) {
             bool matches = true;
-            for (size_t index = 0; index < length; ++index)
+            for (bytes index = 0; index < length; ++index)
                 if (TerminalCanvas_glyphAt(canvas, column + index, row)
                     != (unsigned char) text[index]) {
                     matches = false;
@@ -66,10 +66,10 @@ int main(void) {
         "| ---- | ----- |",
         "| one | two |",
     };
-    uint32_t cells[W * H];
-    uint16_t styles[W * H];
-    uint32_t fg[W * H];
-    uint32_t bg[W * H];
+    u32 cells[W * H];
+    u16 styles[W * H];
+    u32 fg[W * H];
+    u32 bg[W * H];
     TerminalCanvas canvas;
     clearCanvas(&canvas, cells, styles, fg, bg);
 
@@ -107,12 +107,12 @@ int main(void) {
     bool sawCalloutBar = false;
     bool sawColoredCallout = false;
     bool sawTableBorder = false;
-    for (size_t i = 0; i < W * H; ++i)
+    for (bytes i = 0; i < W * H; ++i)
         if ((styles[i] & TERMINAL_STYLE_BOLD) != 0)
             sawStyledCell = true;
-    for (size_t row = 0; row < H; ++row)
-        for (size_t column = 0; column < W; ++column) {
-            uint32_t glyph = TerminalCanvas_glyphAt(&canvas, column, row);
+    for (bytes row = 0; row < H; ++row)
+        for (bytes column = 0; column < W; ++column) {
+            u32 glyph = TerminalCanvas_glyphAt(&canvas, column, row);
             if (glyph == 0x258Cu) {
                 sawCalloutBar = true;
                 sawColoredCallout = (styles[row * W + column] & TERMINAL_STYLE_BOLD) != 0
@@ -138,7 +138,7 @@ int main(void) {
     assert(TerminalCanvas_glyphAt(&canvas, 0, 0) == 0x258Cu);
     assert(TerminalCanvas_glyphAt(&canvas, 1, 0) == ' ');
     assert(TerminalCanvas_glyphAt(&canvas, 2, 0) == 'W');
-    for (size_t column = 2u; column <= 8u; ++column) {
+    for (bytes column = 2u; column <= 8u; ++column) {
         assert((styles[column] & TERMINAL_STYLE_BOLD) != 0u);
         assert(fg[column] == TERMINAL_RGB(235, 192, 95));
     }
@@ -207,11 +207,11 @@ int main(void) {
     clearCanvas(&canvas, cells, styles, fg, bg);
     TerminalMarkdownView_render(view, &canvas);
     assert(bg[1u * W] != codeStyle.fence.bg);
-    for (size_t row = 2u; row < 5u; ++row) {
+    for (bytes row = 2u; row < 5u; ++row) {
         assert(bg[row * W] == codeStyle.fence.bg);
         assert(bg[row * W + W - 1u] == codeStyle.fence.bg);
-        for (size_t column = 0; column < W; ++column) {
-            uint32_t glyph = TerminalCanvas_glyphAt(&canvas, column, row);
+        for (bytes column = 0; column < W; ++column) {
+            u32 glyph = TerminalCanvas_glyphAt(&canvas, column, row);
             assert(glyph != 0x250Cu && glyph != 0x2502u && glyph != 0x2518u);
         }
     }
@@ -234,7 +234,7 @@ int main(void) {
     TerminalMarkdownView_setVisibleRows(view, H);
     assert(TerminalMarkdownView_codeBlockCount(view) == 1u);
     TerminalMarkdownCodeBlock quotedBlock = {0};
-    for (size_t row = 0; row < TerminalMarkdownView_rowCount(view); ++row) {
+    for (bytes row = 0; row < TerminalMarkdownView_rowCount(view); ++row) {
         TerminalMarkdownCodeBlock candidate = TerminalMarkdownView_codeBlockAt(view, row);
         if (candidate.valid) {
             quotedBlock = candidate;
@@ -259,16 +259,16 @@ int main(void) {
     clearCanvas(&canvas, cells, styles, fg, bg);
     TerminalMarkdownView_render(view, &canvas);
     assert(TerminalMarkdownView_codeBlockCount(view) == 1u);
-    for (size_t row = 0; row < H; ++row)
-        for (size_t column = 0; column < W; ++column) {
-            uint32_t glyph = TerminalCanvas_glyphAt(&canvas, column, row);
+    for (bytes row = 0; row < H; ++row)
+        for (bytes column = 0; column < W; ++column) {
+            u32 glyph = TerminalCanvas_glyphAt(&canvas, column, row);
             if (glyph == 0x2502u)
                 sawTableBorder = true;
         }
     assert(sawTableBorder);
 
     TerminalMarkdownView_setVisibleRows(view, 2);
-    size_t oldScroll = TerminalMarkdownView_getScroll(view);
+    bytes oldScroll = TerminalMarkdownView_getScroll(view);
     assert(TerminalMarkdownView_scrollBy(view, 3));
     assert(TerminalMarkdownView_getScroll(view) == oldScroll + 3u);
     assert(TerminalMarkdownView_setScroll(view, SIZE_MAX));
@@ -284,8 +284,8 @@ int main(void) {
     assert(TerminalMarkdownView_rowCount(view) >= 2u);
     clearCanvas(&canvas, cells, styles, fg, bg);
     TerminalMarkdownView_render(view, &canvas);
-    size_t quoteRows = 0;
-    for (size_t row = 0; row < H && row < TerminalMarkdownView_rowCount(view); ++row)
+    bytes quoteRows = 0;
+    for (bytes row = 0; row < H && row < TerminalMarkdownView_rowCount(view); ++row)
         if (TerminalCanvas_glyphAt(&canvas, 0, row) == '|') {
             ++quoteRows;
             assert(TerminalCanvas_glyphAt(&canvas, 1, row) == ' ');
@@ -304,9 +304,9 @@ int main(void) {
     bool sawThirdNumber = false;
     bool sawFirstText = false;
     bool sawSecondText = false;
-    for (size_t row = 0; row < H; ++row)
-        for (size_t column = 0; column < W; ++column) {
-            uint32_t glyph = TerminalCanvas_glyphAt(&canvas, column, row);
+    for (bytes row = 0; row < H; ++row)
+        for (bytes column = 0; column < W; ++column) {
+            u32 glyph = TerminalCanvas_glyphAt(&canvas, column, row);
             if (column + 1u < W && glyph == '1'
                 && TerminalCanvas_glyphAt(&canvas, column + 1u, row) == '.')
                 sawFirstNumber = true;
@@ -331,7 +331,7 @@ int main(void) {
     assert(TerminalMarkdownView_setViewport(view, W));
     clearCanvas(&canvas, cells, styles, fg, bg);
     TerminalMarkdownView_render(view, &canvas);
-    for (size_t row = 0; row < 3u; ++row) {
+    for (bytes row = 0; row < 3u; ++row) {
         assert(TerminalCanvas_glyphAt(&canvas, 0, row) == 0x2022u);
         assert(TerminalCanvas_glyphAt(&canvas, 1, row) == ' ');
     }
@@ -355,9 +355,9 @@ int main(void) {
     assert(canvasContainsText(&canvas, "Terminal"));
     assert(canvasContainsText(&canvas, "Required"));
     assert(!canvasContainsText(&canvas, ":---"));
-    size_t tableVerticals = 0;
-    for (size_t row = 0; row < H; ++row)
-        for (size_t column = 0; column < W; ++column)
+    bytes tableVerticals = 0;
+    for (bytes row = 0; row < H; ++row)
+        for (bytes column = 0; column < W; ++column)
             if (TerminalCanvas_glyphAt(&canvas, column, row) == 0x2502u)
                 ++tableVerticals;
     assert(tableVerticals >= 6u);
@@ -380,9 +380,9 @@ int main(void) {
     bool sawUnicodeTableEdge = false;
     bool sawPaddedTableCell = false;
     bool sawSourcePipe = false;
-    for (size_t row = 0; row < H; ++row)
-        for (size_t column = 0; column < W; ++column) {
-            uint32_t glyph = TerminalCanvas_glyphAt(&canvas, column, row);
+    for (bytes row = 0; row < H; ++row)
+        for (bytes column = 0; column < W; ++column) {
+            u32 glyph = TerminalCanvas_glyphAt(&canvas, column, row);
             if (glyph == 'L' && column + 3u < W
                 && TerminalCanvas_glyphAt(&canvas, column + 1u, row) == 'a'
                 && TerminalCanvas_glyphAt(&canvas, column + 2u, row) == 'w'
@@ -449,11 +449,11 @@ int main(void) {
     TerminalMarkdownView_render(view, &canvas);
     assert(canvasContainsText(&canvas, "COMPLETE"));
     bool sawRedEmoji = false;
-    size_t tableJoins = 0;
-    for (size_t row = 0; row < H; ++row) {
-        size_t lastContentColumn = W;
-        for (size_t column = 0; column < W; ++column) {
-            uint32_t glyph = TerminalCanvas_glyphAt(&canvas, column, row);
+    bytes tableJoins = 0;
+    for (bytes row = 0; row < H; ++row) {
+        bytes lastContentColumn = W;
+        for (bytes column = 0; column < W; ++column) {
+            u32 glyph = TerminalCanvas_glyphAt(&canvas, column, row);
             if (glyph != ' ' && glyph != 0u)
                 lastContentColumn = column;
             if (glyph == 0x1F7E5u) {
@@ -465,7 +465,7 @@ int main(void) {
                 ++tableJoins;
         }
         if (lastContentColumn != W) {
-            uint32_t rightEdge = TerminalCanvas_glyphAt(&canvas, lastContentColumn, row);
+            u32 rightEdge = TerminalCanvas_glyphAt(&canvas, lastContentColumn, row);
             assert(rightEdge == 0x2502u || rightEdge == 0x2524u
                    || rightEdge == 0x2510u || rightEdge == 0x2518u);
         }
@@ -492,13 +492,13 @@ int main(void) {
     assert(TerminalMarkdownView_setScrollX(view, 0u));
     clearCanvas(&canvas, cells, styles, fg, bg);
     TerminalMarkdownView_render(view, &canvas);
-    size_t proseRow = rowOfText(&canvas, "Prose stays put.");
-    size_t wideHeaderRow = rowOfText(&canvas, "Repository");
+    bytes proseRow = rowOfText(&canvas, "Prose stays put.");
+    bytes wideHeaderRow = rowOfText(&canvas, "Repository");
     assert(proseRow != SIZE_MAX && wideHeaderRow != SIZE_MAX);
     assert(TerminalMarkdownView_rowScrollX(view, proseRow) == 0u);
     assert(TerminalMarkdownView_rowScrollX(view, wideHeaderRow) == 0u);
     assert(TerminalMarkdownView_contentWidth(view) > W);
-    size_t maximumX = TerminalMarkdownView_maxScrollX(view);
+    bytes maximumX = TerminalMarkdownView_maxScrollX(view);
     assert(maximumX > 0u);
     // Column content widths are a whole number of 4-cell steps: one left border, one
     // space and one right border per column (3*columns) plus the closing border (1).
@@ -531,8 +531,8 @@ int main(void) {
     assert(TerminalMarkdownView_setScrollX(view, 0u));
     clearCanvas(&canvas, cells, styles, fg, bg);
     TerminalMarkdownView_render(view, &canvas);
-    size_t smallHeaderRow = rowOfText(&canvas, "ID");
-    size_t mixedHeaderRow = rowOfText(&canvas, "Repository");
+    bytes smallHeaderRow = rowOfText(&canvas, "ID");
+    bytes mixedHeaderRow = rowOfText(&canvas, "Repository");
     assert(smallHeaderRow != SIZE_MAX && mixedHeaderRow != SIZE_MAX);
     assert(TerminalMarkdownView_setScrollX(view, TerminalMarkdownView_maxScrollX(view)));
     clearCanvas(&canvas, cells, styles, fg, bg);
@@ -553,10 +553,10 @@ int main(void) {
     assert(TerminalMarkdownView_setViewport(view, W));
     clearCanvas(&canvas, cells, styles, fg, bg);
     TerminalMarkdownView_render(view, &canvas);
-    size_t itemColumn = W;
-    size_t itemRows = 0;
-    for (size_t row = 0; row < H; ++row)
-        for (size_t column = 0; column + 3u < W; ++column)
+    bytes itemColumn = W;
+    bytes itemRows = 0;
+    for (bytes row = 0; row < H; ++row)
+        for (bytes column = 0; column + 3u < W; ++column)
             if (TerminalCanvas_glyphAt(&canvas, column, row) == 'i'
                 && TerminalCanvas_glyphAt(&canvas, column + 1u, row) == 't'
                 && TerminalCanvas_glyphAt(&canvas, column + 2u, row) == 'e'
@@ -587,18 +587,18 @@ int main(void) {
     TerminalMarkdownView_render(view, &canvas);
     bool sawItalic = false;
     bool sawBold = false;
-    for (size_t row = 0; row < H; ++row)
-        for (size_t column = 0; column + 5u < W; ++column) {
+    for (bytes row = 0; row < H; ++row)
+        for (bytes column = 0; column + 5u < W; ++column) {
             if (TerminalCanvas_glyphAt(&canvas, column, row) == 'q'
                 && TerminalCanvas_glyphAt(&canvas, column + 1u, row) == 'u') {
-                for (size_t index = 0; index < 5u; ++index)
+                for (bytes index = 0; index < 5u; ++index)
                     assert((styles[row * W + column + index] & TERMINAL_STYLE_ITALIC) != 0u);
                 sawItalic = true;
             }
             if (TerminalCanvas_glyphAt(&canvas, column, row) == 'l'
                 && TerminalCanvas_glyphAt(&canvas, column + 1u, row) == 'o'
                 && TerminalCanvas_glyphAt(&canvas, column + 2u, row) == 'u') {
-                for (size_t index = 0; index < 4u; ++index)
+                for (bytes index = 0; index < 4u; ++index)
                     assert((styles[row * W + column + index] & TERMINAL_STYLE_BOLD) != 0u);
                 sawBold = true;
             }
@@ -617,9 +617,9 @@ int main(void) {
     assert(TerminalMarkdownView_setViewport(view, W));
     clearCanvas(&canvas, cells, styles, fg, bg);
     TerminalMarkdownView_render(view, &canvas);
-    uint32_t headingFg[4];
-    for (size_t level = 0; level < 4u; ++level) {
-        size_t row = level * 2u + (level == 0 ? 0u : 1u);
+    u32 headingFg[4];
+    for (bytes level = 0; level < 4u; ++level) {
+        bytes row = level * 2u + (level == 0 ? 0u : 1u);
         if (level == 0)
             row = 0;
         else
@@ -639,10 +639,10 @@ int main(void) {
     assert(TerminalMarkdownView_setSource(view, linkLine, 1));
     assert(TerminalMarkdownView_setViewport(view, W));
     TerminalMarkdownAction linkAction = {0};
-    size_t linkRow = 0;
-    size_t linkColumn = 0;
-    for (size_t row = 0; row < TerminalMarkdownView_rowCount(view) && linkAction.kind == 0; ++row)
-        for (size_t column = 0; column < W; ++column) {
+    bytes linkRow = 0;
+    bytes linkColumn = 0;
+    for (bytes row = 0; row < TerminalMarkdownView_rowCount(view) && linkAction.kind == 0; ++row)
+        for (bytes column = 0; column < W; ++column) {
             TerminalMarkdownAction candidate = TerminalMarkdownView_actionAt(view, row, column);
             if (candidate.kind == TERMINAL_MARKDOWN_ACTION_LINK) {
                 linkAction = candidate;
@@ -681,7 +681,7 @@ int main(void) {
     assert(TerminalMarkdownView_actionAt(view, copyBlock.firstRow + 1u, W - 2u).kind
            == TERMINAL_MARKDOWN_ACTION_NONE);
     char copiedText[64];
-    size_t copiedLength = 0;
+    bytes copiedLength = 0;
     assert(TerminalMarkdownView_copyBlock(view, copyAction.block, copiedText,
                                           sizeof copiedText, &copiedLength));
     assert(copiedLength == strlen("int x = 1;\n\nint y = 2;"));
@@ -712,11 +712,11 @@ int main(void) {
     clearCanvas(&canvas, cells, styles, fg, bg);
     TerminalMarkdownView_render(view, &canvas);
     assert(canvasContainsText(&canvas, "a | b.sh"));
-    size_t rightStart = SIZE_MAX;
-    size_t rightEnd = SIZE_MAX;
-    size_t rightHeaderRow = SIZE_MAX;
-    for (size_t row = 0; row < H && rightStart == SIZE_MAX; ++row)
-        for (size_t column = 0; column + 5u <= W; ++column)
+    bytes rightStart = SIZE_MAX;
+    bytes rightEnd = SIZE_MAX;
+    bytes rightHeaderRow = SIZE_MAX;
+    for (bytes row = 0; row < H && rightStart == SIZE_MAX; ++row)
+        for (bytes column = 0; column + 5u <= W; ++column)
             if (TerminalCanvas_glyphAt(&canvas, column, row) == 'R'
                 && TerminalCanvas_glyphAt(&canvas, column + 1u, row) == 'i'
                 && TerminalCanvas_glyphAt(&canvas, column + 2u, row) == 'g'
@@ -730,7 +730,7 @@ int main(void) {
     assert(rightStart != SIZE_MAX);
     assert((styles[rightHeaderRow * W + rightStart] & TERMINAL_STYLE_BOLD) != 0u);
     bool sawAlignedValue = false;
-    for (size_t row = rightHeaderRow + 1u; row < H; ++row)
+    for (bytes row = rightHeaderRow + 1u; row < H; ++row)
         if (TerminalCanvas_glyphAt(&canvas, rightEnd, row) == 'z'
             && TerminalCanvas_glyphAt(&canvas, rightStart, row) == ' ') {
             sawAlignedValue = true;

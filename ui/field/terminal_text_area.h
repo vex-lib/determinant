@@ -7,7 +7,7 @@
 
 #include "ui/surface/terminal_canvas.h"
 #include "ui/surface/terminal_projection.h"
-#include "c23/constructor.h"
+#include "util/constructor.h"
 
 // ui/field/terminal_text_area.h — a multiline arbitrary text editor.
 //
@@ -20,37 +20,37 @@
 
 typedef struct TerminalTextArea {
     char *buffer;              // borrowed or allocated storage (NUL-terminated at [length])
-    size_t capacity;           // buffer capacity in bytes
-    size_t length;             // text length in bytes
-    size_t cursorByte;         // caret byte offset in buffer
-    size_t scrollRow;          // vertical viewport scroll offset
-    size_t scrollCol;          // horizontal viewport scroll offset
+    bytes capacity;           // buffer capacity in bytes
+    bytes length;             // text length in bytes
+    bytes cursorByte;         // caret byte offset in buffer
+    bytes scrollRow;          // vertical viewport scroll offset
+    bytes scrollCol;          // horizontal viewport scroll offset
     bool wrap;                 // soft-wrapping enabled
     TerminalPen pen;           // text rendering pen
     TerminalPen cursorPen;     // active cursor cell pen
 } TerminalTextArea;
 
 TerminalTextArea *TerminalTextArea_0(void);
-TerminalTextArea *TerminalTextArea_2(char *buffer, size_t capacity);
+TerminalTextArea *TerminalTextArea_2(char *buffer, bytes capacity);
 #define TerminalTextArea(...) CONSTRUCTOR_DISPATCH(TerminalTextArea, __VA_ARGS__)
 #define TerminalTextArea_zero() TerminalTextArea_0()
 
 void TerminalTextArea_free(TerminalTextArea *self);
 
-bool TerminalTextArea_bind(TerminalTextArea *self, char *buffer, size_t capacity);
+bool TerminalTextArea_bind(TerminalTextArea *self, char *buffer, bytes capacity);
 const char *TerminalTextArea_getBuffer(const TerminalTextArea *self);
-size_t TerminalTextArea_getCapacity(const TerminalTextArea *self);
-size_t TerminalTextArea_getLength(const TerminalTextArea *self);
+bytes TerminalTextArea_getCapacity(const TerminalTextArea *self);
+bytes TerminalTextArea_getLength(const TerminalTextArea *self);
 
 bool TerminalTextArea_insertChar(TerminalTextArea *self, int character);
-bool TerminalTextArea_insertText(TerminalTextArea *self, const char *text, size_t length);
+bool TerminalTextArea_insertText(TerminalTextArea *self, const char *text, bytes length);
 bool TerminalTextArea_backspace(TerminalTextArea *self);
 bool TerminalTextArea_delete(TerminalTextArea *self);
 void TerminalTextArea_clear(TerminalTextArea *self);
 
 void TerminalTextArea_moveCursor(TerminalTextArea *self, int deltaRow, int deltaCol);
-size_t TerminalTextArea_getCursorByte(const TerminalTextArea *self);
-bool TerminalTextArea_setCursorByte(TerminalTextArea *self, size_t byteOffset);
+bytes TerminalTextArea_getCursorByte(const TerminalTextArea *self);
+bool TerminalTextArea_setCursorByte(TerminalTextArea *self, bytes byteOffset);
 
 bool TerminalTextArea_setWrap(TerminalTextArea *self, bool wrap);
 bool TerminalTextArea_getWrap(const TerminalTextArea *self);

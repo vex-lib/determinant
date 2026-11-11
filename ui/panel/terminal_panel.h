@@ -9,7 +9,7 @@
 #include "ui/surface/terminal_canvas.h"
 #include "ui/image/terminal_image.h"
 #include "ui/surface/terminal_projection.h"
-#include "c23/constructor.h"
+#include "util/constructor.h"
 
 // ui/panel/terminal_panel.h — the CONTAINER.
 //
@@ -69,7 +69,7 @@ typedef enum TerminalPanelImageFit {
 // SLOT RECORD: TerminalChild (no behaviour of its own)
 typedef struct TerminalChild {
     bool used;                  // slot holds a live child
-    uint32_t generation;        // bumped on slot reuse, so a stale id is detectable
+    u32 generation;        // bumped on slot reuse, so a stale id is detectable
     TerminalComponentKind kind; // which payload is live
     TerminalAnchor anchor;      // placement in the parent
     TerminalPanel *panel;       // owned nested panel when kind == PANEL
@@ -81,17 +81,17 @@ typedef struct TerminalChild {
 //
 // SLOT RECORD: TerminalChildId (no behaviour of its own)
 typedef struct TerminalChildId {
-    size_t index;        // slot index
-    uint32_t generation; // generation expected at that slot (0 = invalid)
+    bytes index;        // slot index
+    u32 generation; // generation expected at that slot (0 = invalid)
 } TerminalChildId;
 
 struct TerminalPanel {
     TerminalPanelLayout layout;  // FLEX or LAYERED
     TerminalChild *children;     // owned growable slot array
-    size_t capacity;             // admitted slots
-    size_t usedCount;            // live children
-    size_t paintCount;           // completed paints
-    size_t refusalCount;         // refusals in this epoch
+    bytes capacity;             // admitted slots
+    bytes usedCount;            // live children
+    bytes paintCount;           // completed paints
+    bytes refusalCount;         // refusals in this epoch
     TerminalPen pen;             // inherited by the children added directly here
     const TerminalImage *image;  // borrowed background (nullable)
     TerminalPanelImageFit fit;   // how the background fills the area
@@ -123,12 +123,12 @@ TerminalText *TerminalPanel_detachText(TerminalPanel *self, TerminalChildId id);
 
 bool TerminalPanel_setPen(TerminalPanel *self, TerminalPen pen);
 TerminalPen TerminalPanel_getPen(const TerminalPanel *self);
-bool TerminalPanel_setStyle(TerminalPanel *self, uint8_t style);
-uint8_t TerminalPanel_getStyle(const TerminalPanel *self);
-bool TerminalPanel_setForegroundColor(TerminalPanel *self, uint32_t color);
-uint32_t TerminalPanel_getForegroundColor(const TerminalPanel *self);
-bool TerminalPanel_setBackgroundColor(TerminalPanel *self, uint32_t color);
-uint32_t TerminalPanel_getBackgroundColor(const TerminalPanel *self);
+bool TerminalPanel_setStyle(TerminalPanel *self, u8 style);
+u8 TerminalPanel_getStyle(const TerminalPanel *self);
+bool TerminalPanel_setForegroundColor(TerminalPanel *self, u32 color);
+u32 TerminalPanel_getForegroundColor(const TerminalPanel *self);
+bool TerminalPanel_setBackgroundColor(TerminalPanel *self, u32 color);
+u32 TerminalPanel_getBackgroundColor(const TerminalPanel *self);
 bool TerminalPanel_setImage(TerminalPanel *self, const TerminalImage *image, TerminalPanelImageFit fit);
 const TerminalImage *TerminalPanel_getImage(const TerminalPanel *self);
 TerminalPanelImageFit TerminalPanel_getFit(const TerminalPanel *self);
@@ -145,15 +145,15 @@ void TerminalPanel_paint(TerminalPanel *self, TerminalCanvas *canvas);
 // cell. These are the hit-test primitives a pointer event uses, so they live on
 // the cold path. A zero rect or zero id means "no such child here".
 TerminalRect TerminalPanel_childRegion(const TerminalPanel *self, const TerminalCanvas *canvas, TerminalChildId id);
-TerminalChildId TerminalPanel_childAt(const TerminalPanel *self, const TerminalCanvas *canvas, size_t x, size_t y);
+TerminalChildId TerminalPanel_childAt(const TerminalPanel *self, const TerminalCanvas *canvas, bytes x, bytes y);
 TerminalComponentKind TerminalPanel_childKind(const TerminalPanel *self, TerminalChildId id);
 TerminalPanel *TerminalPanel_childPanel(const TerminalPanel *self, TerminalChildId id);
 TerminalText *TerminalPanel_childText(const TerminalPanel *self, TerminalChildId id);
 
-size_t TerminalPanel_childCount(const TerminalPanel *self);
-size_t TerminalPanel_capacity(const TerminalPanel *self);
-size_t TerminalPanel_paintCount(const TerminalPanel *self);
-size_t TerminalPanel_exhaustionCount(const TerminalPanel *self);
+bytes TerminalPanel_childCount(const TerminalPanel *self);
+bytes TerminalPanel_capacity(const TerminalPanel *self);
+bytes TerminalPanel_paintCount(const TerminalPanel *self);
+bytes TerminalPanel_exhaustionCount(const TerminalPanel *self);
 bool TerminalPanel_isPainting(const TerminalPanel *self);
 bool TerminalPanel_isValid(const TerminalPanel *self, TerminalChildId id);
 bool TerminalPanel_isChildId(TerminalChildId id);

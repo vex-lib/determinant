@@ -21,15 +21,15 @@ enum { W = 24, H = 8 };
 static bool rectEqual(TerminalRect a, TerminalRect b) {
     return a.x == b.x && a.y == b.y && a.width == b.width && a.height == b.height;
 }
-static TerminalRect rectOf(size_t x, size_t y, size_t w, size_t h) {
+static TerminalRect rectOf(bytes x, bytes y, bytes w, bytes h) {
     return (TerminalRect) { x, y, w, h };
 }
 
 int main(void) {
-    uint32_t cells[W * H];
-    uint16_t styles[W * H];
-    uint32_t fg[W * H];
-    uint32_t bg[W * H];
+    u32 cells[W * H];
+    u16 styles[W * H];
+    u32 fg[W * H];
+    u32 bg[W * H];
     TerminalCanvas canvas = TerminalCanvas(cells, styles, fg, bg, W, H);
 
     // --- Constructor and null safety ---
@@ -182,7 +182,7 @@ int main(void) {
     assert(TerminalPanel_setImage(styled, nullptr, TERMINAL_PANEL_IMAGE_STRETCH));
 
     // --- Removing frees the child; the slot is reused with a new generation ---
-    size_t before = TerminalPanel_childCount(panel);
+    bytes before = TerminalPanel_childCount(panel);
     assert(TerminalPanel_remove(panel, centreId));
     assert(TerminalPanel_childCount(panel) == before - 1);
     assert(!TerminalPanel_isValid(panel, centreId));
@@ -213,7 +213,7 @@ int main(void) {
 
     // --- Cold growth past the named default; every child survives ---
     TerminalPanel *grown = TerminalPanel();
-    for (size_t i = 0; i < TERMINAL_PANEL_CHILDREN_DEFAULT * 3; ++i)
+    for (bytes i = 0; i < TERMINAL_PANEL_CHILDREN_DEFAULT * 3; ++i)
         assert(TerminalPanel_isChildId(TerminalPanel_addText(grown, TerminalText("x"), TerminalAnchor())));
     assert(TerminalPanel_childCount(grown) == TERMINAL_PANEL_CHILDREN_DEFAULT * 3);
     assert(TerminalPanel_capacity(grown) >= TERMINAL_PANEL_CHILDREN_DEFAULT * 3);
@@ -243,8 +243,8 @@ int main(void) {
     TerminalPanel_free(a);                             // frees b.sh, which no longer points back
 
     // --- GROUNDING: semicolon's IDE example as a real child tree, 103x23 ---
-    static uint32_t ideCells[103 * 23];
-    static uint16_t ideStyles[103 * 23];
+    static u32 ideCells[103 * 23];
+    static u16 ideStyles[103 * 23];
     TerminalCanvas ide = TerminalCanvas(ideCells, ideStyles, 103, 23);
     TerminalPanel *ideRoot = TerminalPanel();
     TerminalChildId ideTitle = TerminalPanel_addText(ideRoot, TerminalText("vexgraph"),
