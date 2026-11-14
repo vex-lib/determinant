@@ -1,11 +1,8 @@
 #ifndef DETERMINANT_MARKDOWN_CODE_BLOCK_H
 #define DETERMINANT_MARKDOWN_CODE_BLOCK_H
 
-#include <stdbool.h>
-#include <stddef.h>
-
+#include "vex.h"
 #include "ui/surface/terminal_projection.h"
-#include "util/constructor.h"
 
 // ui/markdown/markdown_code_block.h — laid-out fences and their copy projection.
 //

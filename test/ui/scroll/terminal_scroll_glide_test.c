@@ -1,16 +1,17 @@
 // Owner: TerminalScrollGlide — per-axis viewport momentum. Defaults, configured
 // easing, impulse/target/position/halt/clamp, one-frame step and snap, safe
 // defaults, projections, and the hot step guard.
+
+#include "vex.h"
 #include "ui/scroll/terminal_scroll_glide.h"
 #include "determinant/test/support.h"
 #include <math.h>
-#include <stdint.h>
 
-static void assertNear(d64 actual, d64 expected) {
+static fn assertNear(d64 actual, d64 expected) {
     assert(fabs(actual - expected) < 1e-9);
 }
 
-int main(void) {
+int main() {
     TerminalScrollGlide glide = TerminalScrollGlide();
     assertNear(TerminalScrollGlide_getEase(&glide), TERMINAL_SCROLL_EASE_DEFAULT);
     assertNear(TerminalScrollGlide_getEpsilon(&glide), TERMINAL_SCROLL_EPSILON_DEFAULT);

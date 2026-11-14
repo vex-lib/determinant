@@ -1,9 +1,8 @@
 #ifndef DETERMINANT_COMMAND_H
 #define DETERMINANT_COMMAND_H
-#include <stddef.h>
-#include <stdint.h>
-#include <stdbool.h>
-#include "util/constructor.h"
+
+#include "vex.h"
+
 typedef struct Command {
     u8 *name;
     bytes argumentCount;

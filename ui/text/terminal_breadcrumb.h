@@ -1,14 +1,10 @@
 #ifndef DETERMINANT_TERMINAL_BREADCRUMB_H
 #define DETERMINANT_TERMINAL_BREADCRUMB_H
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-
+#include "vex.h"
 #include "ui/surface/terminal_canvas.h"
 #include "ui/surface/terminal_projection.h"
 #include "format/terminal_style.h"
-#include "util/constructor.h"
 
 #define TERMINAL_BREADCRUMB_SEPARATOR_DEFAULT " › "
 

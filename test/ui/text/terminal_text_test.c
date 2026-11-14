@@ -5,13 +5,15 @@
 //
 // Scope note: single-line by contract, so multi-row behaviour is not claimed.
 // No negative-arity case here (the runner owns the shared arity battery).
+
+#include "vex.h"
 #include "ui/text/terminal_text.h"
 #include "format/terminal_color.h"
 #include "determinant/test/support.h"
 
 enum { W = 12, H = 1 };
 
-int main(void) {
+int main() {
     u32 cells[W * H];
     u16 styles[W * H];
     u32 fg[W * H];

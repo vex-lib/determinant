@@ -1,5 +1,7 @@
 #ifndef DETERMINANT_TEST_SUPPORT_H
 #define DETERMINANT_TEST_SUPPORT_H
+
+#include "vex.h"
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>

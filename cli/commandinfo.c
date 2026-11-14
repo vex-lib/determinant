@@ -1,8 +1,7 @@
+#include "vex.h"
 #include "cli/commandinfo.h"
-#include "oop/type.h"
+#include "oop/oop.h"
 #include "nio/mem.h"
-#include "exception/throw.h"
-#include "annotation/annotation.h"
 #include <string.h>
 #include <stdio.h>
 

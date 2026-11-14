@@ -1,11 +1,13 @@
 // Owner: both parse forms, whitespace/empty/one/ten args, malformed controls,
 // embedded NUL, overflow before reads and cleanup. No shell syntax offered.
+
+#include "vex.h"
 #include "cli/commandparser.h"
 #include "nio/mem.h"
-#include "oop/type.h"
+#include "oop/oop.h"
 #include "determinant/test/support.h"
 #include <stdlib.h>
-int main(void) {
+int main() {
     beginDiagnostics();
     assert(CommandParser_parse("") == nullptr);
     assert(CommandParser_parse(" \t\r\n") == nullptr);

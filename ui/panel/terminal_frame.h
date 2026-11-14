@@ -1,14 +1,10 @@
 #ifndef DETERMINANT_TERMINAL_FRAME_H
 #define DETERMINANT_TERMINAL_FRAME_H
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-
+#include "vex.h"
 #include "ui/surface/terminal_canvas.h"
 #include "ui/surface/terminal_projection.h"
 #include "ui/image/terminal_image.h"
-#include "util/constructor.h"
 
 // ui/panel/terminal_frame.h — a bare region layout, no application semantics.
 //

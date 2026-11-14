@@ -1,6 +1,5 @@
+#include "vex.h"
 #include "ui/markdown/markdown_action.h"
-#include "annotation/annotation.h"
-#include <stdint.h>
 
 ;;DEFINITION
 /** The value a preview click resolves to. A link carries a borrowed target; a

@@ -1,7 +1,6 @@
+#include "vex.h"
 #include "cli/scanner.h"
 #include "primitive/vex-string.h"
-#include "exception/throw.h"
-#include "annotation/annotation.h"
 #include <string.h>
 #include <stdio.h>
 

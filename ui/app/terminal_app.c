@@ -1,8 +1,7 @@
+#include "vex.h"
 #include "ui/app/terminal_app.h"
 #include "nio/mem.h"
-#include "oop/type.h"
-#include "exception/throw.h"
-#include "annotation/annotation.h"
+#include "oop/oop.h"
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>

@@ -1,6 +1,5 @@
+#include "vex.h"
 #include "ui/panel/terminal_anchor.h"
-#include "exception/throw.h"
-#include "annotation/annotation.h"
 #include <stdio.h>
 
 ;;DEFINITION

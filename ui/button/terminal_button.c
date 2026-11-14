@@ -1,6 +1,5 @@
+#include "vex.h"
 #include "ui/button/terminal_button.h"
-#include "exception/throw.h"
-#include "annotation/annotation.h"
 #include <string.h>
 #include <stdio.h>
 

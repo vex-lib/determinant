@@ -1,10 +1,11 @@
 // Owner: TerminalMarkdownInline — the cold inline grammar. Emphasis flags,
 // code runs, link targets on every label span, images, autolinks, escapes and
 // the honest overflow report.
+
+#include "vex.h"
 #include "ui/markdown/markdown_inline.h"
 #include "format/terminal_style.h"
 #include <assert.h>
-#include <stdint.h>
 #include <string.h>
 
 static bytes parse(const char *text, TerminalMarkdownRole base, MarkdownSpan *spans,

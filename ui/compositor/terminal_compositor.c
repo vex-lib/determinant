@@ -1,9 +1,8 @@
+#include "vex.h"
 #include "ui/compositor/terminal_compositor.h"
 #include "ui/surface/terminal_canvas.h"
 #include "nio/mem.h"
-#include "oop/type.h"
-#include "exception/throw.h"
-#include "annotation/annotation.h"
+#include "oop/oop.h"
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>

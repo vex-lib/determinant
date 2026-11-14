@@ -2,6 +2,7 @@
 // Owner: TerminalCompositor — output serialization, ANSI/VT escape formatting,
 // alternate screen transitions, and synchronized frame emission.
 
+#include "vex.h"
 #include "ui/compositor/terminal_compositor.h"
 #include "ui/surface/terminal_surface.h"
 #include "format/terminal_color.h"

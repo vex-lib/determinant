@@ -1,8 +1,10 @@
 // Owner: TerminalTextView — generic text viewport. Tail stick, scroll, clip.
+
+#include "vex.h"
 #include "ui/text/terminal_text_view.h"
 #include "determinant/test/support.h"
 
-int main(void) {
+int main() {
     static const char *lines[] = { "one", "two", "three", "four", "five" };
     enum { W = 10, H = 3 };
     static u32 cells[W * H];

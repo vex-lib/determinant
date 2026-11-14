@@ -1,7 +1,5 @@
+#include "vex.h"
 #include "ui/text/terminal_text_view.h"
-#include "c23/constructor.h"
-#include "exception/throw.h"
-#include "annotation/annotation.h"
 #include <string.h>
 #include <stdio.h>
 

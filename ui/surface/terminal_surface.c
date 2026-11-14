@@ -1,6 +1,5 @@
+#include "vex.h"
 #include "ui/surface/terminal_surface.h"
-#include "exception/throw.h"
-#include "annotation/annotation.h"
 #include <string.h>
 #include <stdio.h>
 

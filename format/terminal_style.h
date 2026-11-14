@@ -1,7 +1,7 @@
 #ifndef DETERMINANT_TERMINAL_STYLE_H
 #define DETERMINANT_TERMINAL_STYLE_H
 
-#include <stdint.h>
+#include "vex.h"
 
 // Determinant cell style flags — the parallel attribute plane that rides beside
 // the character grid. The plane is 16 bits because the eight low bits were spent:

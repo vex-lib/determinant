@@ -1,9 +1,11 @@
 // Header-only owner: a literal span/context sink is a typed callback contract,
 // not an allocator, ANSI decoder or driver. Positive and rejecting calls.
+
+#include "vex.h"
 #include "cli/output.h"
 #include <assert.h>
 #include <string.h>
-static bool output(void *hostContext, const char *text, bytes length) {
+static bool output(any hostContext, const char *text, bytes length) {
     bytes *received = hostContext;
     if (length == 0)
         return false;

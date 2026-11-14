@@ -1,9 +1,8 @@
 #ifndef DETERMINANT_COMMANDINFO_H
 #define DETERMINANT_COMMANDINFO_H
+
+#include "vex.h"
 #include "cli/command.h"
-#include <stddef.h>
-#include <stdint.h>
-#include <stdbool.h>
 // CommandKind: which binary/tool. COMMAND_GIT means "the git program".
 typedef enum CommandKind {
     COMMAND_UNKNOWN = 0,

@@ -1,12 +1,8 @@
 #ifndef DETERMINANT_TERMINAL_ANCHOR_H
 #define DETERMINANT_TERMINAL_ANCHOR_H
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-
+#include "vex.h"
 #include "ui/surface/terminal_projection.h"
-#include "util/constructor.h"
 
 // ui/panel/terminal_anchor.h — the placement vocabulary.
 //

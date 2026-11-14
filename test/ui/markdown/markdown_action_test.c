@@ -1,11 +1,12 @@
 // Owner: TerminalMarkdownAction — what a preview click means. The view reports
 // a value; the caller opens the link or writes the clipboard.
+
+#include "vex.h"
 #include "ui/markdown/markdown_action.h"
 #include <assert.h>
-#include <stdint.h>
 #include <string.h>
 
-int main(void) {
+int main() {
     // The icon sits flush right with one cell of margin, and a row too narrow
     // for it reports no column rather than an underflowed one.
     assert(TerminalMarkdownAction_iconColumn(10u, 1u) == 8u);

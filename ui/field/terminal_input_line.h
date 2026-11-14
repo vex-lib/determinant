@@ -1,12 +1,9 @@
 #ifndef DETERMINANT_TERMINAL_INPUT_LINE_H
 #define DETERMINANT_TERMINAL_INPUT_LINE_H
 
-#include <stdbool.h>
-#include <stddef.h>
-
+#include "vex.h"
 #include "ui/surface/terminal_canvas.h"
 #include "ui/surface/terminal_projection.h"
-#include "util/constructor.h"
 
 // ui/field/terminal_input_line.h — a bare, generic single-line input.
 //

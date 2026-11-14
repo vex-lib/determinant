@@ -1,15 +1,11 @@
 #ifndef DETERMINANT_TERMINAL_COMPOSITOR_H
 #define DETERMINANT_TERMINAL_COMPOSITOR_H
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-
+#include "vex.h"
 #include "ui/surface/terminal_surface.h"
 #include "ui/surface/terminal_projection.h"
 #include "format/terminal_color.h"
 #include "format/terminal_style.h"
-#include "util/constructor.h"
 
 // ui/compositor/terminal_compositor.h — the terminal output compositor.
 //

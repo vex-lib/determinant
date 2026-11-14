@@ -1,13 +1,9 @@
 #ifndef DETERMINANT_TERMINAL_SURFACE_H
 #define DETERMINANT_TERMINAL_SURFACE_H
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-
+#include "vex.h"
 #include "ui/surface/terminal_canvas.h"
 #include "ui/surface/terminal_projection.h"
-#include "util/constructor.h"
 
 // ui/surface/terminal_surface.h — the LAST-PAINT presenter.
 //

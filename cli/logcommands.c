@@ -1,8 +1,7 @@
+#include "vex.h"
 #include "cli/logcommands.h"
 #include "io/file.h"
 #include "io/logparser.h"
-#include "exception/throw.h"
-#include "annotation/annotation.h"
 #include <stdio.h>
 
 ;;DEFINITION

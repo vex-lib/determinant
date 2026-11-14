@@ -1,13 +1,9 @@
 #ifndef DETERMINANT_MARKDOWN_THEME_H
 #define DETERMINANT_MARKDOWN_THEME_H
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-
+#include "vex.h"
 #include "ui/surface/terminal_canvas.h"
 #include "ui/markdown/markdown_callout.h"
-#include "util/constructor.h"
 
 // ui/markdown/markdown_theme.h — the role vocabulary and the pen ladder.
 //

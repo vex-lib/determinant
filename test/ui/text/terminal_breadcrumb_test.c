@@ -1,8 +1,10 @@
 // Owner: TerminalBreadcrumb — bounded hierarchical navigation breadcrumb with arrow separator.
+
+#include "vex.h"
 #include "ui/text/terminal_breadcrumb.h"
 #include "determinant/test/support.h"
 
-int main(void) {
+int main() {
     enum { W = 40, H = 1 };
     static u32 cells[W * H];
     static u32 fg[W * H];

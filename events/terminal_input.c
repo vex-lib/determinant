@@ -1,6 +1,5 @@
+#include "vex.h"
 #include "events/terminal_input.h"
-#include "exception/throw.h"
-#include "annotation/annotation.h"
 #include <stdio.h>
 
 ;;DEFINITION

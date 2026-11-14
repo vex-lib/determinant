@@ -2,11 +2,12 @@
 // Owner: TerminalCodeEditor — canonical code editor widget with line indexing,
 // gutter calculation, auto-indentation, line split/join, and canvas rendering.
 
+#include "vex.h"
 #include "ui/code/terminal_code_editor.h"
 #include "determinant/test/support.h"
 #include <string.h>
 
-static void testCodeEditorBasicsAndText(void) {
+static fn testCodeEditorBasicsAndText() {
     TerminalCodeEditor *editor = TerminalCodeEditor("int main() {\n    return 0;\n}");
     assert(editor != nullptr);
     assert(TerminalCodeEditor_getLineCount(editor) == 3u);

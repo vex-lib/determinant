@@ -1,8 +1,6 @@
+#include "vex.h"
 #include "ui/list/terminal_list_view.h"
 #include "format/terminal_style.h"
-#include "c23/constructor.h"
-#include "exception/throw.h"
-#include "annotation/annotation.h"
 #include <string.h>
 #include <stdio.h>
 

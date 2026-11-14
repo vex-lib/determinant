@@ -1,12 +1,11 @@
+#include "vex.h"
 #include "ui/markdown/terminal_markdown_view.h"
 #include "ui/markdown/markdown_text.h"
 #include "ui/markdown/markdown_inline.h"
 #include "ui/markdown/markdown_table.h"
 #include "format/terminal_style.h"
 #include "nio/mem.h"
-#include "oop/type.h"
-#include "exception/throw.h"
-#include "annotation/annotation.h"
+#include "oop/oop.h"
 #include <stdio.h>
 #include <string.h>
 #include <strings.h>

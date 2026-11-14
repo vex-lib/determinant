@@ -1,8 +1,7 @@
+#include "vex.h"
 #include "ui/markdown/markdown_table.h"
 #include "ui/markdown/markdown_text.h"
 #include "ui/surface/terminal_canvas.h"
-#include "annotation/annotation.h"
-#include <stdint.h>
 
 ;;DEFINITION
 /** The pipe-table model: alignment from the delimiter row, escape- and

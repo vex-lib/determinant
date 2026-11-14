@@ -1,14 +1,15 @@
 // Owner: real disposable R2 log files, sink-routed stat/cat/limit, malformed
 // extent/format/null, hostile timestamps, sink failure. Stable file required.
+
+#include "vex.h"
 #include "cli/logcommands.h"
 #include "nio/mem.h"
 #include "determinant/test/support.h"
 #include <stdlib.h>
-#include <stdint.h>
 static char captured[1024];
 static bytes used;
 static bool fail;
-static bool sink(void *context, const char *text, bytes length) {
+static bool sink(any context, const char *text, bytes length) {
     assert(context == &used);
     if (fail)
         return false;

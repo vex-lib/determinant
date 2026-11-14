@@ -1,10 +1,7 @@
 #ifndef DETERMINANT_MARKDOWN_INLINE_H
 #define DETERMINANT_MARKDOWN_INLINE_H
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-
+#include "vex.h"
 #include "ui/markdown/markdown_theme.h"
 
 // ui/markdown/markdown_inline.h — the cold inline parser.

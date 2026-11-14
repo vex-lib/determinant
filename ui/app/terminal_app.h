@@ -1,17 +1,13 @@
 #ifndef DETERMINANT_TERMINAL_APP_H
 #define DETERMINANT_TERMINAL_APP_H
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-
+#include "vex.h"
 #include "ui/panel/terminal_panel.h"
 #include "ui/surface/terminal_canvas.h"
 #include "ui/surface/terminal_surface.h"
 #include "ui/surface/terminal_projection.h"
 #include "ui/compositor/terminal_compositor.h"
 #include "events/terminal_input.h"
-#include "util/constructor.h"
 
 // ui/app/terminal_app.h — the canonical terminal application runner.
 //

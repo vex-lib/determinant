@@ -1,9 +1,11 @@
 // Owner: command kind titles, specific classification table, chain splitting
 // on &&, empty-segment rejection, and ownership cleanup on failure.
+
+#include "vex.h"
 #include "cli/commandparser.h"
 #include "cli/commandinfo.h"
 #include "nio/mem.h"
-#include "oop/type.h"
+#include "oop/oop.h"
 #include "determinant/test/support.h"
 #include <stdlib.h>
 static CommandChain *parseOk(const char *line) {

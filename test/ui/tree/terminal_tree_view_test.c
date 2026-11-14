@@ -19,6 +19,8 @@
 // STATED GAP: allocation failure is not injectable, so a refused node/row growth is not
 // exercised — only its counting and its diagnostic are. The finite boundary this owner
 // does prove is the one a caller reaches by accident: the viewport and the row list.
+
+#include "vex.h"
 #include "ui/tree/terminal_tree_view.h"
 #include "ui/surface/terminal_canvas.h"
 #include "determinant/test/support.h"

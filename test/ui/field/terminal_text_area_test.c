@@ -2,11 +2,12 @@
 // Owner: TerminalTextArea — multiline text editing area, 2D cursor movement,
 // and canvas rendering.
 
+#include "vex.h"
 #include "ui/field/terminal_text_area.h"
 #include "determinant/test/support.h"
 #include <string.h>
 
-static void testTextAreaEditing(void) {
+static fn testTextAreaEditing() {
     char storage[256];
     storage[0] = '\0';
 

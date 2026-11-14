@@ -1,5 +1,7 @@
 #ifndef DETERMINANT_TERMINAL_BUTTON_H
 #define DETERMINANT_TERMINAL_BUTTON_H
+
+#include "vex.h"
 #include "ui/surface/terminal.h"
 #include "ui/surface/terminal_projection.h"
 typedef struct TerminalButton {

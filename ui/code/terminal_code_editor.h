@@ -1,13 +1,9 @@
 #ifndef DETERMINANT_TERMINAL_CODE_EDITOR_H
 #define DETERMINANT_TERMINAL_CODE_EDITOR_H
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-
+#include "vex.h"
 #include "ui/surface/terminal_canvas.h"
 #include "ui/surface/terminal_projection.h"
-#include "util/constructor.h"
 
 // ui/code/terminal_code_editor.h — the canonical code editor area (CodeArea).
 //

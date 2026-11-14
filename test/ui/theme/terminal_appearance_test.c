@@ -1,8 +1,10 @@
 // Owner: TerminalAppearance — named look presets. Registry, lookup, apply, draw.
+
+#include "vex.h"
 #include "ui/theme/terminal_appearance.h"
 #include "determinant/test/support.h"
 
-int main(void) {
+int main() {
     assert(TerminalAppearance_presetCount() >= 6);
     assert(strcmp(TerminalAppearance_presetName(0), "ascii-solid") == 0);
     assert(strcmp(TerminalAppearance_presetName(1), "ascii-striped") == 0);

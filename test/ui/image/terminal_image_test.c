@@ -1,9 +1,11 @@
 // Owner: TerminalImage — picture → cells. Luminance/glyph mapping, box sample,
 // 1:1 render, region-fit render, transparency skip, invert, ramp, projections.
+
+#include "vex.h"
 #include "ui/image/terminal_image.h"
 #include "determinant/test/support.h"
 
-int main(void) {
+int main() {
     // 2x1 image: black then white.
     static const u8 two[2 * 1 * 4] = {
         0, 0, 0, 255,

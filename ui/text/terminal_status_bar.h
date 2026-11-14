@@ -1,12 +1,9 @@
 #ifndef DETERMINANT_TERMINAL_STATUS_BAR_H
 #define DETERMINANT_TERMINAL_STATUS_BAR_H
 
-#include <stdbool.h>
-#include <stddef.h>
-
+#include "vex.h"
 #include "ui/surface/terminal_canvas.h"
 #include "ui/surface/terminal_projection.h"
-#include "util/constructor.h"
 
 // ui/text/terminal_status_bar.h — a bare, generic one-row status line.
 //

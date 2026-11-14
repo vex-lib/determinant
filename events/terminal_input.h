@@ -1,12 +1,8 @@
 #ifndef DETERMINANT_TERMINAL_INPUT_H
 #define DETERMINANT_TERMINAL_INPUT_H
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-
+#include "vex.h"
 #include "ui/surface/terminal_projection.h"
-#include "util/constructor.h"
 
 // events/terminal_input.h — the terminal's MOUSE byte decoder.
 //

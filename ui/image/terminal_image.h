@@ -1,14 +1,10 @@
 #ifndef DETERMINANT_TERMINAL_IMAGE_H
 #define DETERMINANT_TERMINAL_IMAGE_H
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-
+#include "vex.h"
 #include "ui/surface/terminal_canvas.h"
 #include "ui/surface/terminal_projection.h"
 #include "format/terminal_color.h"
-#include "util/constructor.h"
 
 // ui/image/terminal_image.h — turn a picture into cells.
 //

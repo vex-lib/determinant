@@ -1,11 +1,8 @@
 #ifndef DETERMINANT_TERMINAL_SCROLL_GLIDE_H
 #define DETERMINANT_TERMINAL_SCROLL_GLIDE_H
 
-#include <stdbool.h>
-#include <stddef.h>
-
+#include "vex.h"
 #include "ui/surface/terminal_projection.h"
-#include "util/constructor.h"
 
 // ui/scroll/terminal_scroll_glide.h — per-axis viewport momentum.
 //

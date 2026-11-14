@@ -1,8 +1,7 @@
+#include "vex.h"
 #include "ui/markdown/markdown_inline.h"
 #include "ui/markdown/markdown_text.h"
 #include "format/terminal_style.h"
-#include "annotation/annotation.h"
-#include <stdint.h>
 #include <string.h>
 #include <strings.h>
 

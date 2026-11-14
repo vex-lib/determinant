@@ -1,14 +1,10 @@
 #ifndef DETERMINANT_TERMINAL_CANVAS_H
 #define DETERMINANT_TERMINAL_CANVAS_H
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-
+#include "vex.h"
 #include "format/terminal_color.h"
 #include "format/terminal_style.h"
 #include "ui/surface/terminal_projection.h"
-#include "util/constructor.h"
 
 // ui/surface/terminal_canvas.h — the compositor primitive.
 //

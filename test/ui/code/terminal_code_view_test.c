@@ -2,11 +2,13 @@
 // The caller owns token meaning; this test proves C23-style color/weight output,
 // hint placement without source mutation, horizontal clipping and rejection
 // preservation for malformed spans and UTF-8 boundaries.
+
+#include "vex.h"
 #include "ui/code/terminal_code_view.h"
 #include <assert.h>
 #include <string.h>
 
-static void testColoredLineAndVirtualHint(void) {
+static fn testColoredLineAndVirtualHint() {
     u32 cells[20] = {0};
     u16 styles[20] = {0};
     u32 foregrounds[20] = {0};

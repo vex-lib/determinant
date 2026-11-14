@@ -1,7 +1,5 @@
+#include "vex.h"
 #include "ui/field/terminal_input_line.h"
-#include "c23/constructor.h"
-#include "exception/throw.h"
-#include "annotation/annotation.h"
 #include <string.h>
 #include <stdio.h>
 

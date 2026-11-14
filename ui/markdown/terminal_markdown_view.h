@@ -1,16 +1,12 @@
 #ifndef DETERMINANT_TERMINAL_MARKDOWN_VIEW_H
 #define DETERMINANT_TERMINAL_MARKDOWN_VIEW_H
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-
+#include "vex.h"
 #include "ui/surface/terminal_canvas.h"
 #include "ui/surface/terminal_projection.h"
 #include "ui/markdown/markdown_theme.h"
 #include "ui/markdown/markdown_code_block.h"
 #include "ui/markdown/markdown_action.h"
-#include "util/constructor.h"
 
 // ui/markdown/terminal_markdown_view.h — rendered Markdown in terminal cells.
 //

@@ -1,9 +1,11 @@
 // Owner: TerminalInputLine — generic caller-buffered input. Editing, capacity
 // refusal, prefix, render, unbound safety.
+
+#include "vex.h"
 #include "ui/field/terminal_input_line.h"
 #include "determinant/test/support.h"
 
-int main(void) {
+int main() {
     char buffer[8];
     TerminalInputLine line = TerminalInputLine(buffer, sizeof buffer);
     assert(TerminalInputLine_isBound(&line));

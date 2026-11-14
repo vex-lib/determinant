@@ -1,8 +1,6 @@
+#include "vex.h"
 #include "ui/scroll/terminal_scroll_glide.h"
-#include "exception/throw.h"
-#include "annotation/annotation.h"
 #include <math.h>
-#include <stdint.h>
 
 ;;DEFINITION
 /** A scroll with MOMENTUM, per axis: a position (`rowShown`/`columnShown`), where

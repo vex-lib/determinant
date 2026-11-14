@@ -1,31 +1,33 @@
 // Owner: Terminal cold geometry/backing admission, cell preservation/refusal,
 // sink routing, resident state + view/command swap, busy exclusion, projections.
 // External serialized API; no arbitrary native rollback or OS acquisition.
+
+#include "vex.h"
 #include "ui/surface/terminal.h"
 #include "determinant/test/support.h"
 static bytes deliveries;
-static bool sink(void *context, const char *text, bytes length) {
+static bool sink(any context, const char *text, bytes length) {
     assert(context == &deliveries && length == 8 && text);
     ++deliveries;
     return true;
 }
-static bool failedSink(void *context, const char *text, bytes length) {
-    (void) context; (void) text; (void) length; return false;
+static bool failedSink(any context, const char *text, bytes length) {
+    (fn) context; (fn) text; (fn) length; return false;
 }
-static bool viewA(void *state, Terminal *terminal) {
+static bool viewA(any state, Terminal *terminal) {
     ++*(bytes*) state;
     return Terminal_text(terminal, 0, 0, "A", 1);
 }
-static bool viewB(void *state, Terminal *terminal) {
+static bool viewB(any state, Terminal *terminal) {
     ++*(bytes*) state;
     return Terminal_text(terminal, 0, 0, "B", 1);
 }
-static bool command(void *state, const char *text, bytes length) {
+static bool command(any state, const char *text, bytes length) {
     assert(length == 2 && memcmp(text, "go", 2) == 0);
     ++*(bytes*) state;
     return true;
 }
-static bool busy(void *state, Terminal *terminal) {
+static bool busy(any state, Terminal *terminal) {
     assert(Terminal_isActive(terminal));
     assert(!Terminal_swap(terminal, (TerminalModule) {TERMINAL_MODULE_ABI, viewB, command}, state));
     assert(!Terminal_free(terminal));

@@ -1,7 +1,6 @@
+#include "vex.h"
 #include "ui/theme/terminal_appearance.h"
 #include "format/terminal_color.h"
-#include "exception/throw.h"
-#include "annotation/annotation.h"
 #include <string.h>
 #include <stdio.h>
 

@@ -1,15 +1,11 @@
 #ifndef DETERMINANT_TERMINAL_PANEL_H
 #define DETERMINANT_TERMINAL_PANEL_H
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-
+#include "vex.h"
 #include "ui/panel/terminal_anchor.h"
 #include "ui/surface/terminal_canvas.h"
 #include "ui/image/terminal_image.h"
 #include "ui/surface/terminal_projection.h"
-#include "util/constructor.h"
 
 // ui/panel/terminal_panel.h — the CONTAINER.
 //

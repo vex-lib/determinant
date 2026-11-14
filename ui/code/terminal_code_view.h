@@ -1,13 +1,9 @@
 #ifndef DETERMINANT_TERMINAL_CODE_VIEW_H
 #define DETERMINANT_TERMINAL_CODE_VIEW_H
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-
+#include "vex.h"
 #include "ui/surface/terminal_canvas.h"
 #include "ui/surface/terminal_projection.h"
-#include "util/constructor.h"
 
 // A code line is borrowed text plus caller-produced byte spans. Determinant
 // owns cell clipping and painting only: it does not tokenize or infer meaning.

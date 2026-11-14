@@ -10,6 +10,8 @@
 //
 // Scope note: this owner proves placement arithmetic. It does not compile a
 // negative-arity case (no determinant owner does) and renders no pixels.
+
+#include "vex.h"
 #include "ui/panel/terminal_anchor.h"
 #include "determinant/test/support.h"
 

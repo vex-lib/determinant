@@ -1,11 +1,12 @@
 // Owner: TerminalMarkdownCallout — one severity vocabulary, two source
 // spellings, and the label/pen index the theme resolves.
+
+#include "vex.h"
 #include "ui/markdown/markdown_callout.h"
 #include <assert.h>
-#include <stdint.h>
 #include <string.h>
 
-int main(void) {
+int main() {
     // GFM spelling, with and without a title.
     static const char *warning = "[!WARNING] watch out";
     TerminalMarkdownCallout callout = TerminalMarkdownCallout_parse(warning, strlen(warning));

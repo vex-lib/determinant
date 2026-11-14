@@ -6,6 +6,8 @@
 // The whole point of this owner is that it needs no terminal: every case is a
 // literal byte string, so a mouse bug that would take twenty minutes to
 // reproduce by hand takes one assert.
+
+#include "vex.h"
 #include "events/terminal_input.h"
 #include "determinant/test/support.h"
 

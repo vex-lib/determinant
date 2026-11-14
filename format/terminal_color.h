@@ -1,7 +1,7 @@
 #ifndef DETERMINANT_TERMINAL_COLOR_H
 #define DETERMINANT_TERMINAL_COLOR_H
 
-#include <stdint.h>
+#include "vex.h"
 
 // Determinant terminal colour — packed 0xRRGGBBAA, the ecosystem's Strict
 // 0xRRGGBBAA Color Law applied to cells. Red is the high byte, alpha the low

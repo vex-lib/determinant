@@ -1,12 +1,13 @@
 // Owner: TerminalMarkdownTheme — structure to pen. Six distinct heading levels,
 // five callout severities, link hover, and the legacy eight-pen projection.
+
+#include "vex.h"
 #include "ui/markdown/markdown_theme.h"
 #include "format/terminal_style.h"
 #include <assert.h>
-#include <stdint.h>
 #include <string.h>
 
-int main(void) {
+int main() {
     TerminalMarkdownTheme theme = TerminalMarkdownTheme();
     // Every heading level is a different pen, not one pen with a flag: that is
     // what makes `#`, `##` and `####` distinguishable in one document.

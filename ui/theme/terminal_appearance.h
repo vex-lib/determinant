@@ -1,12 +1,7 @@
 #ifndef DETERMINANT_TERMINAL_APPEARANCE_H
 #define DETERMINANT_TERMINAL_APPEARANCE_H
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-
-#include "util/constructor.h"
-
+#include "vex.h"
 #include "ui/surface/terminal_canvas.h"
 #include "ui/surface/terminal_projection.h"
 #include "ui/panel/terminal_frame.h"

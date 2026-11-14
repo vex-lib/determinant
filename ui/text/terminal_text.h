@@ -1,13 +1,9 @@
 #ifndef DETERMINANT_TERMINAL_TEXT_H
 #define DETERMINANT_TERMINAL_TEXT_H
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-
+#include "vex.h"
 #include "ui/surface/terminal_canvas.h"
 #include "ui/surface/terminal_projection.h"
-#include "util/constructor.h"
 
 // ui/text/terminal_text.h — the addressable LEAF.
 //

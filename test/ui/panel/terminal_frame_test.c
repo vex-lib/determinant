@@ -1,9 +1,11 @@
 // Owner: TerminalFrame — bare region layout. Regions, bands, rails collapse,
 // rules, background paint, small-root degradation, projections.
+
+#include "vex.h"
 #include "ui/panel/terminal_frame.h"
 #include "determinant/test/support.h"
 
-int main(void) {
+int main() {
     enum { W = 40, H = 10 };
     static u32 cells[W * H];
     static u16 styles[W * H];

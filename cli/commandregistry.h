@@ -1,8 +1,10 @@
 #ifndef DETERMINANT_COMMANDREGISTRY_H
 #define DETERMINANT_COMMANDREGISTRY_H
+
+#include "vex.h"
 #include "cli/command.h"
 #include "cli/output.h"
-typedef void (*CommandFn)(Command *command);
+typedef fn (*CommandFn)(Command *command);
 // Behaviorless borrowed row; name/code outlive registry consumers.
 typedef struct CommandRegistryRow {
     const char *name;

@@ -1,9 +1,8 @@
 #ifndef DETERMINANT_SCANNER_H
 #define DETERMINANT_SCANNER_H
-#include "util/constructor.h"
-#include <stddef.h>
-#include <stdbool.h>
-#include <stdint.h>
+
+#include "vex.h"
+
 typedef struct Scanner {
     char *bytes;
     bytes capacity;

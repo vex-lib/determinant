@@ -9,6 +9,8 @@
 // nobody would think to write twice: opaque BLACK (0x000000FF) must survive as black and
 // never be mistaken for the clear sentinel (0x00000000). They differ by one bit and
 // nothing else, and getting it wrong is the difference between black text and no text.
+
+#include "vex.h"
 #include "format/terminal_color.h"
 #include <assert.h>
 

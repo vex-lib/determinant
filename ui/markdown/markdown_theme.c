@@ -1,7 +1,7 @@
+#include "vex.h"
 #include "ui/markdown/markdown_theme.h"
 #include "format/terminal_color.h"
 #include "format/terminal_style.h"
-#include "annotation/annotation.h"
 
 ;;DEFINITION
 /** The presentation ladder of a Markdown document: six heading pens, five callout

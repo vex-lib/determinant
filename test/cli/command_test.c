@@ -1,11 +1,13 @@
 // Owner: Command all constructor forms, ownership transfer/rejection, index,
 // overflow/null/duplicate ownership, projections and free. External exclusion;
 // stale raw pointers are outside contract. R2 owns allocation exhaustion.
+
+#include "vex.h"
 #include "cli/command.h"
 #include "primitive/vex-string.h"
 #include "nio/mem.h"
 #include "determinant/test/support.h"
-int main(void) {
+int main() {
     beginDiagnostics();
     Command *empty = Command();
     assert(empty && Command_argumentCount(empty) == 0);

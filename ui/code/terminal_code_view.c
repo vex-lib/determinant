@@ -1,6 +1,6 @@
+#include "vex.h"
 #include "ui/code/terminal_code_view.h"
 #include "format/terminal_style.h"
-#include "annotation/annotation.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

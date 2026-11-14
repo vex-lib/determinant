@@ -1,11 +1,12 @@
 // Owner: TerminalMarkdownCodeBlockPool — laid-out fences, their shaded rows and
 // the copy projection that strips quote gutters. Atomic copy, no owned source.
+
+#include "vex.h"
 #include "ui/markdown/markdown_code_block.h"
 #include <assert.h>
-#include <stdint.h>
 #include <string.h>
 
-int main(void) {
+int main() {
     TerminalMarkdownCodeBlockPool *pool = TerminalMarkdownCodeBlockPool();
     assert(pool != nullptr);
     assert(TerminalMarkdownCodeBlockPool_count(pool) == 0u);

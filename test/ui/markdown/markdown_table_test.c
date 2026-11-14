@@ -1,12 +1,13 @@
 // Owner: TerminalMarkdownTable — delimiter alignment, escape- and code-aware
 // splitting, natural/longest-word measurement, honest truncation and width
 // allocation.
+
+#include "vex.h"
 #include "ui/markdown/markdown_table.h"
 #include <assert.h>
-#include <stdint.h>
 #include <string.h>
 
-int main(void) {
+int main() {
     TerminalMarkdownTableAlign aligns[TERMINAL_MARKDOWN_TABLE_COLUMNS] = {0};
     bytes columns = TerminalMarkdownTable_parseDelimiter("| :--- | :---: | ---: |",
                                                           strlen("| :--- | :---: | ---: |"),

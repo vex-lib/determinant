@@ -1,6 +1,6 @@
+#include "vex.h"
 #include "ui/markdown/markdown_text.h"
 #include "ui/surface/terminal_canvas.h"
-#include "annotation/annotation.h"
 #include <string.h>
 
 ;;DEFINITION

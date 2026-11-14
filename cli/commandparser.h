@@ -1,5 +1,7 @@
 #ifndef DETERMINANT_COMMANDPARSER_H
 #define DETERMINANT_COMMANDPARSER_H
+
+#include "vex.h"
 #include "cli/command.h"
 #include "cli/commandinfo.h"
 // Plain whitespace-separated ASCII tokens; no quotes, shell expansion or exec.

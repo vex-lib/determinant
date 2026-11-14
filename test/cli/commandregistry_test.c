@@ -1,27 +1,29 @@
 // Owner: explicit borrowed registry/output, duplicate replacement, cold growth,
 // counted exhaustion/reset, reentrant mutation/free exclusion and projections.
+
+#include "vex.h"
 #include "cli/commandregistry.h"
 #include "cli/commandparser.h"
 #include "nio/mem.h"
 #include "determinant/test/support.h"
 static bytes calls, notices;
 static CommandRegistry *current;
-static void target(Command *cmd) { assert(cmd); ++calls; }
-static void replacement(Command *cmd) { assert(cmd); calls += 10; }
-static bool sink(void *hostContext, const char *text, bytes length) {
+static fn target(Command *cmd) { assert(cmd); ++calls; }
+static fn replacement(Command *cmd) { assert(cmd); calls += 10; }
+static bool sink(any hostContext, const char *text, bytes length) {
     assert(hostContext == &notices && length == strlen("Unknown command"));
     assert(memcmp(text, "Unknown command", length) == 0);
     ++notices;
     return true;
 }
-static void busy(Command *cmd) {
+static fn busy(Command *cmd) {
     assert(cmd);
     assert(CommandRegistry_isActive(current));
     assert(!CommandRegistry_register(current, "new", target));
     assert(!CommandRegistry_free(current));
     assert(!CommandRegistry_setOutput(current, sink, &notices));
 }
-int main(void) {
+int main() {
     CommandRegistryRow small[1], larger[4], largest[8];
     CommandRegistry zero = CommandRegistry();
     assert(CommandRegistry_getCount(&zero) == 0);

@@ -1,12 +1,14 @@
 // Owner: TerminalMarkdownView — the terminal Markdown preview. Cold parsing and
 // cell-aware wrapping are checked separately from hot rendering.
+
+#include "vex.h"
 #include "ui/markdown/terminal_markdown_view.h"
 #include "format/terminal_color.h"
 #include "determinant/test/support.h"
 
 enum { W = 48, H = 12 };
 
-static void clearCanvas(TerminalCanvas *canvas, u32 *cells, u16 *styles,
+static fn clearCanvas(TerminalCanvas *canvas, u32 *cells, u16 *styles,
                         u32 *fg, u32 *bg) {
     *canvas = TerminalCanvas(cells, styles, fg, bg, W, H);
     TerminalCanvas_fill(canvas, ' ', TerminalPen());

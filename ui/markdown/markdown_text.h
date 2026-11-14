@@ -1,8 +1,7 @@
 #ifndef DETERMINANT_MARKDOWN_TEXT_H
 #define DETERMINANT_MARKDOWN_TEXT_H
 
-#include <stdbool.h>
-#include <stddef.h>
+#include "vex.h"
 
 // ui/markdown/markdown_text.h — terminal-cell measurement over borrowed bytes.
 //

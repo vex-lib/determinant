@@ -2,6 +2,7 @@
 // Owner: TerminalApp — host lifecycle harness, d64-buffered rendering,
 // and step-driven presentation.
 
+#include "vex.h"
 #include "ui/app/terminal_app.h"
 #include "ui/panel/terminal_panel.h"
 #include "ui/text/terminal_text.h"

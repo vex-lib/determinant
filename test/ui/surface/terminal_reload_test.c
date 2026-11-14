@@ -1,25 +1,27 @@
 // Externally supervised real loaded-module swap. The test host owns dlopen,
 // callable-code lifetime and exclusion, not Determinant. No Primeagen proof.
+
+#include "vex.h"
 #include "ui/surface/terminal.h"
 #include "test_support.h"
 #include "determinant/test/support.h"
 #include <dlfcn.h>
-static bool sink(void *context, const char *text, bytes length) {
-    (void) context; assert(text && length == 4); return true;
+static bool sink(any context, const char *text, bytes length) {
+    (fn) context; assert(text && length == 4); return true;
 }
-int main(void) {
+int main() {
 #if !defined(DETERMINANT_MODULE_A) || !defined(DETERMINANT_MODULE_B)
-    (void) sink;
-    (void) beginDiagnostics;
-    (void) endDiagnostics;
+    (fn) sink;
+    (fn) beginDiagnostics;
+    (fn) endDiagnostics;
     fprintf(stderr, "SKIP: externally built module paths unavailable\n");
     return B_TEST_SKIP;
 #else
-    void *a = dlopen(DETERMINANT_MODULE_A, RTLD_NOW | RTLD_LOCAL);
-    void *b = dlopen(DETERMINANT_MODULE_B, RTLD_NOW | RTLD_LOCAL);
+    any a = dlopen(DETERMINANT_MODULE_A, RTLD_NOW | RTLD_LOCAL);
+    any b = dlopen(DETERMINANT_MODULE_B, RTLD_NOW | RTLD_LOCAL);
     assert(a && b);
-    TerminalModule (*getA)(void) = (TerminalModule (*)(void)) dlsym(a, "determinantModule");
-    TerminalModule (*getB)(void) = (TerminalModule (*)(void)) dlsym(b, "determinantModule");
+    TerminalModule (*getA)() = (TerminalModule (*)()) dlsym(a, "determinantModule");
+    TerminalModule (*getB)() = (TerminalModule (*)()) dlsym(b, "determinantModule");
     assert(getA && getB);
     TerminalModule first = getA(), second = getB();
     char cells[4];

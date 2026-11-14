@@ -1,8 +1,7 @@
 #ifndef DETERMINANT_TERMINAL_PROJECTION_H
 #define DETERMINANT_TERMINAL_PROJECTION_H
 
-#include <stdbool.h>
-#include <stddef.h>
+#include "vex.h"
 #include <stdarg.h>
 #include <stdio.h>
 

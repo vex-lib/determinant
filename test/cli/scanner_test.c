@@ -1,11 +1,13 @@
 // Owner: caller-fed partial lines/words/CRLF/EOF and empty line distinction,
 // exact capacity + repeated refusal, cold growth/reset, projection/null defaults.
 // Input backing is caller-owned; no OS/stdin/threads or Unicode offered.
+
+#include "vex.h"
 #include "cli/scanner.h"
 #include "primitive/vex-string.h"
 #include "nio/mem.h"
 #include "determinant/test/support.h"
-int main(void) {
+int main() {
     char small[4], medium[8], large[32];
     Scanner zero = Scanner();
     assert(Scanner_getCapacity(&zero) == 0);

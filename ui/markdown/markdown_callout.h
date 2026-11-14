@@ -1,8 +1,7 @@
 #ifndef DETERMINANT_TERMINAL_MARKDOWN_CALLOUT_H
 #define DETERMINANT_TERMINAL_MARKDOWN_CALLOUT_H
 
-#include <stdbool.h>
-#include <stddef.h>
+#include "vex.h"
 
 // ui/markdown/markdown_callout.h — the callout KIND, and the two ways a document
 // spells it.

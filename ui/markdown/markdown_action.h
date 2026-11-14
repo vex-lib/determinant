@@ -1,9 +1,7 @@
 #ifndef DETERMINANT_MARKDOWN_ACTION_H
 #define DETERMINANT_MARKDOWN_ACTION_H
 
-#include <stdbool.h>
-#include <stddef.h>
-
+#include "vex.h"
 #include "ui/surface/terminal_projection.h"
 
 // ui/markdown/markdown_action.h — what a click on the preview MEANS.

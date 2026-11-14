@@ -1,12 +1,14 @@
 // Purpose: caller clicks a terminal button or feeds normalized keys. The widget
 // activates only enabled/focused input, preserves the grid on rejected geometry,
 // loses focus outside/on escape/disable and renders distinct deterministic cells.
+
+#include "vex.h"
 #include "ui/button/terminal_button.h"
 #include "determinant/test/support.h"
-static bool sink(void *context, const char *text, bytes length) {
-    (void) context; (void) text; (void) length; return true;
+static bool sink(any context, const char *text, bytes length) {
+    (fn) context; (fn) text; (fn) length; return true;
 }
-int main(void) {
+int main() {
     char cells[20];
     Terminal terminal = Terminal();
     assert(Terminal_bind(&terminal, cells, 20, 10, 2, sink, nullptr));

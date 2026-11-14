@@ -1,9 +1,9 @@
 #ifndef DETERMINANT_TERMINAL_H
 #define DETERMINANT_TERMINAL_H
+
+#include "vex.h"
 #include "cli/output.h"
 #include "ui/surface/terminal_projection.h"
-#include "util/constructor.h"
-#include <stdint.h>
 // Wire/ABI identity; changes require a new explicit admission version.
 #define TERMINAL_MODULE_ABI 1u
 // Host-normalized key vocabulary, independent of OS/ncurses numeric values.

@@ -1,13 +1,9 @@
 #ifndef DETERMINANT_TERMINAL_TEXT_AREA_H
 #define DETERMINANT_TERMINAL_TEXT_AREA_H
 
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdint.h>
-
+#include "vex.h"
 #include "ui/surface/terminal_canvas.h"
 #include "ui/surface/terminal_projection.h"
-#include "util/constructor.h"
 
 // ui/field/terminal_text_area.h — a multiline arbitrary text editor.
 //
