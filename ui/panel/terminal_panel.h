@@ -98,13 +98,13 @@ struct TerminalPanel {
     bool painting;               // a paint is in flight (reentrancy guard)
 };
 
-TerminalPanel *TerminalPanel_0(void);
+TerminalPanel *TerminalPanel_0();
 #define TerminalPanel(...) CONSTRUCTOR_DISPATCH(TerminalPanel, __VA_ARGS__)
 #define TerminalPanel_zero() TerminalPanel_0()
 
 // Frees the panel, every child, and every nested panel beneath them. Null is
 // harmless; a panel mid-paint is refused.
-void TerminalPanel_free(TerminalPanel *self);
+fn TerminalPanel_free(TerminalPanel *self);
 
 bool TerminalPanel_setLayout(TerminalPanel *self, TerminalPanelLayout layout);
 TerminalPanelLayout TerminalPanel_getLayout(const TerminalPanel *self);
@@ -139,7 +139,7 @@ TerminalAnchor TerminalPanel_getAnchor(const TerminalPanel *self, TerminalChildI
 // Hot: paint the background, then EVERY child, in slot order, every call. Quiet
 // on a clean paint — no allocation, no logging, no per-cell validation. A
 // reentrant paint is refused and counted.
-void TerminalPanel_paint(TerminalPanel *self, TerminalCanvas *canvas);
+fn TerminalPanel_paint(TerminalPanel *self, TerminalCanvas *canvas);
 
 // Cold: the rectangle a child resolved to, and the top-most child containing a
 // cell. These are the hit-test primitives a pointer event uses, so they live on
@@ -158,7 +158,7 @@ bool TerminalPanel_isPainting(const TerminalPanel *self);
 bool TerminalPanel_isValid(const TerminalPanel *self, TerminalChildId id);
 bool TerminalPanel_isChildId(TerminalChildId id);
 bool TerminalChildId_equal(TerminalChildId a, TerminalChildId b);
-void TerminalPanel_clearExhaustion(TerminalPanel *self);
+fn TerminalPanel_clearExhaustion(TerminalPanel *self);
 
 TerminalProjection TerminalPanel_toString(const TerminalPanel *self);
 TerminalProjection TerminalPanel_toStringStruct(const TerminalPanel *self);

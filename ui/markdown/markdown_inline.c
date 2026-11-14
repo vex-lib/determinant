@@ -37,7 +37,7 @@ typedef struct SpanSink {
     bool complete;
 } SpanSink;
 
-static void emitSpan(SpanSink *sink, const char *text, bytes length,
+static fn emitSpan(SpanSink *sink, const char *text, bytes length,
                      TerminalMarkdownRole role, u16 style,
                      const char *link, bytes linkLength) {
     if (length == 0)
@@ -56,13 +56,13 @@ static void emitSpan(SpanSink *sink, const char *text, bytes length,
     ++(*sink).count;
 }
 
-static void parseInto(SpanSink *sink, const char *text, bytes length,
+static fn parseInto(SpanSink *sink, const char *text, bytes length,
                       TerminalMarkdownRole base, u16 style,
                       const char *link, bytes linkLength, bytes depth);
 
 // Emit `body + start .. end` with the emphasis flag added, recursing so nesting
 // composes (bold inside a link keeps the link; italic inside bold adds a flag).
-static void parseEmphasis(SpanSink *sink, const char *text, bytes start, bytes end,
+static fn parseEmphasis(SpanSink *sink, const char *text, bytes start, bytes end,
                           TerminalMarkdownRole base, u16 style,
                           const char *link, bytes linkLength,
                           u16 flag, bytes depth) {
@@ -96,7 +96,7 @@ static bool isAutolink(const char *inner, bytes length) {
 
 // A link target is the text between `(` and `)`, minus an optional quoted title.
 // The target stays borrowed from the same line.
-static void targetSlice(const char *text, bytes start, bytes end,
+static fn targetSlice(const char *text, bytes start, bytes end,
                         bytes *targetStart, bytes *targetLength) {
     while (start < end && TerminalMarkdownText_isSpace(text[start]))
         ++start;
@@ -113,7 +113,7 @@ static void targetSlice(const char *text, bytes start, bytes end,
     *targetLength = words > start ? words - start : 0u;
 }
 
-static void parseInto(SpanSink *sink, const char *text, bytes length,
+static fn parseInto(SpanSink *sink, const char *text, bytes length,
                       TerminalMarkdownRole base, u16 style,
                       const char *link, bytes linkLength, bytes depth) {
     if (text == nullptr || length == 0)
@@ -240,7 +240,7 @@ static void parseInto(SpanSink *sink, const char *text, bytes length,
         } else {
             emitSpan(sink, text + start, at - start, base, style, link, linkLength);
         }
-        (void) intraword;
+        (fn) intraword;
     }
 }
 

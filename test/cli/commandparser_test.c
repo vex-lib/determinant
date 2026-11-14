@@ -39,7 +39,7 @@ int main(void) {
     beginDiagnostics();
     Command *survivor = CommandParser_parse("retained value");
     assert(survivor);
-    void *blocks[MAX_BLOCKS];
+    any blocks[MAX_BLOCKS];
     bytes live = 0;
     while (live < MAX_BLOCKS) {
         blocks[live] = Memory_alloc(TYPE_BYTE_ARRAY, BLOCK_BYTES);

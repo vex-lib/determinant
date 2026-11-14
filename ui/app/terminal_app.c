@@ -40,12 +40,12 @@
 
 static volatile sig_atomic_t gSignalQuit = 0;
 
-static void onSignal(int sig) {
-    (void) sig;
+static fn onSignal(int sig) {
+    (fn) sig;
     gSignalQuit = 1;
 }
 
-static void freePlanes(TerminalApp *self) {
+static fn freePlanes(TerminalApp *self) {
     if (self == nullptr)
         return;
     if ((*self).backCells != nullptr)
@@ -110,7 +110,7 @@ static bool allocatePlanes(TerminalApp *self, bytes count) {
     return true;
 }
 
-static void rebindSurface(TerminalApp *self) {
+static fn rebindSurface(TerminalApp *self) {
     if (self == nullptr || (*self).surface == nullptr || (*self).compositor == nullptr
         || (*self).capacity == 0u)
         return;
@@ -128,7 +128,7 @@ static void rebindSurface(TerminalApp *self) {
                             TerminalCompositor_phase, (*self).compositor);
 }
 
-TerminalApp *TerminalApp_0(void) {
+TerminalApp *TerminalApp_0() {
     return TerminalApp_1(nullptr);
 }
 
@@ -182,7 +182,7 @@ TerminalApp *TerminalApp_1(TerminalPanel *root) {
     return self;
 }
 
-void TerminalApp_free(TerminalApp *self) {
+fn TerminalApp_free(TerminalApp *self) {
     if (self == nullptr)
         return;
     freePlanes(self);
@@ -263,15 +263,15 @@ bool TerminalApp_step(TerminalApp *self) {
     return true;
 }
 
-bool TerminalApp_feedInput(TerminalApp *self, const char *bytes, bytes length) {
-    if (self == nullptr || bytes == nullptr || length == 0u)
+bool TerminalApp_feedInput(TerminalApp *self, const char *data, bytes length) {
+    if (self == nullptr || data == nullptr || length == 0u)
         return false;
     for (bytes i = 0u; i < length; ++i)
-        TerminalInput_feed(&(*self).input, (u8) bytes[i]);
+        TerminalInput_feed(&(*self).input, (u8) data[i]);
     return true;
 }
 
-void TerminalApp_stop(TerminalApp *self) {
+fn TerminalApp_stop(TerminalApp *self) {
     if (self == nullptr)
         return;
     (*self).running = false;
@@ -371,6 +371,6 @@ TerminalProjection TerminalApp_toStringStruct(const TerminalApp *self) {
         return TerminalProjection_format("nullptr");
     return TerminalProjection_format(
         "TerminalApp{width=%zu,height=%zu,capacity=%zu,root=%p,running=%d,headless=%d,frames=%zu}",
-        (*self).width, (*self).height, (*self).capacity, (const void*) (*self).root,
+        (*self).width, (*self).height, (*self).capacity, (const_any) (*self).root,
         (*self).running, (*self).headless, (*self).frameCount);
 }

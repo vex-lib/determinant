@@ -28,11 +28,11 @@ typedef struct TerminalCodeHint {
 
 typedef struct TerminalCodeView TerminalCodeView;
 
-TerminalCodeView *TerminalCodeView_0(void);
+TerminalCodeView *TerminalCodeView_0();
 #define TerminalCodeView(...) CONSTRUCTOR_DISPATCH(TerminalCodeView, __VA_ARGS__)
 #define TerminalCodeView_zero() TerminalCodeView_0()
 
-void TerminalCodeView_free(TerminalCodeView *self);
+fn TerminalCodeView_free(TerminalCodeView *self);
 
 // Borrow one UTF-8 line and its ordered, non-overlapping byte spans and sorted
 // virtual hints. A hint is painted immediately before its source byte offset;
@@ -53,7 +53,7 @@ bytes TerminalCodeView_getHintCount(const TerminalCodeView *self);
 // allocation-free and quiet. x/y are local to the canvas.
 bool TerminalCodeView_setScroll(TerminalCodeView *self, bytes cells);
 bytes TerminalCodeView_getScroll(const TerminalCodeView *self);
-void TerminalCodeView_render(const TerminalCodeView *self, TerminalCanvas *canvas,
+fn TerminalCodeView_render(const TerminalCodeView *self, TerminalCanvas *canvas,
                              bytes x, bytes y);
 
 TerminalProjection TerminalCodeView_toString(const TerminalCodeView *self);

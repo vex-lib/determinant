@@ -14,7 +14,7 @@
  * STRUCT FIELDS: none — value records are declared in the header.
  * FUNCTION REGISTRY (exports)
  * Parse:  TerminalMarkdownCallout_parse(text, length)
- * Names:  TerminalMarkdownCallout_name(kind); TerminalMarkdownCallout_bar(void)
+ * Names:  TerminalMarkdownCallout_name(kind); TerminalMarkdownCallout_bar()
  * Theme:  TerminalMarkdownCallout_penIndex(kind)
  * CONTRACT: the marker must start the span; `[!KIND]` needs its closing bracket
  * and `!KIND!` its closing bang; the title is everything after one optional
@@ -94,7 +94,7 @@ const char *TerminalMarkdownCallout_name(TerminalMarkdownCalloutKind kind) {
     return "";
 }
 
-const char *TerminalMarkdownCallout_bar(void) {
+const char *TerminalMarkdownCallout_bar() {
     return TERMINAL_MARKDOWN_CALLOUT_BAR;
 }
 

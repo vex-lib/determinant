@@ -36,12 +36,12 @@ typedef struct TerminalCodeEditor {
     TerminalPen cursorPen;     // active caret cell pen
 } TerminalCodeEditor;
 
-TerminalCodeEditor *TerminalCodeEditor_0(void);
+TerminalCodeEditor *TerminalCodeEditor_0();
 TerminalCodeEditor *TerminalCodeEditor_1(const char *initialText);
 #define TerminalCodeEditor(...) CONSTRUCTOR_DISPATCH(TerminalCodeEditor, __VA_ARGS__)
 #define TerminalCodeEditor_zero() TerminalCodeEditor_0()
 
-void TerminalCodeEditor_free(TerminalCodeEditor *self);
+fn TerminalCodeEditor_free(TerminalCodeEditor *self);
 
 bool TerminalCodeEditor_setText(TerminalCodeEditor *self, const char *text);
 bytes TerminalCodeEditor_getLineCount(const TerminalCodeEditor *self);
@@ -51,9 +51,9 @@ bool TerminalCodeEditor_insertChar(TerminalCodeEditor *self, int character);
 bool TerminalCodeEditor_insertText(TerminalCodeEditor *self, const char *text, bytes length);
 bool TerminalCodeEditor_backspace(TerminalCodeEditor *self);
 bool TerminalCodeEditor_delete(TerminalCodeEditor *self);
-void TerminalCodeEditor_clear(TerminalCodeEditor *self);
+fn TerminalCodeEditor_clear(TerminalCodeEditor *self);
 
-void TerminalCodeEditor_moveCursor(TerminalCodeEditor *self, int deltaLine, int deltaCol);
+fn TerminalCodeEditor_moveCursor(TerminalCodeEditor *self, int deltaLine, int deltaCol);
 bytes TerminalCodeEditor_getCursorLine(const TerminalCodeEditor *self);
 bytes TerminalCodeEditor_getCursorCol(const TerminalCodeEditor *self);
 bool TerminalCodeEditor_setCursor(TerminalCodeEditor *self, bytes line, bytes col);
@@ -62,7 +62,7 @@ bool TerminalCodeEditor_setShowGutter(TerminalCodeEditor *self, bool show);
 bool TerminalCodeEditor_getShowGutter(const TerminalCodeEditor *self);
 bytes TerminalCodeEditor_getGutterWidth(const TerminalCodeEditor *self);
 
-void TerminalCodeEditor_render(const TerminalCodeEditor *self, TerminalCanvas *canvas);
+fn TerminalCodeEditor_render(const TerminalCodeEditor *self, TerminalCanvas *canvas);
 
 TerminalProjection TerminalCodeEditor_toString(const TerminalCodeEditor *self);
 TerminalProjection TerminalCodeEditor_toStringStruct(const TerminalCodeEditor *self);

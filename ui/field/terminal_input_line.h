@@ -27,7 +27,7 @@ typedef struct TerminalInputLine {
 } TerminalInputLine;
 typedef struct TerminalInputLinePens { TerminalPen prefix; TerminalPen text; } TerminalInputLinePens;
 
-TerminalInputLine TerminalInputLine_0(void);
+TerminalInputLine TerminalInputLine_0();
 TerminalInputLine TerminalInputLine_2(char *buffer, bytes capacity);
 #define TerminalInputLine(...) CONSTRUCTOR_DISPATCH(TerminalInputLine, __VA_ARGS__)
 #define TerminalInputLine_zero() TerminalInputLine_0()
@@ -39,14 +39,14 @@ bytes TerminalInputLine_length(const TerminalInputLine *self);
 bool TerminalInputLine_isBound(const TerminalInputLine *self);
 bool TerminalInputLine_setPrefix(TerminalInputLine *self, const char *prefix);
 const char *TerminalInputLine_getPrefix(const TerminalInputLine *self);
-void TerminalInputLine_setPens(TerminalInputLine *self, TerminalPen prefixPen, TerminalPen textPen);
+fn TerminalInputLine_setPens(TerminalInputLine *self, TerminalPen prefixPen, TerminalPen textPen);
 TerminalInputLinePens TerminalInputLine_getPens(const TerminalInputLine *self);
 
 bool TerminalInputLine_add(TerminalInputLine *self, int character);
 bool TerminalInputLine_backspace(TerminalInputLine *self);
-void TerminalInputLine_clear(TerminalInputLine *self);
+fn TerminalInputLine_clear(TerminalInputLine *self);
 
-void TerminalInputLine_render(const TerminalInputLine *self, TerminalCanvas *canvas);
+fn TerminalInputLine_render(const TerminalInputLine *self, TerminalCanvas *canvas);
 
 TerminalProjection TerminalInputLine_toString(const TerminalInputLine *self);
 TerminalProjection TerminalInputLine_toStringStruct(const TerminalInputLine *self);

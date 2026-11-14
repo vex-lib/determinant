@@ -46,7 +46,7 @@ static bytes rowOfText(const TerminalCanvas *canvas, const char *text) {
     return SIZE_MAX;
 }
 
-int main(void) {
+int main() {
     static const char *lines[] = {
         "# Semicolon",
         "",

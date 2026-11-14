@@ -23,9 +23,9 @@
  * TerminalCanvas back            composed-next grid (borrowed planes)
  * TerminalCanvas front           last-presented grid (borrowed planes)
  * TerminalRunFn sink             borrowed host run sink
- * void *hostContext              opaque resident sink state
+ * any hostContext              opaque resident sink state
  * TerminalFrameFn frame          borrowed frame bracket (nullable)
- * void *frameContext             opaque bracket state
+ * any frameContext             opaque bracket state
  * bool bracketed                 a transaction is currently open
  * bytes gapTolerance            max unchanged run inside one emitted run
  * bytes presentCount            completed presents (lifetime)
@@ -54,7 +54,7 @@
  * emitRun(self,y,start,last)     hand one same-row run to the sink
  * adoptFront(self)               region copy back -> front after a present
  * FUNCTION REGISTRY (exports)
- * Constructors: TerminalSurface_0(void), _2(back, front) [zero/arity chooser]
+ * Constructors: TerminalSurface_0(), _2(back, front) [zero/arity chooser]
  * Admission: bool TerminalSurface_bind(self, back, front, sink, hostContext)
  *   bool TerminalSurface_setSink(self, sink, hostContext)
  *   bool TerminalSurface_reset(self)
@@ -142,7 +142,7 @@ static bool emitRun(TerminalSurface *self, bytes y, bytes start, bytes last) {
 // Copy the region from back to front, one row at a time so cells outside the
 // region are never touched. Styles and colours are guarded SEPARATELY: a canvas
 // may carry a style plane and no colour planes at all.
-static void adoptFront(TerminalSurface *self) {
+static fn adoptFront(TerminalSurface *self) {
     const TerminalCanvas *back = &(*self).back;
     TerminalCanvas *front = &(*self).front;
     bytes width = (*back).width;
@@ -158,7 +158,7 @@ static void adoptFront(TerminalSurface *self) {
     }
 }
 
-TerminalSurface TerminalSurface_0(void) {
+TerminalSurface TerminalSurface_0() {
     return (TerminalSurface) { .gapTolerance = TERMINAL_SURFACE_GAP_DEFAULT };
 }
 
@@ -170,7 +170,7 @@ TerminalSurface TerminalSurface_2(TerminalCanvas back, TerminalCanvas front) {
 }
 
 bool TerminalSurface_bind(TerminalSurface *self, const TerminalCanvas *back,
-                          const TerminalCanvas *front, TerminalRunFn sink, void *hostContext) {
+                          const TerminalCanvas *front, TerminalRunFn sink, any hostContext) {
     if (self == nullptr || back == nullptr || front == nullptr || sink == nullptr
         || !TerminalCanvas_isValid(back) || !TerminalCanvas_isValid(front)
         || !sameGeometry(back, front) || !samePlanes(back, front) || (*self).active) {
@@ -189,7 +189,7 @@ bool TerminalSurface_bind(TerminalSurface *self, const TerminalCanvas *back,
     return true;
 }
 
-bool TerminalSurface_setFrame(TerminalSurface *self, TerminalFrameFn frame, void *frameContext) {
+bool TerminalSurface_setFrame(TerminalSurface *self, TerminalFrameFn frame, any frameContext) {
     if (self == nullptr || frame == nullptr || (*self).active || (*self).bracketed) {
         THROW("TerminalSurface setFrame: null bracket, or a transaction is open");
         return false;
@@ -199,10 +199,10 @@ bool TerminalSurface_setFrame(TerminalSurface *self, TerminalFrameFn frame, void
     return true;
 }
 TerminalFrameFn TerminalSurface_getFrame(const TerminalSurface *self) { return self ? (*self).frame : nullptr; }
-void *TerminalSurface_getFrameContext(const TerminalSurface *self) { return self ? (*self).frameContext : nullptr; }
+any TerminalSurface_getFrameContext(const TerminalSurface *self) { return self ? (*self).frameContext : nullptr; }
 bool TerminalSurface_isBracketed(const TerminalSurface *self) { return self != nullptr && (*self).bracketed; }
 
-bool TerminalSurface_setSink(TerminalSurface *self, TerminalRunFn sink, void *hostContext) {
+bool TerminalSurface_setSink(TerminalSurface *self, TerminalRunFn sink, any hostContext) {
     if (self == nullptr || sink == nullptr || (*self).active) {
         THROW("TerminalSurface setSink: null sink or busy");
         return false;

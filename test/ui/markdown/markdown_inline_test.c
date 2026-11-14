@@ -12,7 +12,7 @@ static bytes parse(const char *text, TerminalMarkdownRole base, MarkdownSpan *sp
     return TerminalMarkdownInline_parse(text, strlen(text), base, 0, spans, capacity, complete);
 }
 
-int main(void) {
+int main() {
     MarkdownSpan spans[MARKDOWN_INLINE_SPANS];
     bool complete = true;
 

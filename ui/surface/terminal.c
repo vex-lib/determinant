@@ -21,8 +21,8 @@
  * bytes width                   columns (cells)
  * bytes height                  rows (cells)
  * DeterminantOutputFn output      borrowed host sink
- * void *hostContext              opaque resident sink state
- * void *residentState            opaque resident consumer state
+ * any hostContext              opaque resident sink state
+ * any residentState            opaque resident consumer state
  * TerminalModule module          borrowed reloadable exports
  * u64 generation            successful export publications
  * bytes refusalCount            epoch text capacity refusals
@@ -34,23 +34,23 @@
  * TerminalCommandFn command      borrowed command callback
  * TerminalKey: normalized host key vocabulary (enum, no owned state)
  * FUNCTION REGISTRY (exports)
- * Constructor: Terminal Terminal_0(void) [zero/arity chooser]
+ * Constructor: Terminal Terminal_0() [zero/arity chooser]
  * Admission: bool Terminal_bind(Terminal *self, char *cells, bytes capacity,
- *     bytes width, bytes height, DeterminantOutputFn output, void *hostContext)
+ *     bytes width, bytes height, DeterminantOutputFn output, any hostContext)
  * Configuration: bool Terminal_setOutput(Terminal *self,
- *     DeterminantOutputFn output, void *hostContext)
+ *     DeterminantOutputFn output, any hostContext)
  * Lifecycle: bool Terminal_pause(Terminal *self)
  *   bool Terminal_resume(Terminal *self), Terminal_free(Terminal *self)
  * Reload: bool Terminal_swap(Terminal *self, TerminalModule module,
- *     void *residentState)
+ *     any residentState)
  * Dispatch: bool Terminal_render(Terminal *self)
  *   bool Terminal_command(Terminal *self, const char *text, bytes length)
  * Cells: bool Terminal_text(Terminal *self, bytes x, bytes y,
  *     const char *text, bytes length)
  *   bool Terminal_clear(Terminal *self), Terminal_present(Terminal *self)
  * Queries: DeterminantOutputFn Terminal_getOutput(const Terminal *self)
- *   void *Terminal_getHostContext(const Terminal *self)
- *   void *Terminal_getResidentState(const Terminal *self)
+ *   any Terminal_getHostContext(const Terminal *self)
+ *   any Terminal_getResidentState(const Terminal *self)
  *   const char *Terminal_getCells(const Terminal *self)
  *   TerminalModule Terminal_getModule(const Terminal *self)
  *   bytes Terminal_getWidth(const Terminal *self)
@@ -71,9 +71,9 @@
  * total ceiling. Zero terminal is paused; bind installs dimensions, not exports.
  * ======================================================================== */
 ;;INTENTION("per the Conflict Triage Law: geometry, backing, callback generation and admission change through lifecycle, not setters forging ownership")
-Terminal Terminal_0(void) { return (Terminal) {.paused = true}; }
+Terminal Terminal_0() { return (Terminal) {.paused = true}; }
 bool Terminal_bind(Terminal *self, char *cells, bytes capacity, bytes width, bytes height,
-                   DeterminantOutputFn output, void *hostContext) {
+                   DeterminantOutputFn output, any hostContext) {
     if (self == nullptr || (*self).active || !(*self).paused || cells == nullptr || output == nullptr
         || width == 0 || height == 0 || height > SIZE_MAX / width || width * height > capacity) {
         THROW("Terminal bind: invalid geometry/backing/sink or busy");
@@ -88,7 +88,7 @@ bool Terminal_bind(Terminal *self, char *cells, bytes capacity, bytes width, byt
     memset(cells, ' ', width * height);
     return true;
 }
-bool Terminal_setOutput(Terminal *self, DeterminantOutputFn output, void *hostContext) {
+bool Terminal_setOutput(Terminal *self, DeterminantOutputFn output, any hostContext) {
     if (self == nullptr || (*self).active || output == nullptr) {
         THROW("Terminal setOutput: invalid sink or busy");
         return false;
@@ -114,7 +114,7 @@ bool Terminal_resume(Terminal *self) {
     (*self).paused = false;
     return true;
 }
-bool Terminal_swap(Terminal *self, TerminalModule module, void *residentState) {
+bool Terminal_swap(Terminal *self, TerminalModule module, any residentState) {
     if (self == nullptr || (*self).active || !(*self).paused || module.abi != TERMINAL_MODULE_ABI
         || module.view == nullptr || module.command == nullptr || (*self).generation == UINT64_MAX) {
         THROW("Terminal swap: incompatible exports, generation overflow or busy");
@@ -192,7 +192,7 @@ bool Terminal_present(Terminal *self) {
     return ok;
 }
 DeterminantOutputFn Terminal_getOutput(const Terminal *self) { return self ? (*self).output : nullptr; }
-void *Terminal_getHostContext(const Terminal *self) { return self ? (*self).hostContext : nullptr; }
+any Terminal_getHostContext(const Terminal *self) { return self ? (*self).hostContext : nullptr; }
 bytes Terminal_getWidth(const Terminal *self) { return self ? (*self).width : 0; }
 bytes Terminal_getHeight(const Terminal *self) { return self ? (*self).height : 0; }
 bytes Terminal_getCapacity(const Terminal *self) { return self ? (*self).capacity : 0; }
@@ -201,7 +201,7 @@ bytes Terminal_exhaustionCount(const Terminal *self) { return self ? (*self).ref
 bool Terminal_isPaused(const Terminal *self) { return self && (*self).paused; }
 bool Terminal_isActive(const Terminal *self) { return self && (*self).active; }
 const char *Terminal_getCells(const Terminal *self) { return self ? (*self).cells : nullptr; }
-void *Terminal_getResidentState(const Terminal *self) { return self ? (*self).residentState : nullptr; }
+any Terminal_getResidentState(const Terminal *self) { return self ? (*self).residentState : nullptr; }
 TerminalModule Terminal_getModule(const Terminal *self) { return self ? (*self).module : (TerminalModule) {0}; }
 bool Terminal_free(Terminal *self) {
     if (self == nullptr || (*self).active) {

@@ -45,12 +45,12 @@ typedef struct TerminalApp {
     bytes frameCount;                    // completed frame steps
 } TerminalApp;
 
-TerminalApp *TerminalApp_0(void);
+TerminalApp *TerminalApp_0();
 TerminalApp *TerminalApp_1(TerminalPanel *root);
 #define TerminalApp(...) CONSTRUCTOR_DISPATCH(TerminalApp, __VA_ARGS__)
 #define TerminalApp_zero() TerminalApp_0()
 
-void TerminalApp_free(TerminalApp *self);
+fn TerminalApp_free(TerminalApp *self);
 
 bool TerminalApp_setRoot(TerminalApp *self, TerminalPanel *root);
 TerminalPanel *TerminalApp_getRoot(const TerminalApp *self);
@@ -67,11 +67,11 @@ bytes TerminalApp_getHeight(const TerminalApp *self);
 bool TerminalApp_step(TerminalApp *self);
 
 // Feeds raw input bytes into the internal input decoder.
-bool TerminalApp_feedInput(TerminalApp *self, const char *bytes, bytes length);
+bool TerminalApp_feedInput(TerminalApp *self, const char *data, bytes length);
 
 // Runs the interactive event loop until stopped or interrupted.
 int TerminalApp_run(TerminalApp *self);
-void TerminalApp_stop(TerminalApp *self);
+fn TerminalApp_stop(TerminalApp *self);
 bool TerminalApp_isRunning(const TerminalApp *self);
 
 bool TerminalApp_setHeadless(TerminalApp *self, bool headless);

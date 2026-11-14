@@ -136,8 +136,8 @@
  *   blank rows around it; a fence inside a quote/callout keeps the quote gutter
  *   layout(self)              the cold parse + wrap pass
  * FUNCTION REGISTRY (exports)
- * Constructor: TerminalMarkdownView *TerminalMarkdownView_0(void) [arity chooser]
- * Lifecycle:   void TerminalMarkdownView_free(self)
+ * Constructor: TerminalMarkdownView *TerminalMarkdownView_0() [arity chooser]
+ * Lifecycle:   fn TerminalMarkdownView_free(self)
  * Source:      bool setSource(self, lines, count)
  * Layout:      bool setViewport(self, width)
  * Viewport:    bool setVisibleRows(self, rows); bytes visibleRows(self)
@@ -152,9 +152,9 @@
  *              TerminalMarkdownCodeBlock codeBlockAt(self, row)
  *              TerminalMarkdownCodeLine codeBlockLine(self, block, line)
  *              bool isReady/isTruncated(self)
- *              bytes exhaustionCount(self); void clearExhaustion(self)
+ *              bytes exhaustionCount(self); fn clearExhaustion(self)
  * Style:       bool setStyle(self, style); TerminalMarkdownStyle getStyle(self)
- * Render:      void TerminalMarkdownView_render(self, canvas)
+ * Render:      fn TerminalMarkdownView_render(self, canvas)
  * Projections: TerminalProjection TerminalMarkdownView_toString/toStringStruct(self)
  * CONTRACT:
  *   - setSource borrows; the caller keeps the line bytes alive and clears the
@@ -301,7 +301,7 @@ static bytes scalarBytes(const char *text, bytes length) {
     return TerminalMarkdownText_scalarBytes(text, length);
 }
 
-static void refuse(TerminalMarkdownView *self, const char *reason) {
+static fn refuse(TerminalMarkdownView *self, const char *reason) {
     if ((*self).refusals == 0)
         THROW("TerminalMarkdownView exhausted: %s (rows %zu, segments %zu)",
               reason, (*self).rowCount, (*self).segmentCount);
@@ -353,14 +353,14 @@ static bool growSegments(TerminalMarkdownView *self) {
 // Mark every row in [first, last) as a shaded code row. Wrapping can append rows
 // inside a single logical line, so the range is marked once the fence is complete
 // instead of trying to tag each row at creation.
-static void markCodeRows(TerminalMarkdownView *self, bytes first) {
+static fn markCodeRows(TerminalMarkdownView *self, bytes first) {
     for (bytes index = first; index < (*self).rowCount; ++index)
         (*self).rows[index].codeBlock = true;
 }
 
 // Mark every row a table emitted as a table row. The blank gap row before the
 // top border is included; its extent is zero, so its own pan clamp is zero too.
-static void markTableRows(TerminalMarkdownView *self, bytes first) {
+static fn markTableRows(TerminalMarkdownView *self, bytes first) {
     for (bytes index = first; index < (*self).rowCount; ++index)
         (*self).rows[index].table = true;
 }
@@ -422,7 +422,7 @@ static bool stampRange(TerminalMarkdownView *self, bytes first, u8 variant,
     return true;
 }
 
-static void prefixAddVariant(MarkdownPrefix *prefix, const char *text, bytes length,
+static fn prefixAddVariant(MarkdownPrefix *prefix, const char *text, bytes length,
                              TerminalMarkdownRole role, u16 style, u8 variant) {
     if (prefix == nullptr || (*prefix).count >= MARKDOWN_PREFIX_ITEMS || text == nullptr)
         return;
@@ -437,12 +437,12 @@ static void prefixAddVariant(MarkdownPrefix *prefix, const char *text, bytes len
     ++(*prefix).count;
 }
 
-static void prefixAdd(MarkdownPrefix *prefix, const char *text, bytes length,
+static fn prefixAdd(MarkdownPrefix *prefix, const char *text, bytes length,
                       TerminalMarkdownRole role, u16 style) {
     prefixAddVariant(prefix, text, length, role, style, 0);
 }
 
-static void prefixSpaces(MarkdownPrefix *prefix, bytes cells,
+static fn prefixSpaces(MarkdownPrefix *prefix, bytes cells,
                          TerminalMarkdownRole role, u16 style) {
     while (cells > 0) {
         bytes take = cells > MARKDOWN_SPACES_CAP ? MARKDOWN_SPACES_CAP : cells;
@@ -451,20 +451,20 @@ static void prefixSpaces(MarkdownPrefix *prefix, bytes cells,
     }
 }
 
-static void prefixQuote(MarkdownPrefix *prefix, bytes depth) {
+static fn prefixQuote(MarkdownPrefix *prefix, bytes depth) {
     for (bytes level = 0; level < depth && (*prefix).count < MARKDOWN_PREFIX_ITEMS; ++level)
         prefixAdd(prefix, MARKDOWN_QUOTE_GLYPH, strlen(MARKDOWN_QUOTE_GLYPH),
                   TERMINAL_MARKDOWN_QUOTE, TERMINAL_STYLE_BOLD);
     (*prefix).repeatOnWrap = true;
 }
 
-static void prefixBeginMarker(MarkdownPrefix *prefix) {
+static fn prefixBeginMarker(MarkdownPrefix *prefix) {
     (*prefix).markerStart = (*prefix).count;
     (*prefix).markerCount = 0;
     (*prefix).hang = 0;
 }
 
-static void prefixEndMarker(MarkdownPrefix *prefix) {
+static fn prefixEndMarker(MarkdownPrefix *prefix) {
     if ((*prefix).count < (*prefix).markerStart)
         (*prefix).count = (*prefix).markerStart;
     (*prefix).markerCount = (*prefix).count - (*prefix).markerStart;
@@ -503,7 +503,7 @@ static bool wrapStart(TerminalMarkdownView *self, MarkdownWrap *wrap, bool first
     return true;
 }
 
-static void wrapSpace(MarkdownWrap *wrap) {
+static fn wrapSpace(MarkdownWrap *wrap) {
     if (wrap != nullptr)
         (*wrap).pendingSpace = true;
 }
@@ -938,7 +938,7 @@ static bool emitFenceBlock(TerminalMarkdownView *self, const char *const *lines,
 
 static bool emitFence(TerminalMarkdownView *self, const char *const *lines, bytes lineCount,
                       bytes *index, char marker, bytes run, bytes contentStart) {
-    (void) contentStart;
+    (fn) contentStart;
     if (!emitGap(self))
         return false;
     MarkdownPrefix prefix = {0};
@@ -1054,7 +1054,7 @@ static bool startsBlock(const char *text, bytes length);
 // The gutter every callout shares: the bar, one space, repeated on every wrapped
 // row. Severity is the pen, not the shape, so a NOTE and a CAUTION read as the
 // same kind of object with different urgency.
-static void prefixCallout(MarkdownPrefix *prefix, TerminalMarkdownCalloutKind kind) {
+static fn prefixCallout(MarkdownPrefix *prefix, TerminalMarkdownCalloutKind kind) {
     prefixAddVariant(prefix, TerminalMarkdownCallout_bar(),
                      strlen(TerminalMarkdownCallout_bar()),
                      TERMINAL_MARKDOWN_CALLOUT, TERMINAL_STYLE_BOLD, (u8) kind);
@@ -1627,7 +1627,7 @@ static bool layout(TerminalMarkdownView *self) {
     return !(*self).failed;
 }
 
-TerminalMarkdownView *TerminalMarkdownView_0(void) {
+TerminalMarkdownView *TerminalMarkdownView_0() {
     TerminalMarkdownView *self = Memory_alloc(TYPE_BYTE_ARRAY, sizeof(TerminalMarkdownView));
     if (self == nullptr)
         return nullptr;
@@ -1645,7 +1645,7 @@ TerminalMarkdownView *TerminalMarkdownView_0(void) {
     return self;
 }
 
-void TerminalMarkdownView_free(TerminalMarkdownView *self) {
+fn TerminalMarkdownView_free(TerminalMarkdownView *self) {
     if (self == nullptr)
         return;
     Memory_free((*self).rows);
@@ -1888,7 +1888,7 @@ bytes TerminalMarkdownView_exhaustionCount(const TerminalMarkdownView *self) {
     return self != nullptr ? (*self).refusals : 0u;
 }
 
-void TerminalMarkdownView_clearExhaustion(TerminalMarkdownView *self) {
+fn TerminalMarkdownView_clearExhaustion(TerminalMarkdownView *self) {
     if (self != nullptr)
         (*self).refusals = 0;
 }
@@ -1924,7 +1924,7 @@ TerminalMarkdownTheme TerminalMarkdownView_getTheme(const TerminalMarkdownView *
 // Draw the copy affordance of one fence on its first row. It is painted AFTER
 // the text so it owns its cells even when a code line runs to the right edge; the
 // glyph is the theme's, and `copiedBlock` decides which of the two it is.
-static void renderCopyIcon(const TerminalMarkdownView *self, TerminalCanvas *canvas,
+static fn renderCopyIcon(const TerminalMarkdownView *self, TerminalCanvas *canvas,
                            bytes screenRow, bytes width, bytes blockIndex,
                            bytes glyphCells) {
     const TerminalMarkdownTheme *theme = &(*self).theme;
@@ -1942,7 +1942,7 @@ static void renderCopyIcon(const TerminalMarkdownView *self, TerminalCanvas *can
     TerminalCanvas_text(canvas, column, screenRow, glyph, strlen(glyph), pen);
 }
 
-void TerminalMarkdownView_render(const TerminalMarkdownView *self, TerminalCanvas *canvas) {
+fn TerminalMarkdownView_render(const TerminalMarkdownView *self, TerminalCanvas *canvas) {
     if (self == nullptr || canvas == nullptr || !TerminalCanvas_isValid(canvas))
         return;
     if (!(*self).ready)
@@ -2074,7 +2074,7 @@ bool TerminalMarkdownView_setHover(TerminalMarkdownView *self, bytes row, bytes 
            != TERMINAL_MARKDOWN_ACTION_NONE;
 }
 
-void TerminalMarkdownView_clearHover(TerminalMarkdownView *self) {
+fn TerminalMarkdownView_clearHover(TerminalMarkdownView *self) {
     if (self == nullptr)
         return;
     (*self).hoverRow = MARKDOWN_NO_INDEX;

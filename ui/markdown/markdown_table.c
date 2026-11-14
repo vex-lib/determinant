@@ -242,7 +242,7 @@ bytes TerminalMarkdownTable_lineCount(const char *text, bytes length, bytes widt
     return count == 0 ? 1u : count;
 }
 
-static void applySpacing(bytes *widths, bytes columns, bytes available) {
+static fn applySpacing(bytes *widths, bytes columns, bytes available) {
     // Raise every column to the 4-cell spacing floor, but only if the raised table
     // still fits the cells this viewport gave it. Otherwise the fit budget wins and
     // the exact widths stand: a table must not gain a scrollbar to satisfy rounding.

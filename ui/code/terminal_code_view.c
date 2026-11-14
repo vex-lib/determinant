@@ -44,14 +44,14 @@
  *   penAt(self, byte)                   admitted span pen or default pen
  *   paintRange(self, canvas, ...)       clip and draw one source byte range
  * FUNCTION REGISTRY (exports)
- *   Constructor: TerminalCodeView *TerminalCodeView_0(void), chooser, zero
- *   Lifecycle: void TerminalCodeView_free(self)
+ *   Constructor: TerminalCodeView *TerminalCodeView_0(), chooser, zero
+ *   Lifecycle: fn TerminalCodeView_free(self)
  *   Admission: bool TerminalCodeView_setLine(self, text, length, spans, count,
  *                                            hints, count)
  *              getters return borrowed source/span/hint views and counts
  *   Scroll: bool TerminalCodeView_setScroll(self, cells)
  *           bytes TerminalCodeView_getScroll(self)
- *   Render: void TerminalCodeView_render(self, canvas, x, y)
+ *   Render: fn TerminalCodeView_render(self, canvas, x, y)
  *   Projections: TerminalProjection TerminalCodeView_toString/toStringStruct(self)
  * CONTRACT:
  *   - Source, spans and hints are borrowed; invalid replacement preserves them.
@@ -139,7 +139,7 @@ static TerminalPen penAt(const TerminalCodeView *self, bytes byte) {
     return TerminalPen_0();
 }
 
-static void paintRange(const TerminalCodeView *self, TerminalCanvas *canvas,
+static fn paintRange(const TerminalCodeView *self, TerminalCanvas *canvas,
                        bytes x, bytes y, bytes first, bytes end,
                        bytes *cell, bytes left, bytes right) {
     bytes at = first;
@@ -154,11 +154,11 @@ static void paintRange(const TerminalCodeView *self, TerminalCanvas *canvas,
     }
 }
 
-TerminalCodeView *TerminalCodeView_0(void) {
+TerminalCodeView *TerminalCodeView_0() {
     return calloc(1u, sizeof(TerminalCodeView));
 }
 
-void TerminalCodeView_free(TerminalCodeView *self) {
+fn TerminalCodeView_free(TerminalCodeView *self) {
     free(self);
 }
 
@@ -217,7 +217,7 @@ bytes TerminalCodeView_getHintCount(const TerminalCodeView *self) {
     return self == nullptr ? 0u : (*self).hintCount;
 }
 
-void TerminalCodeView_render(const TerminalCodeView *self, TerminalCanvas *canvas,
+fn TerminalCodeView_render(const TerminalCodeView *self, TerminalCanvas *canvas,
                              bytes x, bytes y) {
     if (self == nullptr || !TerminalCanvas_isValid(canvas)
         || x >= TerminalCanvas_getWidth(canvas) || y >= TerminalCanvas_getHeight(canvas))
@@ -263,8 +263,8 @@ TerminalProjection TerminalCodeView_toStringStruct(const TerminalCodeView *self)
     if (self == nullptr)
         return TerminalProjection_format("nullptr");
     return TerminalProjection_format("TerminalCodeView { text=%p, length=%zu, spans=%p, spanCount=%zu, hints=%p, hintCount=%zu, scroll=%zu }",
-                                     (void*) (*self).text, (*self).length,
-                                     (void*) (*self).spans, (*self).spanCount,
-                                     (void*) (*self).hints, (*self).hintCount,
+                                     (any) (*self).text, (*self).length,
+                                     (any) (*self).spans, (*self).spanCount,
+                                     (any) (*self).hints, (*self).hintCount,
                                      (*self).scroll);
 }

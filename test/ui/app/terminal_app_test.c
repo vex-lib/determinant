@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-static void testHeadlessLifecycle(void) {
+static fn testHeadlessLifecycle() {
     int fds[2];
     assert(pipe(fds) == 0);
     assert(fcntl(fds[0], F_SETFL, O_NONBLOCK) == 0);
@@ -60,7 +60,7 @@ static void testHeadlessLifecycle(void) {
     close(fds[1]);
 }
 
-static void testNegativeAppRejections(void) {
+static fn testNegativeAppRejections() {
     assert(!TerminalApp_setRoot(nullptr, nullptr));
     assert(!TerminalApp_setCompositor(nullptr, nullptr));
     assert(!TerminalApp_resize(nullptr, 0, 0));
@@ -75,7 +75,7 @@ static void testNegativeAppRejections(void) {
     TerminalApp_free(app);
 }
 
-int main(void) {
+int main() {
     testHeadlessLifecycle();
     testNegativeAppRejections();
     return 0;

@@ -26,7 +26,7 @@
  * bool skipTransparent   leave alpha==0 cells untouched
  * bool invert            bright = low luminance
  * FUNCTION REGISTRY (exports)
- * Constructors: TerminalImage_0(void), TerminalImage_3(pixels, width, height)
+ * Constructors: TerminalImage_0(), TerminalImage_3(pixels, width, height)
  * Config: setPixels/getPixels, set/getRamp, set/getStyle,
  *   setColor/hasColor, setColorRamp/getColorRamp, setJitter/getJitter,
  *   rampPurple, setSkipTransparent/skipsTransparent, setInvert/inverted
@@ -42,7 +42,7 @@
  * clips and never allocates or logs. Sampling is pure and deterministic.
  * ======================================================================== */
 
-TerminalImage TerminalImage_0(void) {
+TerminalImage TerminalImage_0() {
     TerminalImage image = {0};
     image.ramp = TERMINAL_IMAGE_RAMP_DEFAULT;
     image.style = TERMINAL_STYLE_DIM;
@@ -90,9 +90,9 @@ bool TerminalImage_setRamp(TerminalImage *self, const char *ramp) {
 const char *TerminalImage_getRamp(const TerminalImage *self) {
     return (self && (*self).ramp) ? (*self).ramp : TERMINAL_IMAGE_RAMP_DEFAULT;
 }
-void TerminalImage_setStyle(TerminalImage *self, u8 style) { if (self != nullptr) (*self).style = style; }
+fn TerminalImage_setStyle(TerminalImage *self, u8 style) { if (self != nullptr) (*self).style = style; }
 u8 TerminalImage_getStyle(const TerminalImage *self) { return self ? (*self).style : TERMINAL_STYLE_NONE; }
-void TerminalImage_setColor(TerminalImage *self, bool color) { if (self != nullptr) (*self).color = color; }
+fn TerminalImage_setColor(TerminalImage *self, bool color) { if (self != nullptr) (*self).color = color; }
 bool TerminalImage_hasColor(const TerminalImage *self) { return self && (*self).color; }
 
 bool TerminalImage_setColorRamp(TerminalImage *self, const u32 *ramp, bytes count) {
@@ -108,14 +108,14 @@ TerminalImageColorRamp TerminalImage_getColorRamp(const TerminalImage *self) {
     return self ? (TerminalImageColorRamp) { (*self).colorRamp, (*self).colorRampCount }
                 : (TerminalImageColorRamp) { nullptr, 0u };
 }
-void TerminalImage_setJitter(TerminalImage *self, u8 jitter, u32 seed) {
+fn TerminalImage_setJitter(TerminalImage *self, u8 jitter, u32 seed) {
     if (self == nullptr) return;
     (*self).jitter = jitter;
     (*self).jitterSeed = seed;
 }
 u8 TerminalImage_getJitter(const TerminalImage *self) { return self ? (*self).jitter : 0; }
 u32 TerminalImage_getJitterSeed(const TerminalImage *self) { return self ? (*self).jitterSeed : 0; }
-void TerminalImage_setPaletteScatter(TerminalImage *self, u8 steps) { if (self != nullptr) (*self).paletteScatter = steps; }
+fn TerminalImage_setPaletteScatter(TerminalImage *self, u8 steps) { if (self != nullptr) (*self).paletteScatter = steps; }
 u8 TerminalImage_getPaletteScatter(const TerminalImage *self) { return self ? (*self).paletteScatter : 0; }
 
 // A purple ladder for a light terminal: the darkest entry sits at ~30% of full
@@ -132,7 +132,7 @@ static const u32 PURPLE_RAMP[] = {
     TERMINAL_RGB(0xE0, 0xC6, 0xF4),
     TERMINAL_RGB(0xF2, 0xE6, 0xFF),
 };
-TerminalImageColorRamp TerminalImage_rampPurple(void) {
+TerminalImageColorRamp TerminalImage_rampPurple() {
     return (TerminalImageColorRamp) { PURPLE_RAMP, sizeof(PURPLE_RAMP) / sizeof(PURPLE_RAMP[0]) };
 }
 
@@ -172,11 +172,11 @@ static u32 imageColor(const TerminalImage *self, bytes lx, bytes ly,
     }
     return (*self).color ? TERMINAL_RGB(r, g, b) : TERMINAL_COLOR_DEFAULT;
 }
-void TerminalImage_setSkipTransparent(TerminalImage *self, bool skip) { if (self != nullptr) (*self).skipTransparent = skip; }
+fn TerminalImage_setSkipTransparent(TerminalImage *self, bool skip) { if (self != nullptr) (*self).skipTransparent = skip; }
 bool TerminalImage_skipsTransparent(const TerminalImage *self) { return self && (*self).skipTransparent; }
-void TerminalImage_setInvert(TerminalImage *self, bool invert) { if (self != nullptr) (*self).invert = invert; }
+fn TerminalImage_setInvert(TerminalImage *self, bool invert) { if (self != nullptr) (*self).invert = invert; }
 bool TerminalImage_inverted(const TerminalImage *self) { return self && (*self).invert; }
-void TerminalImage_setCellAspect(TerminalImage *self, d64 aspect) {
+fn TerminalImage_setCellAspect(TerminalImage *self, d64 aspect) {
     if (self != nullptr && aspect > 0.0)
         (*self).cellAspect = aspect;
 }
@@ -197,11 +197,11 @@ bool TerminalImage_setNoise(TerminalImage *self, const char *glyphs, u32 color) 
     return true;
 }
 const char *TerminalImage_getNoise(const TerminalImage *self) { return self ? (*self).noise : nullptr; }
-void TerminalImage_setNoiseSeed(TerminalImage *self, u32 seed) { if (self != nullptr) (*self).noiseSeed = seed; }
+fn TerminalImage_setNoiseSeed(TerminalImage *self, u32 seed) { if (self != nullptr) (*self).noiseSeed = seed; }
 u32 TerminalImage_getNoiseSeed(const TerminalImage *self) { return self ? (*self).noiseSeed : 0; }
-void TerminalImage_setNoiseStyle(TerminalImage *self, u8 style) { if (self != nullptr) (*self).noiseStyle = style; }
+fn TerminalImage_setNoiseStyle(TerminalImage *self, u8 style) { if (self != nullptr) (*self).noiseStyle = style; }
 u8 TerminalImage_getNoiseStyle(const TerminalImage *self) { return self ? (*self).noiseStyle : 0; }
-void TerminalImage_setNoiseDensity(TerminalImage *self, u8 percent) {
+fn TerminalImage_setNoiseDensity(TerminalImage *self, u8 percent) {
     if (self != nullptr)
         (*self).noiseDensity = percent > 100 ? 100 : percent;
 }
@@ -213,7 +213,7 @@ u8 TerminalImage_getNoiseDensity(const TerminalImage *self) {
 // caller's alphabet, gated by density and scattered by the seed. This is a
 // DECOR FIELD sized by the region (never by the picture), so it fills the panel
 // at any terminal size. Deterministic for a fixed seed.
-static void paintNoiseField(const TerminalImage *self, TerminalCanvas *canvas,
+static fn paintNoiseField(const TerminalImage *self, TerminalCanvas *canvas,
                             bytes x0, bytes y0, bytes w, bytes h) {
     const char *noise = (*self).noise;
     if (noise == nullptr || (*self).noiseDensity == 0)
@@ -244,7 +244,7 @@ static void paintNoiseField(const TerminalImage *self, TerminalCanvas *canvas,
 // Paint ONE cell of the picture. When a noise field is set the blank background
 // is left alone (the field underneath shows through) and only real content is
 // drawn on top.
-static void paintCell(const TerminalImage *self, TerminalCanvas *canvas,
+static fn paintCell(const TerminalImage *self, TerminalCanvas *canvas,
                       bytes cx, bytes cy, bytes lx, bytes ly,
                       u8 r, u8 g, u8 b) {
     char glyph = TerminalImage_glyph(self, TerminalImage_luminance(r, g, b));
@@ -311,7 +311,7 @@ TerminalImageSample TerminalImage_sampleCell(const TerminalImage *self, bytes lx
     return sample;
 }
 
-void TerminalImage_render(const TerminalImage *self, TerminalCanvas *canvas, bytes x, bytes y) {
+fn TerminalImage_render(const TerminalImage *self, TerminalCanvas *canvas, bytes x, bytes y) {
     if (!TerminalImage_isValid(self) || !TerminalCanvas_isValid(canvas))
         return;
     bytes cw = TerminalCanvas_getWidth(canvas);
@@ -332,7 +332,7 @@ void TerminalImage_render(const TerminalImage *self, TerminalCanvas *canvas, byt
     }
 }
 
-void TerminalImage_renderFit(const TerminalImage *self, TerminalCanvas *canvas) {
+fn TerminalImage_renderFit(const TerminalImage *self, TerminalCanvas *canvas) {
     if (!TerminalImage_isValid(self) || !TerminalCanvas_isValid(canvas))
         return;
     bytes cw = TerminalCanvas_getWidth(canvas);
@@ -350,7 +350,7 @@ void TerminalImage_renderFit(const TerminalImage *self, TerminalCanvas *canvas) 
     }
 }
 
-void TerminalImage_renderContain(const TerminalImage *self, TerminalCanvas *canvas) {
+fn TerminalImage_renderContain(const TerminalImage *self, TerminalCanvas *canvas) {
     if (!TerminalImage_isValid(self) || !TerminalCanvas_isValid(canvas))
         return;
     bytes regionW = TerminalCanvas_getWidth(canvas);

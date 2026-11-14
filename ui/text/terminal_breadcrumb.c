@@ -28,7 +28,7 @@
  *   Projections: toString, toStringStruct
  * ======================================================================== */
 
-TerminalBreadcrumb TerminalBreadcrumb_0(void) {
+TerminalBreadcrumb TerminalBreadcrumb_0() {
     TerminalBreadcrumb breadcrumbInstance = {0};
     breadcrumbInstance.separator = TERMINAL_BREADCRUMB_SEPARATOR_DEFAULT;
     breadcrumbInstance.pen = TerminalPen_0();
@@ -100,7 +100,7 @@ bool TerminalBreadcrumb_setMaxCells(TerminalBreadcrumb *self, bytes maximumCells
     return true;
 }
 
-void TerminalBreadcrumb_setPen(TerminalBreadcrumb *self, TerminalPen textPen) {
+fn TerminalBreadcrumb_setPen(TerminalBreadcrumb *self, TerminalPen textPen) {
     if (self != nullptr)
         (*self).pen = textPen;
 }
@@ -229,21 +229,21 @@ bytes TerminalBreadcrumb_format(const TerminalBreadcrumb *self, char *destinatio
 
     if (!isInsideRoot) {
         if (segmentCount >= 2u) {
-            (void) snprintf(scratchBuffer, sizeof scratchBuffer, "…%s%.*s%s%.*s",
+            (fn) snprintf(scratchBuffer, sizeof scratchBuffer, "…%s%.*s%s%.*s",
                             activeSeparator,
                             (int) lastSegmentLengths[0], lastSegmentPointers[0],
                             activeSeparator,
                             (int) lastSegmentLengths[1], lastSegmentPointers[1]);
         } else if (segmentCount == 1u) {
-            (void) snprintf(scratchBuffer, sizeof scratchBuffer, "…%s%.*s",
+            (fn) snprintf(scratchBuffer, sizeof scratchBuffer, "…%s%.*s",
                             activeSeparator,
                             (int) lastSegmentLengths[1], lastSegmentPointers[1]);
         } else {
-            (void) snprintf(scratchBuffer, sizeof scratchBuffer, "…");
+            (fn) snprintf(scratchBuffer, sizeof scratchBuffer, "…");
         }
     } else {
         if (segmentCount == 0u) {
-            (void) snprintf(scratchBuffer, sizeof scratchBuffer, "%s", rootBaseName);
+            (fn) snprintf(scratchBuffer, sizeof scratchBuffer, "%s", rootBaseName);
         } else if (segmentCount <= 4u) {
             bytes writtenBytes = (bytes) snprintf(scratchBuffer, sizeof scratchBuffer, "%s", rootBaseName);
             const char *componentScanner = relativeCursor;
@@ -262,7 +262,7 @@ bytes TerminalBreadcrumb_format(const TerminalBreadcrumb *self, char *destinatio
                 componentScanner = nextSlash + 1u;
             }
         } else {
-            (void) snprintf(scratchBuffer, sizeof scratchBuffer, "%s%s%.*s%s…%s%.*s%s%.*s",
+            (fn) snprintf(scratchBuffer, sizeof scratchBuffer, "%s%s%.*s%s…%s%.*s%s%.*s",
                             rootBaseName, activeSeparator,
                             (int) firstSegmentLengths[0], firstSegmentPointers[0],
                             activeSeparator, activeSeparator,
@@ -301,7 +301,7 @@ bytes TerminalBreadcrumb_measure(const TerminalBreadcrumb *self) {
     return TerminalBreadcrumb_measureStringCells(measureBuffer, formattedBytes);
 }
 
-void TerminalBreadcrumb_render(const TerminalBreadcrumb *self, TerminalCanvas *canvas,
+fn TerminalBreadcrumb_render(const TerminalBreadcrumb *self, TerminalCanvas *canvas,
                                bytes xCoordinate, bytes yCoordinate) {
     if (self == nullptr || canvas == nullptr || !TerminalCanvas_isValid(canvas))
         return;

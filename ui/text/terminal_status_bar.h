@@ -24,7 +24,7 @@ typedef struct TerminalStatusBar {
 } TerminalStatusBar;
 typedef struct TerminalStatusBarPens { TerminalPen left; TerminalPen right; } TerminalStatusBarPens;
 
-TerminalStatusBar TerminalStatusBar_0(void);
+TerminalStatusBar TerminalStatusBar_0();
 TerminalStatusBar TerminalStatusBar_1(const char *left);
 #define TerminalStatusBar(...) CONSTRUCTOR_DISPATCH(TerminalStatusBar, __VA_ARGS__)
 #define TerminalStatusBar_zero() TerminalStatusBar_0()
@@ -33,10 +33,10 @@ bool TerminalStatusBar_setLeft(TerminalStatusBar *self, const char *left);
 const char *TerminalStatusBar_getLeft(const TerminalStatusBar *self);
 bool TerminalStatusBar_setRight(TerminalStatusBar *self, const char *right);
 const char *TerminalStatusBar_getRight(const TerminalStatusBar *self);
-void TerminalStatusBar_setPens(TerminalStatusBar *self, TerminalPen leftPen, TerminalPen rightPen);
+fn TerminalStatusBar_setPens(TerminalStatusBar *self, TerminalPen leftPen, TerminalPen rightPen);
 TerminalStatusBarPens TerminalStatusBar_getPens(const TerminalStatusBar *self);
 
-void TerminalStatusBar_render(const TerminalStatusBar *self, TerminalCanvas *canvas);
+fn TerminalStatusBar_render(const TerminalStatusBar *self, TerminalCanvas *canvas);
 
 TerminalProjection TerminalStatusBar_toString(const TerminalStatusBar *self);
 TerminalProjection TerminalStatusBar_toStringStruct(const TerminalStatusBar *self);

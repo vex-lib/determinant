@@ -30,12 +30,12 @@ typedef struct TerminalTextArea {
     TerminalPen cursorPen;     // active cursor cell pen
 } TerminalTextArea;
 
-TerminalTextArea *TerminalTextArea_0(void);
+TerminalTextArea *TerminalTextArea_0();
 TerminalTextArea *TerminalTextArea_2(char *buffer, bytes capacity);
 #define TerminalTextArea(...) CONSTRUCTOR_DISPATCH(TerminalTextArea, __VA_ARGS__)
 #define TerminalTextArea_zero() TerminalTextArea_0()
 
-void TerminalTextArea_free(TerminalTextArea *self);
+fn TerminalTextArea_free(TerminalTextArea *self);
 
 bool TerminalTextArea_bind(TerminalTextArea *self, char *buffer, bytes capacity);
 const char *TerminalTextArea_getBuffer(const TerminalTextArea *self);
@@ -46,9 +46,9 @@ bool TerminalTextArea_insertChar(TerminalTextArea *self, int character);
 bool TerminalTextArea_insertText(TerminalTextArea *self, const char *text, bytes length);
 bool TerminalTextArea_backspace(TerminalTextArea *self);
 bool TerminalTextArea_delete(TerminalTextArea *self);
-void TerminalTextArea_clear(TerminalTextArea *self);
+fn TerminalTextArea_clear(TerminalTextArea *self);
 
-void TerminalTextArea_moveCursor(TerminalTextArea *self, int deltaRow, int deltaCol);
+fn TerminalTextArea_moveCursor(TerminalTextArea *self, int deltaRow, int deltaCol);
 bytes TerminalTextArea_getCursorByte(const TerminalTextArea *self);
 bool TerminalTextArea_setCursorByte(TerminalTextArea *self, bytes byteOffset);
 
@@ -58,7 +58,7 @@ bool TerminalTextArea_getWrap(const TerminalTextArea *self);
 bool TerminalTextArea_setPen(TerminalTextArea *self, TerminalPen pen);
 TerminalPen TerminalTextArea_getPen(const TerminalTextArea *self);
 
-void TerminalTextArea_render(const TerminalTextArea *self, TerminalCanvas *canvas);
+fn TerminalTextArea_render(const TerminalTextArea *self, TerminalCanvas *canvas);
 
 TerminalProjection TerminalTextArea_toString(const TerminalTextArea *self);
 TerminalProjection TerminalTextArea_toStringStruct(const TerminalTextArea *self);

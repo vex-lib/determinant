@@ -110,7 +110,7 @@ static TerminalTreeView *buildTree(TerminalTreeNodeId *ids) {
     return view;
 }
 
-int main(void) {
+int main() {
     // --- Null safety, on every entry point ---
     assert(TerminalTreeView_visibleCount(nullptr) == 0);
     assert(TerminalTreeView_scrollRow(nullptr) == 0);

@@ -29,7 +29,7 @@ typedef struct TerminalBreadcrumb {
     TerminalPen pen;          // rendering pen
 } TerminalBreadcrumb;
 
-TerminalBreadcrumb TerminalBreadcrumb_0(void);
+TerminalBreadcrumb TerminalBreadcrumb_0();
 TerminalBreadcrumb TerminalBreadcrumb_1(const char *path);
 TerminalBreadcrumb TerminalBreadcrumb_2(const char *root, const char *path);
 TerminalBreadcrumb TerminalBreadcrumb_3(const char *root, const char *path, const char *separator);
@@ -41,7 +41,7 @@ bool TerminalBreadcrumb_setPath(TerminalBreadcrumb *self, const char *root, cons
 bool TerminalBreadcrumb_setRoot(TerminalBreadcrumb *self, const char *root);
 bool TerminalBreadcrumb_setSeparator(TerminalBreadcrumb *self, const char *separator);
 bool TerminalBreadcrumb_setMaxCells(TerminalBreadcrumb *self, bytes maxCells);
-void TerminalBreadcrumb_setPen(TerminalBreadcrumb *self, TerminalPen pen);
+fn TerminalBreadcrumb_setPen(TerminalBreadcrumb *self, TerminalPen pen);
 
 const char *TerminalBreadcrumb_getRoot(const TerminalBreadcrumb *self);
 const char *TerminalBreadcrumb_getPath(const TerminalBreadcrumb *self);
@@ -56,7 +56,7 @@ bytes TerminalBreadcrumb_format(const TerminalBreadcrumb *self, char *destinatio
 bytes TerminalBreadcrumb_measure(const TerminalBreadcrumb *self);
 
 // Renders the breadcrumb onto the canvas at (xCoordinate, yCoordinate).
-void TerminalBreadcrumb_render(const TerminalBreadcrumb *self, TerminalCanvas *canvas,
+fn TerminalBreadcrumb_render(const TerminalBreadcrumb *self, TerminalCanvas *canvas,
                                bytes xCoordinate, bytes yCoordinate);
 
 TerminalProjection TerminalBreadcrumb_toString(const TerminalBreadcrumb *self);

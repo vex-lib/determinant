@@ -13,12 +13,12 @@ typedef struct CommandRegistry {
     bytes capacity;
     bytes count;
     DeterminantOutputFn output;
-    void *hostContext;
+    any hostContext;
     bytes refusalCount;
     bool active;
 } CommandRegistry;
-CommandRegistry CommandRegistry_0(void);
-CommandRegistry CommandRegistry_4(CommandRegistryRow *rows, bytes capacity, DeterminantOutputFn output, void *hostContext);
+CommandRegistry CommandRegistry_0();
+CommandRegistry CommandRegistry_4(CommandRegistryRow *rows, bytes capacity, DeterminantOutputFn output, any hostContext);
 #define CommandRegistry(...) CONSTRUCTOR_DISPATCH(CommandRegistry, __VA_ARGS__)
 #define CommandRegistry_zero() CommandRegistry_0()
 // reserve copies initialized rows into disjoint larger caller backing. Not hot.
@@ -26,9 +26,9 @@ bool CommandRegistry_reserve(CommandRegistry *self, CommandRegistryRow *rows, by
 bool CommandRegistry_register(CommandRegistry *self, const char *name, CommandFn target);
 #define CommandRegistry_add CommandRegistry_register
 bool CommandRegistry_execute(CommandRegistry *self, Command *command);
-bool CommandRegistry_setOutput(CommandRegistry *self, DeterminantOutputFn output, void *hostContext);
+bool CommandRegistry_setOutput(CommandRegistry *self, DeterminantOutputFn output, any hostContext);
 DeterminantOutputFn CommandRegistry_getOutput(const CommandRegistry *self);
-void *CommandRegistry_getHostContext(const CommandRegistry *self);
+any CommandRegistry_getHostContext(const CommandRegistry *self);
 bytes CommandRegistry_getCount(const CommandRegistry *self);
 bytes CommandRegistry_getCapacity(const CommandRegistry *self);
 bytes CommandRegistry_exhaustionCount(const CommandRegistry *self);

@@ -98,7 +98,7 @@ typedef struct TerminalInput {
     bool ready;                // set for the feed() call that completed an event
 } TerminalInput;
 
-TerminalInput TerminalInput_0(void);
+TerminalInput TerminalInput_0();
 #define TerminalInput(...) CONSTRUCTOR_DISPATCH(TerminalInput, __VA_ARGS__)
 #define TerminalInput_zero() TerminalInput_0()
 
@@ -118,8 +118,8 @@ TerminalInputState TerminalInput_getState(const TerminalInput *self);
 // Sequences refused in this epoch: a malformed byte, an over-long numeric field,
 // or a zero coordinate. A count, never a log line — this runs per byte.
 bytes TerminalInput_malformedCount(const TerminalInput *self);
-void TerminalInput_clearMalformed(TerminalInput *self);
-void TerminalInput_reset(TerminalInput *self);
+fn TerminalInput_clearMalformed(TerminalInput *self);
+fn TerminalInput_reset(TerminalInput *self);
 
 TerminalProjection TerminalInput_toString(const TerminalInput *self);
 TerminalProjection TerminalInput_toStringStruct(const TerminalInput *self);

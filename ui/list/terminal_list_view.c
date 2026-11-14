@@ -22,7 +22,7 @@
  * const char *marker         selected-row marker (default "> ")
  * TerminalPen normal, selected  row pens
  * FUNCTION REGISTRY (exports)
- * Constructors: TerminalListView_0(void), TerminalListView_2(labels, count)
+ * Constructors: TerminalListView_0(), TerminalListView_2(labels, count)
  * Config: set/getLabels, set/getSelection, set/getScroll, set/getMarker,
  *   set/getPens
  * Navigation: bool TerminalListView_move(self, delta, visibleRows)
@@ -32,7 +32,7 @@
  * renders blank; render never allocates or logs.
  * ======================================================================== */
 
-TerminalListView TerminalListView_0(void) {
+TerminalListView TerminalListView_0() {
     TerminalListView view = {0};
     view.marker = TERMINAL_LIST_MARKER_DEFAULT;
     view.normal = TerminalPen_0();
@@ -80,7 +80,7 @@ bool TerminalListView_setMarker(TerminalListView *self, const char *marker) {
 const char *TerminalListView_getMarker(const TerminalListView *self) {
     return (self && (*self).marker) ? (*self).marker : TERMINAL_LIST_MARKER_DEFAULT;
 }
-void TerminalListView_setPens(TerminalListView *self, TerminalPen normal, TerminalPen selected) {
+fn TerminalListView_setPens(TerminalListView *self, TerminalPen normal, TerminalPen selected) {
     if (self != nullptr) { (*self).normal = normal; (*self).selected = selected; }
 }
 TerminalListViewPens TerminalListView_getPens(const TerminalListView *self) {
@@ -114,7 +114,7 @@ bool TerminalListView_move(TerminalListView *self, long delta, bytes visibleRows
     return true;
 }
 
-void TerminalListView_render(const TerminalListView *self, TerminalCanvas *canvas) {
+fn TerminalListView_render(const TerminalListView *self, TerminalCanvas *canvas) {
     if (self == nullptr || !TerminalCanvas_isValid(canvas))
         return;
     bytes rows = TerminalCanvas_getHeight(canvas);

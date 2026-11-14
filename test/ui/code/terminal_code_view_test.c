@@ -47,7 +47,7 @@ static void testColoredLineAndVirtualHint(void) {
     TerminalCodeView_free(view);
 }
 
-static void testRejectPreservesAdmittedLine(void) {
+static fn testRejectPreservesAdmittedLine() {
     u32 cells[8] = {0};
     TerminalCanvas canvas = TerminalCanvas(cells, nullptr, 8u, 1u);
     const char *source = "old";
@@ -79,7 +79,7 @@ static void testRejectPreservesAdmittedLine(void) {
     TerminalCodeView_free(view);
 }
 
-static void testCellScrollAndClipping(void) {
+static fn testCellScrollAndClipping() {
     u32 cells[4] = {0};
     TerminalCanvas canvas = TerminalCanvas(cells, nullptr, 4u, 1u);
     TerminalCodeView *view = TerminalCodeView();
@@ -93,7 +93,7 @@ static void testCellScrollAndClipping(void) {
     TerminalCodeView_free(view);
 }
 
-int main(void) {
+int main() {
     testColoredLineAndVirtualHint();
     testRejectPreservesAdmittedLine();
     testCellScrollAndClipping();

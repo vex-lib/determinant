@@ -20,7 +20,7 @@
  * FILE-LOCAL CONSTANTS
  * PRESETS[] / PRESET_NAMES[]   the named appearance table
  * FUNCTION REGISTRY (exports)
- * Default: TerminalAppearance_0(void)
+ * Default: TerminalAppearance_0()
  * Registry: presetCount, presetName(index), preset(index), named(name)
  * Config: set/getRule, set/getColors
  * Apply: TerminalAppearance_applyTo(self, frame),
@@ -85,11 +85,11 @@ static TerminalAppearance makeAppearance(bytes index) {
     return appearance;
 }
 
-TerminalAppearance TerminalAppearance_0(void) {
+TerminalAppearance TerminalAppearance_0() {
     return makeAppearance(PRESET_DEFAULT);
 }
 
-bytes TerminalAppearance_presetCount(void) { return PRESET_COUNT; }
+bytes TerminalAppearance_presetCount() { return PRESET_COUNT; }
 
 const char *TerminalAppearance_presetName(bytes index) {
     return index < PRESET_COUNT ? PRESETS[index].name : nullptr;
@@ -131,13 +131,13 @@ TerminalAppearanceColors TerminalAppearance_getColors(const TerminalAppearance *
     return (TerminalAppearanceColors) { (*self).colorAccent, (*self).colorMuted, (*self).colorText, (*self).colorError };
 }
 
-void TerminalAppearance_applyTo(const TerminalAppearance *self, TerminalFrame *frame) {
+fn TerminalAppearance_applyTo(const TerminalAppearance *self, TerminalFrame *frame) {
     if (self == nullptr || frame == nullptr)
         return;
-    (void) TerminalFrame_setRule(frame, (*self).rule);
+    (fn) TerminalFrame_setRule(frame, (*self).rule);
 }
 
-void TerminalAppearance_drawRule(const TerminalAppearance *self, TerminalCanvas *canvas,
+fn TerminalAppearance_drawRule(const TerminalAppearance *self, TerminalCanvas *canvas,
                                  bytes ly, TerminalPen pen) {
     if (self == nullptr || !TerminalCanvas_isValid(canvas))
         return;

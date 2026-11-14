@@ -28,7 +28,7 @@ typedef struct RunLog {
     bytes reentered;        // nested presents observed as a clean refusal
 } RunLog;
 
-static void copyGlyphs(u32 *destination, TerminalRun run) {
+static fn copyGlyphs(u32 *destination, TerminalRun run) {
     if (run.cells == nullptr)
         return;
     bytes bounded = run.length < (bytes) W ? run.length : (bytes) W;
@@ -46,7 +46,7 @@ typedef struct FrameLog {
     bool swapRefused;
 } FrameLog;
 
-static void frameBracket(void *frameContext, TerminalPresentPhase phase) {
+static fn frameBracket(any frameContext, TerminalPresentPhase phase) {
     FrameLog *frames = frameContext;
     if (phase == TERMINAL_PRESENT_BEGIN) {
         if ((*frames).order != 0)
@@ -65,7 +65,7 @@ static void frameBracket(void *frameContext, TerminalPresentPhase phase) {
     }
 }
 
-static bool sink(void *hostContext, TerminalRun run) {
+static bool sink(any hostContext, TerminalRun run) {
     RunLog *log = hostContext;
     ++(*log).calls;
     if ((*log).failFromCall != 0 && (*log).calls >= (*log).failFromCall)
@@ -83,34 +83,34 @@ static bool sink(void *hostContext, TerminalRun run) {
 
 // A sink that reaches back into the surface while it is presenting: the nested
 // present must refuse as reentrant and the outer run must still land.
-static bool reentrantSink(void *hostContext, TerminalRun run) {
+static bool reentrantSink(any hostContext, TerminalRun run) {
     RunLog *log = hostContext;
     ++(*log).calls;
     TerminalPresentResult nested = TerminalSurface_present((*log).surface);
     if (!nested.ok && !nested.changed && nested.runs == 0)
         ++(*log).reentered;
-    (void) run;
+    (fn) run;
     ++(*log).runs;
     return true;
 }
 
 // A sink that probes the cold doors from inside the hot path.
-static bool busyProbeSink(void *hostContext, TerminalRun run) {
+static bool busyProbeSink(any hostContext, TerminalRun run) {
     RunLog *log = hostContext;
     ++(*log).calls;
     assert(!TerminalSurface_reset((*log).surface));
     assert(!TerminalSurface_setGapTolerance((*log).surface, 2));
-    (void) run;
+    (fn) run;
     ++(*log).runs;
     return true;
 }
 
-static void clearBoth(TerminalCanvas *back, TerminalCanvas *front) {
+static fn clearBoth(TerminalCanvas *back, TerminalCanvas *front) {
     TerminalCanvas_fill(back, ' ', TerminalPen());
     TerminalCanvas_fill(front, ' ', TerminalPen());
 }
 
-int main(void) {
+int main() {
     enum { CELLS = W * H };
     u32 backCells[CELLS], frontCells[CELLS];
     u16 backStyles[CELLS], frontStyles[CELLS];

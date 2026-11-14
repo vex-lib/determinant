@@ -32,7 +32,7 @@
  * bytes row            whole-cell row to paint
  * bytes column         whole-cell column to paint
  * FUNCTION REGISTRY (exports)
- * Constructors: TerminalScrollGlide_0(void), _2(ease, epsilon)
+ * Constructors: TerminalScrollGlide_0(), _2(ease, epsilon)
  * Config: set/getEase, set/getEpsilon
  * Motion: isActive, impulse, setTarget, setPosition, setRowPosition,
  *   setColumnPosition, halt, clamp, step
@@ -87,7 +87,7 @@ static d64 stepAxis(d64 *shown, d64 target, d64 ease, d64 epsilon) {
     return *shown;
 }
 
-TerminalScrollGlide TerminalScrollGlide_0(void) {
+TerminalScrollGlide TerminalScrollGlide_0() {
     TerminalScrollGlide glide = {0};
     glide.ease = TERMINAL_SCROLL_EASE_DEFAULT;
     glide.epsilon = TERMINAL_SCROLL_EPSILON_DEFAULT;
@@ -150,7 +150,7 @@ bool TerminalScrollGlide_isActive(const TerminalScrollGlide *self) {
         || gap((*self).columnShown, (*self).columnTarget) >= (*self).epsilon;
 }
 
-void TerminalScrollGlide_impulse(TerminalScrollGlide *self, long rows, long columns,
+fn TerminalScrollGlide_impulse(TerminalScrollGlide *self, long rows, long columns,
                                  bytes maxRows, bytes maxColumns) {
     if (self == nullptr)
         return;
@@ -158,7 +158,7 @@ void TerminalScrollGlide_impulse(TerminalScrollGlide *self, long rows, long colu
     (*self).columnTarget = clampAxis((*self).columnTarget + (d64) columns, maxColumns);
 }
 
-void TerminalScrollGlide_setTarget(TerminalScrollGlide *self, bytes row, bytes column,
+fn TerminalScrollGlide_setTarget(TerminalScrollGlide *self, bytes row, bytes column,
                                    bytes maxRows, bytes maxColumns) {
     if (self == nullptr)
         return;
@@ -166,7 +166,7 @@ void TerminalScrollGlide_setTarget(TerminalScrollGlide *self, bytes row, bytes c
     (*self).columnTarget = clampAxis((d64) column, maxColumns);
 }
 
-void TerminalScrollGlide_setPosition(TerminalScrollGlide *self, bytes row, bytes column,
+fn TerminalScrollGlide_setPosition(TerminalScrollGlide *self, bytes row, bytes column,
                                      bytes maxRows, bytes maxColumns) {
     if (self == nullptr)
         return;
@@ -178,7 +178,7 @@ void TerminalScrollGlide_setPosition(TerminalScrollGlide *self, bytes row, bytes
     (*self).columnTarget = clampedColumn;
 }
 
-void TerminalScrollGlide_setRowPosition(TerminalScrollGlide *self, bytes row, bytes maxRows) {
+fn TerminalScrollGlide_setRowPosition(TerminalScrollGlide *self, bytes row, bytes maxRows) {
     if (self == nullptr)
         return;
     d64 clampedRow = clampAxis((d64) row, maxRows);
@@ -186,7 +186,7 @@ void TerminalScrollGlide_setRowPosition(TerminalScrollGlide *self, bytes row, by
     (*self).rowTarget = clampedRow;
 }
 
-void TerminalScrollGlide_setColumnPosition(TerminalScrollGlide *self, bytes column,
+fn TerminalScrollGlide_setColumnPosition(TerminalScrollGlide *self, bytes column,
                                            bytes maxColumns) {
     if (self == nullptr)
         return;
@@ -195,14 +195,14 @@ void TerminalScrollGlide_setColumnPosition(TerminalScrollGlide *self, bytes colu
     (*self).columnTarget = clampedColumn;
 }
 
-void TerminalScrollGlide_halt(TerminalScrollGlide *self) {
+fn TerminalScrollGlide_halt(TerminalScrollGlide *self) {
     if (self == nullptr)
         return;
     (*self).rowTarget = (*self).rowShown;
     (*self).columnTarget = (*self).columnShown;
 }
 
-void TerminalScrollGlide_clamp(TerminalScrollGlide *self, bytes maxRows, bytes maxColumns) {
+fn TerminalScrollGlide_clamp(TerminalScrollGlide *self, bytes maxRows, bytes maxColumns) {
     if (self == nullptr)
         return;
     (*self).rowTarget = clampAxis((*self).rowTarget, maxRows);

@@ -76,7 +76,7 @@ typedef struct TerminalMarkdownTheme {
 // The default ladder: warm accent for h1, cool accent for h2, then weight and
 // muting carry the falloff. Every level differs in colour, and no two levels
 // share both colour and weight.
-TerminalMarkdownTheme TerminalMarkdownTheme_0(void);
+TerminalMarkdownTheme TerminalMarkdownTheme_0();
 #define TerminalMarkdownTheme(...) CONSTRUCTOR_DISPATCH(TerminalMarkdownTheme, __VA_ARGS__)
 #define TerminalMarkdownTheme_zero() TerminalMarkdownTheme_0()
 

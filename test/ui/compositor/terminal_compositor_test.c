@@ -10,7 +10,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-static void testPipeOutput(void) {
+static fn testPipeOutput() {
     int fds[2];
     assert(pipe(fds) == 0);
     assert(fcntl(fds[0], F_SETFL, O_NONBLOCK) == 0);
@@ -105,7 +105,7 @@ static void testPipeOutput(void) {
     close(fds[1]);
 }
 
-static void testNegativeRejections(void) {
+static fn testNegativeRejections() {
     REJECT(TerminalCompositor_setFd(nullptr, 1), "invalid fd");
     TerminalCompositor *comp = TerminalCompositor_0();
     assert(comp != nullptr);
@@ -118,7 +118,7 @@ static void testNegativeRejections(void) {
     TerminalCompositor_free(comp);
 }
 
-int main(void) {
+int main() {
     testPipeOutput();
     testNegativeRejections();
     return 0;

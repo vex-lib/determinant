@@ -34,7 +34,7 @@ typedef struct TerminalScrollGlidePosition {
     bytes column;
 } TerminalScrollGlidePosition;
 
-TerminalScrollGlide TerminalScrollGlide_0(void);
+TerminalScrollGlide TerminalScrollGlide_0();
 TerminalScrollGlide TerminalScrollGlide_2(d64 ease, d64 epsilon);
 #define TerminalScrollGlide(...) CONSTRUCTOR_DISPATCH(TerminalScrollGlide, __VA_ARGS__)
 #define TerminalScrollGlide_zero() TerminalScrollGlide_0()
@@ -50,22 +50,22 @@ bool TerminalScrollGlide_isActive(const TerminalScrollGlide *self);
 
 // Input moves only the target. Both bounds are inclusive maxima; the target is
 // clamped into [0, max] so the glide cannot aim past a bound.
-void TerminalScrollGlide_impulse(TerminalScrollGlide *self, long rows, long columns,
+fn TerminalScrollGlide_impulse(TerminalScrollGlide *self, long rows, long columns,
                                  bytes maxRows, bytes maxColumns);
-void TerminalScrollGlide_setTarget(TerminalScrollGlide *self, bytes row, bytes column,
+fn TerminalScrollGlide_setTarget(TerminalScrollGlide *self, bytes row, bytes column,
                                    bytes maxRows, bytes maxColumns);
 
 // Snap one or both axes: both shown and target land on the supplied position(s).
-void TerminalScrollGlide_setPosition(TerminalScrollGlide *self, bytes row, bytes column,
+fn TerminalScrollGlide_setPosition(TerminalScrollGlide *self, bytes row, bytes column,
                                      bytes maxRows, bytes maxColumns);
-void TerminalScrollGlide_setRowPosition(TerminalScrollGlide *self, bytes row, bytes maxRows);
-void TerminalScrollGlide_setColumnPosition(TerminalScrollGlide *self, bytes column,
+fn TerminalScrollGlide_setRowPosition(TerminalScrollGlide *self, bytes row, bytes maxRows);
+fn TerminalScrollGlide_setColumnPosition(TerminalScrollGlide *self, bytes column,
                                            bytes maxColumns);
 
 // Stop where we are: drop the target onto the shown position.
-void TerminalScrollGlide_halt(TerminalScrollGlide *self);
+fn TerminalScrollGlide_halt(TerminalScrollGlide *self);
 // Clamp both shown and target after a layout or extent change.
-void TerminalScrollGlide_clamp(TerminalScrollGlide *self, bytes maxRows, bytes maxColumns);
+fn TerminalScrollGlide_clamp(TerminalScrollGlide *self, bytes maxRows, bytes maxColumns);
 
 // Advance one frame and return the whole-cell position to paint. Call once per
 // frame; a settled glide returns the same position and costs two comparisons.

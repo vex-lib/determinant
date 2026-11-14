@@ -34,14 +34,14 @@
  * resolvePen(own, inherited)   inherit unset colours, combine styles
  * leadingCells(body, width)    the alignment offset for a measured body
  * FUNCTION REGISTRY (exports)
- * Constructors: TerminalText_0(void), _1(glyphs), _2(glyphs, length)
- * Lifecycle: void TerminalText_free(self)
+ * Constructors: TerminalText_0(), _1(glyphs), _2(glyphs, length)
+ * Lifecycle: fn TerminalText_free(self)
  * Configuration: bool setText/getText/getLength, setPen/getPen,
  *   setStyle/getStyle, setForegroundColor/getForegroundColor,
  *   setBackgroundColor/getBackgroundColor, setBrackets/getBracketLeft/getBracketRight,
  *   setAlign/getAlign
  * Measure: bytes TerminalText_measure(self)
- * Paint: void TerminalText_paint(self, region, parentPen)
+ * Paint: fn TerminalText_paint(self, region, parentPen)
  * Projections: TerminalProjection TerminalText_toString/toStringStruct(self)
  * CONTRACT: a null text, a null glyph span carrying a non-zero length, or an
  * unknown alignment is rejected loudly and changes nothing; getters answer safe
@@ -70,7 +70,7 @@ static TerminalPen resolvePen(const TerminalPen *own, TerminalPen inherited) {
     return pen;
 }
 
-TerminalText *TerminalText_0(void) {
+TerminalText *TerminalText_0() {
     TerminalText *self = Memory_alloc(TYPE_BYTE_ARRAY, sizeof(TerminalText));
     if (self == nullptr)
         return nullptr; // R2 owner reports/counts allocation exhaustion.
@@ -96,7 +96,7 @@ TerminalText *TerminalText_2(const char *glyphs, bytes length) {
     return self;
 }
 
-void TerminalText_free(TerminalText *self) {
+fn TerminalText_free(TerminalText *self) {
     if (self == nullptr)
         return;
     Memory_free(self);
@@ -229,7 +229,7 @@ bytes TerminalText_measure(const TerminalText *self) {
     return cells;
 }
 
-void TerminalText_paint(const TerminalText *self, TerminalCanvas *region, TerminalPen parentPen) {
+fn TerminalText_paint(const TerminalText *self, TerminalCanvas *region, TerminalPen parentPen) {
     if (self == nullptr || !TerminalCanvas_isValid(region))
         return;
     bytes regionWidth = TerminalCanvas_getWidth(region);

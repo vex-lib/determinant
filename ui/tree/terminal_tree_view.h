@@ -88,13 +88,13 @@ typedef struct TerminalTreeView {
     bool nerdIcons;               // render nerd font icons or plain ASCII
 } TerminalTreeView;
 
-TerminalTreeView *TerminalTreeView_0(void);
+TerminalTreeView *TerminalTreeView_0();
 #define TerminalTreeView(...) CONSTRUCTOR_DISPATCH(TerminalTreeView, __VA_ARGS__)
 #define TerminalTreeView_zero() TerminalTreeView_0()
 
 // Frees the view and everything it owns. Null is harmless. Labels are borrowed and are
 // NOT freed, here or anywhere else.
-void TerminalTreeView_free(TerminalTreeView *self);
+fn TerminalTreeView_free(TerminalTreeView *self);
 
 // --- structure -------------------------------------------------------------------
 // Add a node as the LAST child of `parent` (TERMINAL_TREE_NO_NODE for a top-level node).
@@ -118,7 +118,7 @@ bool TerminalTreeView_remove(TerminalTreeView *self, TerminalTreeNodeId id);
 // Drop every node, keeping the storage. The selection and the scroll offset are cleared
 // with it — a refresh must not leave a selection pointing into the tree that just went
 // away, and ids are never reused so a stale one could never be caught by accident.
-void TerminalTreeView_clear(TerminalTreeView *self);
+fn TerminalTreeView_clear(TerminalTreeView *self);
 
 // --- folding ---------------------------------------------------------------------
 // Fold or unfold a node. Refused for an unknown id. A node that is not a folder has
@@ -173,7 +173,7 @@ bytes TerminalTreeView_subtreeCountOf(const TerminalTreeView *self, TerminalTree
 bytes TerminalTreeView_nodeCount(const TerminalTreeView *self);
 bytes TerminalTreeView_capacity(const TerminalTreeView *self);
 bytes TerminalTreeView_exhaustionCount(const TerminalTreeView *self);
-void TerminalTreeView_clearExhaustion(TerminalTreeView *self);
+fn TerminalTreeView_clearExhaustion(TerminalTreeView *self);
 
 // --- presentation ----------------------------------------------------------------
 bool TerminalTreeView_setIndent(TerminalTreeView *self, bytes indentSpaces);
@@ -182,7 +182,7 @@ bool TerminalTreeView_setNerdIcons(TerminalTreeView *self, bool nerdIcons);
 bool TerminalTreeView_getNerdIcons(const TerminalTreeView *self);
 // Paint the visible tree rows onto the canvas, applying indentation, folder glyphs,
 // icon styling and active selection highlight.
-void TerminalTreeView_paint(const TerminalTreeView *self, TerminalCanvas *canvas);
+fn TerminalTreeView_paint(const TerminalTreeView *self, TerminalCanvas *canvas);
 
 TerminalProjection TerminalTreeView_toString(const TerminalTreeView *self);
 TerminalProjection TerminalTreeView_toStringStruct(const TerminalTreeView *self);

@@ -48,7 +48,7 @@ TerminalMarkdownCallout TerminalMarkdownCallout_parse(const char *text, bytes le
 const char *TerminalMarkdownCallout_name(TerminalMarkdownCalloutKind kind);
 
 // The gutter glyph every kind shares; severity is colour and label, not shape.
-const char *TerminalMarkdownCallout_bar(void);
+const char *TerminalMarkdownCallout_bar();
 
 // Index into the theme's callout pen table: 0 for NOTE ... 4 for CAUTION,
 // TERMINAL_MARKDOWN_CALLOUT_KIND_COUNT when the kind is NONE.

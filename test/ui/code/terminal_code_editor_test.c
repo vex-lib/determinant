@@ -31,7 +31,7 @@ static void testCodeEditorBasicsAndText(void) {
     TerminalCodeEditor_free(editor);
 }
 
-static void testEditingOperations(void) {
+static fn testEditingOperations() {
     TerminalCodeEditor *editor = TerminalCodeEditor();
     assert(editor != nullptr);
     assert(TerminalCodeEditor_getLineCount(editor) == 1u);
@@ -82,7 +82,7 @@ static void testEditingOperations(void) {
     TerminalCodeEditor_free(editor);
 }
 
-static void testCursorMovementAndClamping(void) {
+static fn testCursorMovementAndClamping() {
     TerminalCodeEditor *editor = TerminalCodeEditor("short\nlonger_line\nx");
     assert(editor != nullptr);
     assert(TerminalCodeEditor_getLineCount(editor) == 3u);
@@ -111,7 +111,7 @@ static void testCursorMovementAndClamping(void) {
     TerminalCodeEditor_free(editor);
 }
 
-static void testCanvasRendering(void) {
+static fn testCanvasRendering() {
     TerminalCodeEditor *editor = TerminalCodeEditor("alpha\nbeta");
     assert(editor != nullptr);
 
@@ -148,7 +148,7 @@ static void testCanvasRendering(void) {
     TerminalCodeEditor_free(editor);
 }
 
-static void testNegativeRejections(void) {
+static fn testNegativeRejections() {
     assert(TerminalCodeEditor_getLineCount(nullptr) == 0u);
     assert(strcmp(TerminalCodeEditor_getLine(nullptr, 0u), "") == 0);
     assert(!TerminalCodeEditor_setText(nullptr, "test"));
@@ -164,7 +164,7 @@ static void testNegativeRejections(void) {
     assert(TerminalCodeEditor_getCursorCol(nullptr) == 0u);
 }
 
-int main(void) {
+int main() {
     testCodeEditorBasicsAndText();
     testEditingOperations();
     testCursorMovementAndClamping();

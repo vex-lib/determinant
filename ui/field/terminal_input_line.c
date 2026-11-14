@@ -20,9 +20,9 @@
  * const char *prefix       prompt prefix (default "> ")
  * TerminalPen prefixPen, textPen  pens
  * FUNCTION REGISTRY (exports)
- * Constructors: TerminalInputLine_0(void), TerminalInputLine_2(buffer, capacity)
+ * Constructors: TerminalInputLine_0(), TerminalInputLine_2(buffer, capacity)
  * Config: bind/getBuffer/getCapacity/isBound, set/getPrefix, set/getPens
- * Editing: bool add(self, ch), bool backspace(self), void clear(self)
+ * Editing: bool add(self, ch), bool backspace(self), fn clear(self)
  * Queries: bytes TerminalInputLine_length(self)
  * Render: TerminalInputLine_render(self, canvas)
  * Projections: TerminalProjection TerminalInputLine_toString/toStringStruct(self)
@@ -31,7 +31,7 @@
  * clips and never allocates or logs.
  * ======================================================================== */
 
-TerminalInputLine TerminalInputLine_0(void) {
+TerminalInputLine TerminalInputLine_0() {
     TerminalInputLine line = {0};
     line.prefix = TERMINAL_INPUT_PREFIX_DEFAULT;
     line.prefixPen = TerminalPen_1(TERMINAL_STYLE_BOLD);
@@ -72,7 +72,7 @@ bool TerminalInputLine_setPrefix(TerminalInputLine *self, const char *prefix) {
 const char *TerminalInputLine_getPrefix(const TerminalInputLine *self) {
     return (self && (*self).prefix) ? (*self).prefix : TERMINAL_INPUT_PREFIX_DEFAULT;
 }
-void TerminalInputLine_setPens(TerminalInputLine *self, TerminalPen prefixPen, TerminalPen textPen) {
+fn TerminalInputLine_setPens(TerminalInputLine *self, TerminalPen prefixPen, TerminalPen textPen) {
     if (self != nullptr) { (*self).prefixPen = prefixPen; (*self).textPen = textPen; }
 }
 TerminalInputLinePens TerminalInputLine_getPens(const TerminalInputLine *self) {
@@ -99,14 +99,14 @@ bool TerminalInputLine_backspace(TerminalInputLine *self) {
     (*self).buffer[--(*self).length] = '\0';
     return true;
 }
-void TerminalInputLine_clear(TerminalInputLine *self) {
+fn TerminalInputLine_clear(TerminalInputLine *self) {
     if (self == nullptr || (*self).buffer == nullptr)
         return;
     (*self).length = 0;
     (*self).buffer[0] = '\0';
 }
 
-void TerminalInputLine_render(const TerminalInputLine *self, TerminalCanvas *canvas) {
+fn TerminalInputLine_render(const TerminalInputLine *self, TerminalCanvas *canvas) {
     if (self == nullptr || !TerminalCanvas_isValid(canvas))
         return;
     const char *prefix = TerminalInputLine_getPrefix(self);

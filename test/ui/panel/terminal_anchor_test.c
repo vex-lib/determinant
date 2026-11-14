@@ -20,7 +20,7 @@ static TerminalRect rectOf(bytes x, bytes y, bytes w, bytes h) {
     return (TerminalRect) { x, y, w, h };
 }
 
-int main(void) {
+int main() {
     // --- Constructors: zero / one / two / three, and the chooser ---
     TerminalAnchor fill = TerminalAnchor();
     assert(TerminalAnchor_getKind(&fill) == TERMINAL_ANCHOR_FILL);

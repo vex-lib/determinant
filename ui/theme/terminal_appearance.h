@@ -38,11 +38,11 @@ typedef struct TerminalAppearance {
 typedef struct TerminalAppearanceColors { u32 accent; u32 muted; u32 text; u32 error; } TerminalAppearanceColors;
 
 // The default appearance (the "ascii-striped" preset).
-TerminalAppearance TerminalAppearance_0(void);
+TerminalAppearance TerminalAppearance_0();
 #define TerminalAppearance(...) CONSTRUCTOR_DISPATCH(TerminalAppearance, __VA_ARGS__)
 
 // --- Preset registry (for a settings UI: list names, pick by name/index) ---
-bytes      TerminalAppearance_presetCount(void);
+bytes      TerminalAppearance_presetCount();
 const char *TerminalAppearance_presetName(bytes index);      // NULL when out of range
 TerminalAppearance TerminalAppearance_preset(bytes index);   // default when out of range
 TerminalAppearance TerminalAppearance_named(const char *name);// default when unknown
@@ -56,8 +56,8 @@ TerminalAppearanceColors TerminalAppearance_getColors(const TerminalAppearance *
 
 // --- Apply ---
 // Push the preset's rule into a frame; draw a rule run into any canvas region.
-void TerminalAppearance_applyTo(const TerminalAppearance *self, TerminalFrame *frame);
-void TerminalAppearance_drawRule(const TerminalAppearance *self, TerminalCanvas *canvas,
+fn TerminalAppearance_applyTo(const TerminalAppearance *self, TerminalFrame *frame);
+fn TerminalAppearance_drawRule(const TerminalAppearance *self, TerminalCanvas *canvas,
                                  bytes ly, TerminalPen pen);
 
 TerminalProjection TerminalAppearance_toString(const TerminalAppearance *self);

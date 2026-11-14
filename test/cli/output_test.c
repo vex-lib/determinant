@@ -11,7 +11,7 @@ static bool output(void *hostContext, const char *text, bytes length) {
     *received += length;
     return true;
 }
-int main(void) {
+int main() {
     bytes received = 0;
     DeterminantOutputFn fn = output;
     assert(fn(&received, "abc", 3) && received == 3);

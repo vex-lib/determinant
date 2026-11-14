@@ -55,7 +55,7 @@ static void testTextAreaEditing(void) {
     TerminalTextArea_free(area);
 }
 
-static void testNegativeRejections(void) {
+static fn testNegativeRejections() {
     assert(!TerminalTextArea_bind(nullptr, nullptr, 0));
     assert(!TerminalTextArea_insertChar(nullptr, 'a'));
     assert(!TerminalTextArea_insertText(nullptr, "test", 4));
@@ -70,7 +70,7 @@ static void testNegativeRejections(void) {
     TerminalTextArea_free(empty);
 }
 
-int main(void) {
+int main() {
     testTextAreaEditing();
     testNegativeRejections();
     return 0;

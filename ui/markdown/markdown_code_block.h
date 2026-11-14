@@ -40,15 +40,15 @@ typedef struct TerminalMarkdownCodeLine {
 
 typedef struct TerminalMarkdownCodeBlockPool TerminalMarkdownCodeBlockPool;
 
-TerminalMarkdownCodeBlockPool *TerminalMarkdownCodeBlockPool_0(void);
+TerminalMarkdownCodeBlockPool *TerminalMarkdownCodeBlockPool_0();
 #define TerminalMarkdownCodeBlockPool(...) \
     CONSTRUCTOR_DISPATCH(TerminalMarkdownCodeBlockPool, __VA_ARGS__)
 #define TerminalMarkdownCodeBlockPool_zero() TerminalMarkdownCodeBlockPool_0()
 
-void TerminalMarkdownCodeBlockPool_free(TerminalMarkdownCodeBlockPool *self);
+fn TerminalMarkdownCodeBlockPool_free(TerminalMarkdownCodeBlockPool *self);
 
 // Drop every record but keep the admitted capacity: a re-layout reuses the pool.
-void TerminalMarkdownCodeBlockPool_reset(TerminalMarkdownCodeBlockPool *self);
+fn TerminalMarkdownCodeBlockPool_reset(TerminalMarkdownCodeBlockPool *self);
 
 // Record one fence. A zero-row block is ignored (an empty fence still owns a
 // source range but has nothing to shade); the call is refused only when the cold

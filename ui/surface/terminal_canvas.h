@@ -40,7 +40,7 @@ typedef struct TerminalPen {
     u32 bg;     // packed 0xRRGGBBAA or TERMINAL_COLOR_DEFAULT
 } TerminalPen;
 
-TerminalPen TerminalPen_0(void);                                  // no flags, default colours
+TerminalPen TerminalPen_0();                                  // no flags, default colours
 TerminalPen TerminalPen_1(u16 style);
 TerminalPen TerminalPen_2(u16 style, u32 fg);
 TerminalPen TerminalPen_3(u16 style, u32 fg, u32 bg);
@@ -61,7 +61,7 @@ typedef struct TerminalCanvas {
 } TerminalCanvas;
 
 // Bind a whole grid as a canvas covering it.
-TerminalCanvas TerminalCanvas_0(void);
+TerminalCanvas TerminalCanvas_0();
 TerminalCanvas TerminalCanvas_4(u32 *cells, u16 *styles, bytes width, bytes height);
 TerminalCanvas TerminalCanvas_6(u32 *cells, u16 *styles, u32 *fg, u32 *bg,
                                 bytes width, bytes height);
@@ -76,12 +76,12 @@ TerminalCanvas TerminalCanvas_sub(const TerminalCanvas *self, bytes lx, bytes ly
 
 // --- Primitives (all clip; coordinates are local to this region) ---
 // `fill` writes one glyph (default ' '); `text` decodes UTF-8 to codepoints.
-void TerminalCanvas_fill(TerminalCanvas *self, u32 glyph, TerminalPen pen);
-void TerminalCanvas_text(TerminalCanvas *self, bytes lx, bytes ly,
+fn TerminalCanvas_fill(TerminalCanvas *self, u32 glyph, TerminalPen pen);
+fn TerminalCanvas_text(TerminalCanvas *self, bytes lx, bytes ly,
                          const char *text, bytes length, TerminalPen pen);
-void TerminalCanvas_hline(TerminalCanvas *self, bytes ly, u32 glyph, TerminalPen pen);
-void TerminalCanvas_vline(TerminalCanvas *self, bytes lx, u32 glyph, TerminalPen pen);
-void TerminalCanvas_box(TerminalCanvas *self, TerminalPen pen);
+fn TerminalCanvas_hline(TerminalCanvas *self, bytes ly, u32 glyph, TerminalPen pen);
+fn TerminalCanvas_vline(TerminalCanvas *self, bytes lx, u32 glyph, TerminalPen pen);
+fn TerminalCanvas_box(TerminalCanvas *self, TerminalPen pen);
 
 typedef struct TerminalCanvasDecodedScalar {
     u32 codepoint;
@@ -99,7 +99,7 @@ typedef struct TerminalCanvasTextRow {
 
 // Write ONE codepoint at a local cell (width-aware: a d64-width glyph marks
 // its continuation cell). Use this for glyph tables; `text` decodes UTF-8.
-void TerminalCanvas_glyph(TerminalCanvas *self, bytes lx, bytes ly, u32 codepoint, TerminalPen pen);
+fn TerminalCanvas_glyph(TerminalCanvas *self, bytes lx, bytes ly, u32 codepoint, TerminalPen pen);
 // Cell width for one codepoint (0 combining, 1, 2 wide) — locale-free.
 bytes TerminalCanvas_widthOf(u32 codepoint);
 

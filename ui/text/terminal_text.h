@@ -48,14 +48,14 @@ typedef struct TerminalText {
     TerminalTextAlign align;  // placement inside the resolved region
 } TerminalText;
 
-TerminalText *TerminalText_0(void);
+TerminalText *TerminalText_0();
 TerminalText *TerminalText_1(const char *glyphs);
 TerminalText *TerminalText_2(const char *glyphs, bytes length);
 #define TerminalText(...) CONSTRUCTOR_DISPATCH(TerminalText, __VA_ARGS__)
 #define TerminalText_zero() TerminalText_0()
 
 // Frees the text and its record. The borrowed glyph string is never freed.
-void TerminalText_free(TerminalText *self);
+fn TerminalText_free(TerminalText *self);
 
 bool TerminalText_setText(TerminalText *self, const char *glyphs, bytes length);
 const char *TerminalText_getText(const TerminalText *self);
@@ -82,7 +82,7 @@ bytes TerminalText_measure(const TerminalText *self);
 
 // Draw on row 0 of `region`, inheriting `parentPen` where this text sets nothing.
 // Clipped to the region; a null text or invalid region is a silent no-op.
-void TerminalText_paint(const TerminalText *self, TerminalCanvas *region, TerminalPen parentPen);
+fn TerminalText_paint(const TerminalText *self, TerminalCanvas *region, TerminalPen parentPen);
 
 TerminalProjection TerminalText_toString(const TerminalText *self);
 TerminalProjection TerminalText_toStringStruct(const TerminalText *self);

@@ -23,7 +23,7 @@ typedef struct TerminalTextView {
 } TerminalTextView;
 typedef struct TerminalTextViewLines { const char *const *data; bytes count; } TerminalTextViewLines;
 
-TerminalTextView TerminalTextView_0(void);
+TerminalTextView TerminalTextView_0();
 TerminalTextView TerminalTextView_2(const char *const *lines, bytes count);
 #define TerminalTextView(...) CONSTRUCTOR_DISPATCH(TerminalTextView, __VA_ARGS__)
 #define TerminalTextView_zero() TerminalTextView_0()
@@ -32,14 +32,14 @@ bool TerminalTextView_setLines(TerminalTextView *self, const char *const *lines,
 TerminalTextViewLines TerminalTextView_getLines(const TerminalTextView *self);
 bool TerminalTextView_setScroll(TerminalTextView *self, bytes scroll);
 bytes TerminalTextView_getScroll(const TerminalTextView *self);
-void TerminalTextView_setTail(TerminalTextView *self, bool tail);
+fn TerminalTextView_setTail(TerminalTextView *self, bool tail);
 bool TerminalTextView_isTail(const TerminalTextView *self);
-void TerminalTextView_setPen(TerminalTextView *self, TerminalPen pen);
+fn TerminalTextView_setPen(TerminalTextView *self, TerminalPen pen);
 TerminalPen TerminalTextView_getPen(const TerminalTextView *self);
 // Scroll by rows (positive = toward newer at the tail); false at an end.
 bool TerminalTextView_scrollBy(TerminalTextView *self, long delta, bytes visibleRows);
 
-void TerminalTextView_render(const TerminalTextView *self, TerminalCanvas *canvas);
+fn TerminalTextView_render(const TerminalTextView *self, TerminalCanvas *canvas);
 
 TerminalProjection TerminalTextView_toString(const TerminalTextView *self);
 TerminalProjection TerminalTextView_toStringStruct(const TerminalTextView *self);

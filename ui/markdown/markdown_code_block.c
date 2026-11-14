@@ -65,7 +65,7 @@ static bool grow(TerminalMarkdownCodeBlockPool *self) {
     return true;
 }
 
-TerminalMarkdownCodeBlockPool *TerminalMarkdownCodeBlockPool_0(void) {
+TerminalMarkdownCodeBlockPool *TerminalMarkdownCodeBlockPool_0() {
     TerminalMarkdownCodeBlockPool *self =
         Memory_alloc(TYPE_BYTE_ARRAY, sizeof(TerminalMarkdownCodeBlockPool));
     if (self == nullptr)
@@ -74,14 +74,14 @@ TerminalMarkdownCodeBlockPool *TerminalMarkdownCodeBlockPool_0(void) {
     return self;
 }
 
-void TerminalMarkdownCodeBlockPool_free(TerminalMarkdownCodeBlockPool *self) {
+fn TerminalMarkdownCodeBlockPool_free(TerminalMarkdownCodeBlockPool *self) {
     if (self == nullptr)
         return;
     Memory_free((*self).blocks);
     Memory_free(self);
 }
 
-void TerminalMarkdownCodeBlockPool_reset(TerminalMarkdownCodeBlockPool *self) {
+fn TerminalMarkdownCodeBlockPool_reset(TerminalMarkdownCodeBlockPool *self) {
     if (self != nullptr)
         (*self).count = 0;
 }
@@ -167,17 +167,17 @@ static bool contentLine(const char *const *lines, bytes lineCount,
     bytes sourceLine = block.firstSourceLine + line;
     if (sourceLine >= lineCount)
         return false;
-    const char *bytes = lines[sourceLine];
-    bytes total = strlen(bytes);
+    const char *lineText = lines[sourceLine];
+    bytes total = strlen(lineText);
     bytes start = 0;
     if (block.quoteDepth != 0) {
-        start = quoteContentStart(bytes, total, block.quoteDepth);
+        start = quoteContentStart(lineText, total, block.quoteDepth);
         if (start == SIZE_MAX)
             return false;
     }
     if (start > total)
         start = total;
-    *text = bytes + start;
+    *text = lineText + start;
     *length = total - start;
     return true;
 }

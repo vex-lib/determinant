@@ -15,18 +15,18 @@
  * MODULE: LogCommands (cli/logcommands.c)
  * PUBLIC REGISTRY
  * bool LogCommands_stat(const char *path, DeterminantOutputFn output,
- *     void *hostContext)
+ *     any hostContext)
  * bool LogCommands_cat(const char *path, int limit, DeterminantOutputFn output,
- *     void *hostContext)
+ *     any hostContext)
  * PRIVATE HELPERS: bool admit(path, output, outBytes); checks format and extent.
- * void catHandler(context,kind,ts,v0,v1,v2,v3,v4); bounded per-record sink.
+ * fn catHandler(context,kind,ts,v0,v1,v2,v3,v4); bounded per-record sink.
  * PRIVATE HELPERS: Cat (file-local behaviorless accumulator)
  * int64_t shown             delivered record count
  * int64_t total             parsed record count
  * int limit                 max records (<0 all)
  * bool failed               sticky sink/format failure
  * DeterminantOutputFn output borrowed callback
- * void *hostContext         borrowed opaque sink state
+ * any hostContext         borrowed opaque sink state
  * CONTRACT: synchronous cold file reads may block, never hot/bounded teardown.
  * Externally serialize and keep file stable. Null/malformed extents reject
  * loudly; output/parse failures return false, preserve no misleading success.
@@ -39,7 +39,7 @@ typedef struct Cat {
     int limit;
     bool failed;
     DeterminantOutputFn output;
-    void *hostContext;
+    any hostContext;
 } Cat;
 static bool admit(const char *path, DeterminantOutputFn output, int64_t *outBytes) {
     if (path == nullptr || output == nullptr) {
@@ -61,7 +61,7 @@ static bool admit(const char *path, DeterminantOutputFn output, int64_t *outByte
     *outBytes = bytes;
     return true;
 }
-bool LogCommands_stat(const char *path, DeterminantOutputFn output, void *hostContext) {
+bool LogCommands_stat(const char *path, DeterminantOutputFn output, any hostContext) {
     int64_t bytes;
     if (!admit(path, output, &bytes))
         return false;
@@ -75,7 +75,7 @@ bool LogCommands_stat(const char *path, DeterminantOutputFn output, void *hostCo
     }
     return true;
 }
-static void catHandler(void *context, int kind, int64_t ts, int64_t v0, int64_t v1,
+static fn catHandler(any context, int kind, int64_t ts, int64_t v0, int64_t v1,
                        int64_t v2, int64_t v3, int64_t v4) {
     Cat *cat = context;
     ++(*cat).total;
@@ -91,7 +91,7 @@ static void catHandler(void *context, int kind, int64_t ts, int64_t v0, int64_t 
     }
     ++(*cat).shown;
 }
-bool LogCommands_cat(const char *path, int limit, DeterminantOutputFn output, void *hostContext) {
+bool LogCommands_cat(const char *path, int limit, DeterminantOutputFn output, any hostContext) {
     int64_t bytes;
     if (!admit(path, output, &bytes))
         return false;

@@ -19,14 +19,14 @@
  * bool focused             admitted keyboard focus
  * bool enabled             interaction enabled
  * FUNCTION REGISTRY (exports)
- * Constructors: TerminalButton TerminalButton_0(void)
+ * Constructors: TerminalButton TerminalButton_0()
  *   TerminalButton TerminalButton_3(const char *label, bytes x, bytes y)
  * Setters: bool TerminalButton_setLabel(TerminalButton *self, const char *label)
  *   bool TerminalButton_setPosition(TerminalButton *self, bytes x, bytes y)
- *   void TerminalButton_setFocused(TerminalButton *self, bool focused)
- *   void TerminalButton_setEnabled(TerminalButton *self, bool enabled)
+ *   fn TerminalButton_setFocused(TerminalButton *self, bool focused)
+ *   fn TerminalButton_setEnabled(TerminalButton *self, bool enabled)
  * Getters: const char *TerminalButton_getLabel(const TerminalButton *self)
- *   void TerminalButton_getPosition(const TerminalButton *self,
+ *   fn TerminalButton_getPosition(const TerminalButton *self,
  *     bytes *outX, bytes *outY)
  *   bool TerminalButton_isFocused(const TerminalButton *self)
  *   bool TerminalButton_isEnabled(const TerminalButton *self)
@@ -54,7 +54,7 @@ static bool validLabel(const char *label) {
             return false;
     return true;
 }
-TerminalButton TerminalButton_0(void) { return (TerminalButton) {.label = "", .enabled = true}; }
+TerminalButton TerminalButton_0() { return (TerminalButton) {.label = "", .enabled = true}; }
 TerminalButton TerminalButton_3(const char *label, bytes x, bytes y) {
     TerminalButton self = TerminalButton_0();
     if (!TerminalButton_setLabel(&self, label) || !TerminalButton_setPosition(&self, x, y))
@@ -82,7 +82,7 @@ bool TerminalButton_setPosition(TerminalButton *self, bytes x, bytes y) {
 TerminalButtonPosition TerminalButton_getPosition(const TerminalButton *self) {
     return self ? (TerminalButtonPosition) { (*self).x, (*self).y } : (TerminalButtonPosition) { 0u, 0u };
 }
-void TerminalButton_setFocused(TerminalButton *self, bool focused) {
+fn TerminalButton_setFocused(TerminalButton *self, bool focused) {
     if (self == nullptr) {
         THROW("TerminalButton setFocused: null button");
         return;
@@ -90,7 +90,7 @@ void TerminalButton_setFocused(TerminalButton *self, bool focused) {
     (*self).focused = focused && (*self).enabled;
 }
 bool TerminalButton_isFocused(const TerminalButton *self) { return self && (*self).focused; }
-void TerminalButton_setEnabled(TerminalButton *self, bool enabled) {
+fn TerminalButton_setEnabled(TerminalButton *self, bool enabled) {
     if (self == nullptr) {
         THROW("TerminalButton setEnabled: null button");
         return;

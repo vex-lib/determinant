@@ -67,7 +67,7 @@ typedef struct TerminalImage {
 } TerminalImage;
 typedef struct TerminalImageColorRamp { const u32 *data; bytes count; } TerminalImageColorRamp;
 
-TerminalImage TerminalImage_0(void);
+TerminalImage TerminalImage_0();
 TerminalImage TerminalImage_3(const u8 *pixels, bytes width, bytes height);
 #define TerminalImage(...) CONSTRUCTOR_DISPATCH(TerminalImage, __VA_ARGS__)
 #define TerminalImage_zero() TerminalImage_0()
@@ -79,33 +79,33 @@ bytes      TerminalImage_getHeight(const TerminalImage *self);
 bool        TerminalImage_isValid(const TerminalImage *self);
 bool        TerminalImage_setRamp(TerminalImage *self, const char *ramp);
 const char *TerminalImage_getRamp(const TerminalImage *self);
-void        TerminalImage_setStyle(TerminalImage *self, u8 style);
+fn        TerminalImage_setStyle(TerminalImage *self, u8 style);
 u8     TerminalImage_getStyle(const TerminalImage *self);
 // When true (default) each drawn cell carries its sampled colour as the
 // foreground (packed 0xRRGGBBAA); when false the image is monochrome shading.
-void        TerminalImage_setColor(TerminalImage *self, bool color);
+fn        TerminalImage_setColor(TerminalImage *self, bool color);
 bool        TerminalImage_hasColor(const TerminalImage *self);
 // Palette treatment: luminance indexes `ramp` (low→high). NULL clears it.
 bool        TerminalImage_setColorRamp(TerminalImage *self, const u32 *ramp, bytes count);
 TerminalImageColorRamp TerminalImage_getColorRamp(const TerminalImage *self);
 // Deterministic per-cell shade scatter (0 = flat). Seed makes it reproducible.
-void        TerminalImage_setJitter(TerminalImage *self, u8 jitter, u32 seed);
+fn        TerminalImage_setJitter(TerminalImage *self, u8 jitter, u32 seed);
 u8     TerminalImage_getJitter(const TerminalImage *self);
 u32    TerminalImage_getJitterSeed(const TerminalImage *self);
 // Palette index scatter: 0 keeps luminance order; N > 0 offsets each cell's
 // palette index by [0, N) (wrapped), so which parts read light and which read
 // dark is randomized per cell instead of following the gradient.
-void        TerminalImage_setPaletteScatter(TerminalImage *self, u8 steps);
+fn        TerminalImage_setPaletteScatter(TerminalImage *self, u8 steps);
 u8     TerminalImage_getPaletteScatter(const TerminalImage *self);
 // Named ramps: a purple mix for a mono mask (the `>w<` badge look).
-TerminalImageColorRamp TerminalImage_rampPurple(void);
-void        TerminalImage_setSkipTransparent(TerminalImage *self, bool skip);
+TerminalImageColorRamp TerminalImage_rampPurple();
+fn        TerminalImage_setSkipTransparent(TerminalImage *self, bool skip);
 bool        TerminalImage_skipsTransparent(const TerminalImage *self);
-void        TerminalImage_setInvert(TerminalImage *self, bool invert);
+fn        TerminalImage_setInvert(TerminalImage *self, bool invert);
 bool        TerminalImage_inverted(const TerminalImage *self);
 // Cell height ÷ width used by the CONTAIN fit (default 2.0 — a terminal cell is
 // about twice as tall as it is wide). Set 1.0 for a square-pixel surface.
-void        TerminalImage_setCellAspect(TerminalImage *self, d64 aspect);
+fn        TerminalImage_setCellAspect(TerminalImage *self, d64 aspect);
 d64      TerminalImage_getCellAspect(const TerminalImage *self);
 // Background NOISE: a decorative glyph field where the picture is blank. The
 // alphabet is the caller's (the toolkit ships no art); `color` is the packed
@@ -115,13 +115,13 @@ bool        TerminalImage_setNoise(TerminalImage *self, const char *glyphs, u32 
 const char *TerminalImage_getNoise(const TerminalImage *self);
 // Advance this to re-scatter the texture — one new value per revalidate gives a
 // fresh random look; the same seed reproduces the same scatter exactly.
-void        TerminalImage_setNoiseSeed(TerminalImage *self, u32 seed);
+fn        TerminalImage_setNoiseSeed(TerminalImage *self, u32 seed);
 u32    TerminalImage_getNoiseSeed(const TerminalImage *self);
-void        TerminalImage_setNoiseStyle(TerminalImage *self, u8 style);
+fn        TerminalImage_setNoiseStyle(TerminalImage *self, u8 style);
 u8     TerminalImage_getNoiseStyle(const TerminalImage *self);
 // How much of the blank area is covered, 0..100 (default 100). Below 100 the
 // texture reads as a backdrop, leaving the actual picture legible.
-void        TerminalImage_setNoiseDensity(TerminalImage *self, u8 percent);
+fn        TerminalImage_setNoiseDensity(TerminalImage *self, u8 percent);
 u8     TerminalImage_getNoiseDensity(const TerminalImage *self);
 
 // Pure helpers (public so a caller/tests can reason about the mapping).
@@ -143,15 +143,15 @@ TerminalImageSample TerminalImage_sampleCell(const TerminalImage *self, bytes lx
                                              bytes outWidth, bytes outHeight);
 
 // Rasterise at native scale (1 source pixel = 1 cell) at (x, y), clipped.
-void TerminalImage_render(const TerminalImage *self, TerminalCanvas *canvas, bytes x, bytes y);
+fn TerminalImage_render(const TerminalImage *self, TerminalCanvas *canvas, bytes x, bytes y);
 // Rasterise to FILL and COVER the whole canvas region (box-downsample when the
 // image is larger than the region, nearest when smaller). Deterministic.
-void TerminalImage_renderFit(const TerminalImage *self, TerminalCanvas *canvas);
+fn TerminalImage_renderFit(const TerminalImage *self, TerminalCanvas *canvas);
 // Rasterise with a UNIFORM zoom-to-fit: the whole picture is scaled by one
 // factor that makes it fit inside the region and is centred, so its aspect and
 // orientation never change (a portrait stays portrait, a wide stays wide — it is
 // never squashed to the panel). This is the one for a badge or a logo.
-void TerminalImage_renderContain(const TerminalImage *self, TerminalCanvas *canvas);
+fn TerminalImage_renderContain(const TerminalImage *self, TerminalCanvas *canvas);
 
 TerminalProjection TerminalImage_toString(const TerminalImage *self);
 TerminalProjection TerminalImage_toStringStruct(const TerminalImage *self);

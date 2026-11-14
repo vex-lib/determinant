@@ -68,13 +68,13 @@ typedef enum TerminalPresentPhase {
 
 // The frame bracket. Called at most once per phase per present, and never at all for
 // a frame that changed nothing.
-typedef void (*TerminalFrameFn)(void *frameContext, TerminalPresentPhase phase);
+typedef fn (*TerminalFrameFn)(any frameContext, TerminalPresentPhase phase);
 
 // The host sink: accept ONE changed run. Returning false refuses it, which the
 // surface records and counts (the Exhaustion Loudness Law) and re-delivers on the
 // next present. Bounded and synchronous; the planes are borrowed for the duration
 // of the call only, and the sink must NOT reenter the surface.
-typedef bool (*TerminalRunFn)(void *hostContext, TerminalRun run);
+typedef bool (*TerminalRunFn)(any hostContext, TerminalRun run);
 
 // The outcome of one present, as a value (the Value Return Law).
 //
@@ -100,9 +100,9 @@ typedef struct TerminalSurface {
     TerminalCanvas back;      // composed-next grid (borrowed planes)
     TerminalCanvas front;     // last-presented grid (borrowed planes)
     TerminalRunFn sink;       // borrowed host run sink
-    void *hostContext;        // opaque resident sink state
+    any hostContext;        // opaque resident sink state
     TerminalFrameFn frame;    // borrowed frame bracket (nullable)
-    void *frameContext;       // opaque bracket state
+    any frameContext;       // opaque bracket state
     bool bracketed;           // a transaction is currently open
     bytes gapTolerance;      // max unchanged run inside one emitted run
     bytes presentCount;      // completed presents (lifetime)
@@ -113,7 +113,7 @@ typedef struct TerminalSurface {
     bool active;              // sink in flight (reentrancy guard)
 } TerminalSurface;
 
-TerminalSurface TerminalSurface_0(void);
+TerminalSurface TerminalSurface_0();
 TerminalSurface TerminalSurface_2(TerminalCanvas back, TerminalCanvas front);
 #define TerminalSurface(...) CONSTRUCTOR_DISPATCH(TerminalSurface, __VA_ARGS__)
 #define TerminalSurface_zero() TerminalSurface_0()
@@ -124,13 +124,13 @@ TerminalSurface TerminalSurface_2(TerminalCanvas back, TerminalCanvas front);
 // the refusal epoch starts fresh; call TerminalSurface_reset to declare instead
 // that the host has never painted.
 bool TerminalSurface_bind(TerminalSurface *self, const TerminalCanvas *back,
-                          const TerminalCanvas *front, TerminalRunFn sink, void *hostContext);
-bool TerminalSurface_setSink(TerminalSurface *self, TerminalRunFn sink, void *hostContext);
+                          const TerminalCanvas *front, TerminalRunFn sink, any hostContext);
+bool TerminalSurface_setSink(TerminalSurface *self, TerminalRunFn sink, any hostContext);
 // Install the frame bracket. Refused while a transaction is open, for the same reason
 // the sink is: the host must not change who is being told mid-frame.
-bool TerminalSurface_setFrame(TerminalSurface *self, TerminalFrameFn frame, void *frameContext);
+bool TerminalSurface_setFrame(TerminalSurface *self, TerminalFrameFn frame, any frameContext);
 TerminalFrameFn TerminalSurface_getFrame(const TerminalSurface *self);
-void *TerminalSurface_getFrameContext(const TerminalSurface *self);
+any TerminalSurface_getFrameContext(const TerminalSurface *self);
 bool TerminalSurface_isBracketed(const TerminalSurface *self);
 bool TerminalSurface_setGapTolerance(TerminalSurface *self, bytes tolerance);
 bytes TerminalSurface_getGapTolerance(const TerminalSurface *self);

@@ -17,7 +17,7 @@
  * const char *left, *right  borrowed status strings (right nullable)
  * TerminalPen leftPen, rightPen  pens
  * FUNCTION REGISTRY (exports)
- * Constructors: TerminalStatusBar_0(void), TerminalStatusBar_1(left)
+ * Constructors: TerminalStatusBar_0(), TerminalStatusBar_1(left)
  * Config: set/getLeft, set/getRight, set/getPens
  * Render: TerminalStatusBar_render(self, canvas)
  * Projections: TerminalProjection TerminalStatusBar_toString/toStringStruct(self)
@@ -26,7 +26,7 @@
  * allocation, no logging.
  * ======================================================================== */
 
-TerminalStatusBar TerminalStatusBar_0(void) {
+TerminalStatusBar TerminalStatusBar_0() {
     TerminalStatusBar bar = {0};
     bar.leftPen = TerminalPen_1(TERMINAL_STYLE_MUTED);
     bar.rightPen = TerminalPen_1(TERMINAL_STYLE_MUTED);
@@ -51,7 +51,7 @@ bool TerminalStatusBar_setRight(TerminalStatusBar *self, const char *right) {
     return true;
 }
 const char *TerminalStatusBar_getRight(const TerminalStatusBar *self) { return self ? (*self).right : nullptr; }
-void TerminalStatusBar_setPens(TerminalStatusBar *self, TerminalPen leftPen, TerminalPen rightPen) {
+fn TerminalStatusBar_setPens(TerminalStatusBar *self, TerminalPen leftPen, TerminalPen rightPen) {
     if (self != nullptr) { (*self).leftPen = leftPen; (*self).rightPen = rightPen; }
 }
 TerminalStatusBarPens TerminalStatusBar_getPens(const TerminalStatusBar *self) {
@@ -59,7 +59,7 @@ TerminalStatusBarPens TerminalStatusBar_getPens(const TerminalStatusBar *self) {
                 : (TerminalStatusBarPens) { TerminalPen_0(), TerminalPen_0() };
 }
 
-void TerminalStatusBar_render(const TerminalStatusBar *self, TerminalCanvas *canvas) {
+fn TerminalStatusBar_render(const TerminalStatusBar *self, TerminalCanvas *canvas) {
     if (self == nullptr || !TerminalCanvas_isValid(canvas))
         return;
     bytes width = TerminalCanvas_getWidth(canvas);

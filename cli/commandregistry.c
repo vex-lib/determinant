@@ -17,25 +17,25 @@
  * bytes capacity               admitted row extent
  * bytes count                  initialized rows
  * DeterminantOutputFn output     borrowed presentation callback
- * void *hostContext             opaque host-defined presentation state
+ * any hostContext             opaque host-defined presentation state
  * bytes refusalCount           counted capacity refusals, reset by free
  * bool active                   callback exclusion/reentrant admission guard
  * SLOT RECORD: CommandRegistryRow
  * const char *name               borrowed immutable ASCII command identity
  * CommandFn target              borrowed resident callback
  * FUNCTION REGISTRY (exports)
- * Constructors: CommandRegistry CommandRegistry_0(void)
+ * Constructors: CommandRegistry CommandRegistry_0()
  *   CommandRegistry CommandRegistry_4(CommandRegistryRow *rows, bytes capacity,
- *     DeterminantOutputFn output, void *hostContext)
+ *     DeterminantOutputFn output, any hostContext)
  * Admission: bool CommandRegistry_reserve(CommandRegistry *self,
  *     CommandRegistryRow *rows, bytes capacity)
  *   bool CommandRegistry_register(CommandRegistry *self, const char *name,
  *     CommandFn target) [CommandRegistry_add alias]
  * Dispatch: bool CommandRegistry_execute(CommandRegistry *self, Command *command)
  * Configuration: bool CommandRegistry_setOutput(CommandRegistry *self,
- *     DeterminantOutputFn output, void *hostContext)
+ *     DeterminantOutputFn output, any hostContext)
  * Queries: DeterminantOutputFn CommandRegistry_getOutput(const CommandRegistry *self)
- *   void *CommandRegistry_getHostContext(const CommandRegistry *self)
+ *   any CommandRegistry_getHostContext(const CommandRegistry *self)
  *   const CommandRegistryRow *CommandRegistry_getRows(const CommandRegistry *self)
  *   bytes CommandRegistry_getCount(const CommandRegistry *self)
  *   bytes CommandRegistry_getCapacity(const CommandRegistry *self)
@@ -52,9 +52,9 @@
  * failure preserves rows/count/callbacks. Unknown command is routed to output,
  * never stdout; absent/failing sink rejects loudly. No owned allocation.
  * ======================================================================== */
-CommandRegistry CommandRegistry_0(void) { return (CommandRegistry) {0}; }
+CommandRegistry CommandRegistry_0() { return (CommandRegistry) {0}; }
 CommandRegistry CommandRegistry_4(CommandRegistryRow *rows, bytes capacity, DeterminantOutputFn output,
-                                  void *hostContext) {
+                                  any hostContext) {
     CommandRegistry self = CommandRegistry_0();
     if ((capacity != 0 && rows == nullptr) || capacity > SIZE_MAX / sizeof(*rows)) {
         THROW("CommandRegistry construct: invalid backing extent");
@@ -129,7 +129,7 @@ bool CommandRegistry_execute(CommandRegistry *self, Command *command) {
         THROW("CommandRegistry execute: missing or failed output sink");
     return false; // not executed, even when unknown notification succeeded
 }
-bool CommandRegistry_setOutput(CommandRegistry *self, DeterminantOutputFn output, void *hostContext) {
+bool CommandRegistry_setOutput(CommandRegistry *self, DeterminantOutputFn output, any hostContext) {
     if (self == nullptr || (*self).active) {
         THROW("CommandRegistry setOutput: null or busy");
         return false;
@@ -139,7 +139,7 @@ bool CommandRegistry_setOutput(CommandRegistry *self, DeterminantOutputFn output
     return true;
 }
 DeterminantOutputFn CommandRegistry_getOutput(const CommandRegistry *self) { return self ? (*self).output : nullptr; }
-void *CommandRegistry_getHostContext(const CommandRegistry *self) { return self ? (*self).hostContext : nullptr; }
+any CommandRegistry_getHostContext(const CommandRegistry *self) { return self ? (*self).hostContext : nullptr; }
 bytes CommandRegistry_getCount(const CommandRegistry *self) { return self ? (*self).count : 0; }
 bytes CommandRegistry_getCapacity(const CommandRegistry *self) { return self ? (*self).capacity : 0; }
 bytes CommandRegistry_exhaustionCount(const CommandRegistry *self) { return self ? (*self).refusalCount : 0; }

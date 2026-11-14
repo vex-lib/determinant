@@ -101,7 +101,7 @@ def main():
              "TerminalBreadcrumb_5"),
         ):
             fixture = tmp / f"negative-{cls}.c"
-            fixture.write_text(f'#include "{header}"\nint main(void) {{ (void){expression}; return 0; }}\n')
+            fixture.write_text(f'#include "{header}"\nint main() {{ (){expression}; return 0; }}\n')
             result = execute(["clang", *flags, "-fsyntax-only", str(fixture)])
             if result.returncode == 0 or missing not in result.stderr:
                 print(f"FAIL intended arity rejection {cls}\n{result.stderr}")

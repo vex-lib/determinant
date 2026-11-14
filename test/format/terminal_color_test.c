@@ -21,7 +21,7 @@
 #define OPAQUE_BLACK 0x000000FFu
 #define CLEAR_LAYER  0x00000000u
 
-int main(void) {
+int main() {
     // --- The vocabulary itself: channel order, and the sentinel ---
     u32 packed = TERMINAL_RGBA(0x12, 0x34, 0x56, 0x78);
     assert(TERMINAL_COLOR_RED(packed) == 0x12u);

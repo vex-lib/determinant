@@ -35,7 +35,7 @@
  * pinStartX/pinStartY(kind,…)  the nine-point axis rule
  * applyInset(region, x, y)   symmetric inset, collapsed rather than underflowed
  * FUNCTION REGISTRY (exports)
- * Constructors: TerminalAnchor_0(void) [FILL],
+ * Constructors: TerminalAnchor_0() [FILL],
  *   _1(kind), _2(kind, extent) for bands, _3(kind, width, height) for pins
  * Queries: bool isBand/reserves(self)
  *   TerminalAnchorKind getKind(self)
@@ -107,7 +107,7 @@ static TerminalRect applyInset(TerminalRect region, bytes insetX, bytes insetY) 
     return region;
 }
 
-TerminalAnchor TerminalAnchor_0(void) {
+TerminalAnchor TerminalAnchor_0() {
     return (TerminalAnchor) { TERMINAL_ANCHOR_FILL, TERMINAL_ANCHOR_AUTO, TERMINAL_ANCHOR_AUTO,
                               TERMINAL_ANCHOR_AUTO, 0, 0 };
 }

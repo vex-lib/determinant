@@ -31,7 +31,7 @@
  * clampRail-shaped geometry is NOT here; this file is geometry-free
  * FUNCTION REGISTRY (exports)
  * Pen: TerminalPen_0/_1/_2/_3
- * Constructors: TerminalCanvas_0(void), _4(cells,styles,w,h),
+ * Constructors: TerminalCanvas_0(), _4(cells,styles,w,h),
  *   _6(cells,styles,fg,bg,w,h)
  * Queries: bool TerminalCanvas_isValid
  *   bytes getWidth/getHeight
@@ -48,7 +48,7 @@
  * not composed (documented shaping gap). No allocation, no logging on any draw.
  * ======================================================================== */
 
-TerminalPen TerminalPen_0(void) {
+TerminalPen TerminalPen_0() {
     return (TerminalPen) { TERMINAL_STYLE_NONE, TERMINAL_COLOR_DEFAULT, TERMINAL_COLOR_DEFAULT };
 }
 TerminalPen TerminalPen_1(u16 style) {
@@ -61,7 +61,7 @@ TerminalPen TerminalPen_3(u16 style, u32 fg, u32 bg) {
     return (TerminalPen) { style, fg, bg };
 }
 
-TerminalCanvas TerminalCanvas_0(void) {
+TerminalCanvas TerminalCanvas_0() {
     return (TerminalCanvas) {0};
 }
 
@@ -193,7 +193,7 @@ TerminalCanvas TerminalCanvas_sub(const TerminalCanvas *self, bytes lx, bytes ly
     return out;
 }
 
-static void putCell(const TerminalCanvas *self, bytes ax, bytes ay, u32 glyph, TerminalPen pen) {
+static fn putCell(const TerminalCanvas *self, bytes ax, bytes ay, u32 glyph, TerminalPen pen) {
     if (ax >= (*self).gridWidth || ay >= (*self).gridHeight)
         return;
     bytes index = ay * (*self).gridWidth + ax;
@@ -206,7 +206,7 @@ static void putCell(const TerminalCanvas *self, bytes ax, bytes ay, u32 glyph, T
         (*self).bg[index] = pen.bg;
 }
 
-void TerminalCanvas_fill(TerminalCanvas *self, u32 glyph, TerminalPen pen) {
+fn TerminalCanvas_fill(TerminalCanvas *self, u32 glyph, TerminalPen pen) {
     if (!TerminalCanvas_isValid(self))
         return;
     for (bytes ly = 0; ly < (*self).height; ++ly)
@@ -216,7 +216,7 @@ void TerminalCanvas_fill(TerminalCanvas *self, u32 glyph, TerminalPen pen) {
 
 // Write one scalar at a local column, advancing by its width and marking the
 // continuation cell of a wide glyph with 0 so layout stays aligned.
-static void putScalar(const TerminalCanvas *self, bytes *lx, bytes ly, u32 cp, TerminalPen pen) {
+static fn putScalar(const TerminalCanvas *self, bytes *lx, bytes ly, u32 cp, TerminalPen pen) {
     bytes width = TerminalCanvas_widthOf(cp);
     if (width == 0)
         return;   // combining marks are not composed (shaping gap)
@@ -227,7 +227,7 @@ static void putScalar(const TerminalCanvas *self, bytes *lx, bytes ly, u32 cp, T
     *lx += width;
 }
 
-void TerminalCanvas_text(TerminalCanvas *self, bytes lx, bytes ly,
+fn TerminalCanvas_text(TerminalCanvas *self, bytes lx, bytes ly,
                          const char *text, bytes length, TerminalPen pen) {
     if (!TerminalCanvas_isValid(self) || text == nullptr || ly >= (*self).height)
         return;
@@ -242,28 +242,28 @@ void TerminalCanvas_text(TerminalCanvas *self, bytes lx, bytes ly,
     }
 }
 
-void TerminalCanvas_glyph(TerminalCanvas *self, bytes lx, bytes ly, u32 codepoint, TerminalPen pen) {
+fn TerminalCanvas_glyph(TerminalCanvas *self, bytes lx, bytes ly, u32 codepoint, TerminalPen pen) {
     if (!TerminalCanvas_isValid(self) || lx >= (*self).width || ly >= (*self).height)
         return;
     bytes x = lx;
     putScalar(self, &x, ly, codepoint, pen);
 }
 
-void TerminalCanvas_hline(TerminalCanvas *self, bytes ly, u32 glyph, TerminalPen pen) {
+fn TerminalCanvas_hline(TerminalCanvas *self, bytes ly, u32 glyph, TerminalPen pen) {
     if (!TerminalCanvas_isValid(self) || ly >= (*self).height)
         return;
     for (bytes lx = 0; lx < (*self).width; ++lx)
         putCell(self, (*self).x + lx, (*self).y + ly, glyph, pen);
 }
 
-void TerminalCanvas_vline(TerminalCanvas *self, bytes lx, u32 glyph, TerminalPen pen) {
+fn TerminalCanvas_vline(TerminalCanvas *self, bytes lx, u32 glyph, TerminalPen pen) {
     if (!TerminalCanvas_isValid(self) || lx >= (*self).width)
         return;
     for (bytes ly = 0; ly < (*self).height; ++ly)
         putCell(self, (*self).x + lx, (*self).y + ly, glyph, pen);
 }
 
-void TerminalCanvas_box(TerminalCanvas *self, TerminalPen pen) {
+fn TerminalCanvas_box(TerminalCanvas *self, TerminalPen pen) {
     if (!TerminalCanvas_isValid(self))
         return;
     TerminalCanvas_hline(self, 0, '-', pen);

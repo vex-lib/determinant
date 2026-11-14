@@ -35,7 +35,7 @@ static bool busy(void *state, Terminal *terminal) {
     assert(!Terminal_command(terminal, "go", 2));
     return true;
 }
-int main(void) {
+int main() {
     char cells[8], bigger[16];
     Terminal t = Terminal();
     bytes state = 0;

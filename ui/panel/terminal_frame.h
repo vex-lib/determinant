@@ -51,22 +51,22 @@ typedef struct TerminalRule {
 typedef struct TerminalFramePair { bytes first; bytes second; } TerminalFramePair;
 typedef struct TerminalFrameLayout { bytes left; bytes right; bool rails; } TerminalFrameLayout;
 
-TerminalRule TerminalRule_0(void);                                    // connector, solid ASCII
+TerminalRule TerminalRule_0();                                    // connector, solid ASCII
 TerminalRule TerminalRule_2(u32 horizontal, u32 vertical);  // custom glyphs
 TerminalRule TerminalRule_4(u32 horizontal, u32 vertical, u32 stripe, bytes stripeEvery);
 #define TerminalRule(...) CONSTRUCTOR_DISPATCH(TerminalRule, __VA_ARGS__)
 #define TerminalRule_zero() TerminalRule_0()
 
 // Draw one styled horizontal run into a canvas region row (app footer rules).
-void TerminalRule_draw(const TerminalRule *rule, TerminalCanvas *canvas, bytes ly, TerminalPen pen);
+fn TerminalRule_draw(const TerminalRule *rule, TerminalCanvas *canvas, bytes ly, TerminalPen pen);
 // Draw ONE horizontal run that is CUT: inset from both edges of the region and
 // terminated with the cut-endpoint glyphs, so it stops short the way a panel
 // divider does. `inset` is the blank margin inside each edge (0 => touching).
-void TerminalRule_drawCut(const TerminalRule *rule, TerminalCanvas *canvas, bytes ly,
+fn TerminalRule_drawCut(const TerminalRule *rule, TerminalCanvas *canvas, bytes ly,
                           bytes inset, TerminalPen pen);
 // Draw a DETACHED box around the whole canvas region: its own corners, its own
 // verticals, never joined to a neighbour.
-void TerminalRule_drawBox(const TerminalRule *rule, TerminalCanvas *canvas, TerminalPen pen);
+fn TerminalRule_drawBox(const TerminalRule *rule, TerminalCanvas *canvas, TerminalPen pen);
 
 typedef struct TerminalFrame {
     bytes leftWidth;    // requested left-column width
@@ -77,7 +77,7 @@ typedef struct TerminalFrame {
     TerminalRule rule;   // connector glyph set used by drawRules
 } TerminalFrame;
 
-TerminalFrame TerminalFrame_0(void);
+TerminalFrame TerminalFrame_0();
 TerminalFrame TerminalFrame_2(bytes leftWidth, bytes rightWidth);
 #define TerminalFrame(...) CONSTRUCTOR_DISPATCH(TerminalFrame, __VA_ARGS__)
 #define TerminalFrame_zero() TerminalFrame_0()
@@ -93,7 +93,7 @@ const TerminalImage *TerminalFrame_getBackground(const TerminalFrame *self);
 TerminalFrameLayout TerminalFrame_getLayout(const TerminalFrame *self, const TerminalCanvas *root);
 
 // Paint the borrowed background image across the whole root (no-op when none).
-void TerminalFrame_paintBackground(const TerminalFrame *self, TerminalCanvas *root);
+fn TerminalFrame_paintBackground(const TerminalFrame *self, TerminalCanvas *root);
 
 // --- Regions (all clipped; invalid when the root is too small) ---
 TerminalCanvas TerminalFrame_header(const TerminalFrame *self, const TerminalCanvas *root);
@@ -104,7 +104,7 @@ TerminalCanvas TerminalFrame_footer(const TerminalFrame *self, const TerminalCan
 
 // Draw the frame's own rules: the header run (with rail junctions) and the two
 // rail columns, using the frame's TerminalRule connector set.
-void TerminalFrame_drawRules(const TerminalFrame *self, TerminalCanvas *root, TerminalPen rule);
+fn TerminalFrame_drawRules(const TerminalFrame *self, TerminalCanvas *root, TerminalPen rule);
 bool TerminalFrame_setRule(TerminalFrame *self, TerminalRule rule);
 TerminalRule TerminalFrame_getRule(const TerminalFrame *self);
 

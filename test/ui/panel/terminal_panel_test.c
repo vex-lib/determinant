@@ -25,7 +25,7 @@ static TerminalRect rectOf(bytes x, bytes y, bytes w, bytes h) {
     return (TerminalRect) { x, y, w, h };
 }
 
-int main(void) {
+int main() {
     u32 cells[W * H];
     u16 styles[W * H];
     u32 fg[W * H];
@@ -209,7 +209,7 @@ int main(void) {
     TerminalText *orphan = TerminalText("orphan");
     REJECT(TerminalPanel_isChildId(TerminalPanel_addText(nullptr, orphan, TerminalAnchor())), "add");
     TerminalText_free(orphan);            // the refused add left it with the caller
-    (void) underId;
+    (fn) underId;
 
     // --- Cold growth past the named default; every child survives ---
     TerminalPanel *grown = TerminalPanel();

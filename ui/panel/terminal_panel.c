@@ -64,8 +64,8 @@
  * paintImage(self, canvas)    borrowed background through its declared fit
  * paintChildren(self, canvas) place, then paint every child in slot order
  * FUNCTION REGISTRY (exports)
- * Constructor: TerminalPanel *TerminalPanel_0(void) [zero/arity chooser]
- * Lifecycle: void TerminalPanel_free(self)
+ * Constructor: TerminalPanel *TerminalPanel_0() [zero/arity chooser]
+ * Lifecycle: fn TerminalPanel_free(self)
  * Layout: bool setLayout/getLayout(self)
  * Children: TerminalChildId addPanel/addText(self, child, anchor)
  *   bool remove(self, id)
@@ -76,10 +76,10 @@
  * Configuration: bool setPen/getPen, setStyle/getStyle,
  *   setForegroundColor/getForegroundColor, setBackgroundColor/getBackgroundColor,
  *   setImage/getImage/getFit, setAnchor/getAnchor
- * Paint: void TerminalPanel_paint(self, canvas)
+ * Paint: fn TerminalPanel_paint(self, canvas)
  * Queries: bytes childCount/capacity/paintCount/exhaustionCount(self)
  *   bool isValid(self, id), isPainting(self), isChildId(id)
- *   bool TerminalChildId_equal(a, b.sh), void clearExhaustion(self)
+ *   bool TerminalChildId_equal(a, b.sh), fn clearExhaustion(self)
  * Projections: TerminalProjection TerminalPanel_toString/toStringStruct(self)
  * CONTRACT: cold operations validate the id and reject loudly without mutating
  * anything — an unknown, stale or retired id touches no child. Paint is hot and
@@ -92,9 +92,9 @@
 
 #define TERMINAL_PANEL_NO_SLOT ((bytes) -1)
 
-static TerminalChildId invalidId(void) { return (TerminalChildId) { 0, 0 }; }
+static TerminalChildId invalidId() { return (TerminalChildId) { 0, 0 }; }
 
-static void refuse(TerminalPanel *self, const char *reason) {
+static fn refuse(TerminalPanel *self, const char *reason) {
     if ((*self).refusalCount == 0)
         THROW("TerminalPanel exhausted: %s (capacity %zu, live %zu)",
               reason, (*self).capacity, (*self).usedCount);
@@ -137,7 +137,7 @@ static bool growChildren(TerminalPanel *self) {
 }
 
 // Release one child's payload. A nested panel takes its own subtree with it.
-static void freeChild(TerminalChild *child) {
+static fn freeChild(TerminalChild *child) {
     if (child == nullptr)
         return;
     if ((*child).kind == TERMINAL_COMPONENT_PANEL)
@@ -149,7 +149,7 @@ static void freeChild(TerminalChild *child) {
     (*child).used = false;
 }
 
-static void paintImage(const TerminalPanel *self, TerminalCanvas *canvas) {
+static fn paintImage(const TerminalPanel *self, TerminalCanvas *canvas) {
     switch ((*self).fit) {
         case TERMINAL_PANEL_IMAGE_CONTAIN:
             TerminalImage_renderContain((*self).image, canvas);
@@ -164,7 +164,7 @@ static void paintImage(const TerminalPanel *self, TerminalCanvas *canvas) {
     }
 }
 
-static void paintChildren(TerminalPanel *self, TerminalCanvas *canvas) {
+static fn paintChildren(TerminalPanel *self, TerminalCanvas *canvas) {
     if ((*self).image != nullptr)
         paintImage(self, canvas);
     TerminalPen pen = (*self).pen;
@@ -190,7 +190,7 @@ static void paintChildren(TerminalPanel *self, TerminalCanvas *canvas) {
     }
 }
 
-TerminalPanel *TerminalPanel_0(void) {
+TerminalPanel *TerminalPanel_0() {
     TerminalPanel *self = Memory_alloc(TYPE_BYTE_ARRAY, sizeof(TerminalPanel));
     if (self == nullptr)
         return nullptr; // R2 owner reports/counts allocation exhaustion.
@@ -198,7 +198,7 @@ TerminalPanel *TerminalPanel_0(void) {
     return self;
 }
 
-void TerminalPanel_free(TerminalPanel *self) {
+fn TerminalPanel_free(TerminalPanel *self) {
     if (self == nullptr)
         return;
     if ((*self).painting) {
@@ -231,7 +231,7 @@ TerminalPanelLayout TerminalPanel_getLayout(const TerminalPanel *self) {
 
 // Shared tail of both adds: take a free slot, take ownership, publish the id.
 static TerminalChildId adoptChild(TerminalPanel *self, TerminalComponentKind kind,
-                                 void *payload, TerminalAnchor anchor) {
+                                 any payload, TerminalAnchor anchor) {
     if (self == nullptr || payload == nullptr || (*self).painting) {
         THROW("TerminalPanel add: null panel, null child or mid-paint");
         return invalidId();
@@ -309,7 +309,7 @@ bool TerminalPanel_remove(TerminalPanel *self, TerminalChildId id) {
 
 // Detach one child without freeing it. The slot is retired so the old id goes
 // stale, and ownership returns to the caller for re-parenting.
-static void *detachChild(TerminalPanel *self, TerminalChildId id, TerminalComponentKind kind) {
+static any detachChild(TerminalPanel *self, TerminalChildId id, TerminalComponentKind kind) {
     if (self == nullptr || (*self).painting)
         return nullptr;
     bytes slot = slotFor(self, id);
@@ -318,7 +318,7 @@ static void *detachChild(TerminalPanel *self, TerminalChildId id, TerminalCompon
     TerminalChild *child = &(*self).children[slot];
     if ((*child).kind != kind)
         return nullptr;
-    void *payload = kind == TERMINAL_COMPONENT_PANEL ? (void*) (*child).panel : (void*) (*child).text;
+    any payload = kind == TERMINAL_COMPONENT_PANEL ? (any) (*child).panel : (any) (*child).text;
     (*child).panel = nullptr;
     (*child).text = nullptr;
     (*child).used = false;
@@ -435,7 +435,7 @@ TerminalAnchor TerminalPanel_getAnchor(const TerminalPanel *self, TerminalChildI
 
 ;;INTENTION("paint is total by design: every child repaints on every call, so a resize needs no invalidation and the presentation delta stays TerminalSurface's job; this path stays entry-guarded, allocation-free and log-free")
 ;;HOTCODE
-void TerminalPanel_paint(TerminalPanel *self, TerminalCanvas *canvas) {
+fn TerminalPanel_paint(TerminalPanel *self, TerminalCanvas *canvas) {
     if (self == nullptr || !TerminalCanvas_isValid(canvas))
         return;
     if ((*self).painting) {
@@ -528,7 +528,7 @@ bool TerminalPanel_isChildId(TerminalChildId id) { return id.generation != 0; }
 bool TerminalChildId_equal(TerminalChildId a, TerminalChildId b) {
     return a.index == b.index && a.generation == b.generation;
 }
-void TerminalPanel_clearExhaustion(TerminalPanel *self) {
+fn TerminalPanel_clearExhaustion(TerminalPanel *self) {
     if (self != nullptr)
         (*self).refusalCount = 0;
 }

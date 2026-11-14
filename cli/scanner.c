@@ -21,7 +21,7 @@
  * bytes refusalCount         epoch capacity refusals
  * bool ended                  explicit caller EOF
  * FUNCTION REGISTRY (exports)
- * Constructors: Scanner Scanner_0(void)
+ * Constructors: Scanner Scanner_0()
  *   Scanner Scanner_2(char *bytes, bytes capacity)
  * Admission: bool Scanner_feed(Scanner *self, const char *bytes, bytes length,
  *     bool ended)
@@ -35,7 +35,7 @@
  *   bytes Scanner_exhaustionCount(const Scanner *self)
  * Extraction: u8 *Scanner_nextLine(Scanner *self)
  *   u8 *Scanner_nextWord(Scanner *self)
- * Lifecycle: void Scanner_reset(Scanner *self) retains backing, clears epoch
+ * Lifecycle: fn Scanner_reset(Scanner *self) retains backing, clears epoch
  * Projections: bool Scanner_toString(const Scanner *self, char *dest,
  *     bytes cap, bool *outTruncated)
  *   bool Scanner_toStringStruct(const Scanner *self, char *dest,
@@ -48,16 +48,16 @@
  * an empty string, unlike pending/EOF. Buffer never silently truncates. reserve
  * supports cold growth, reset supports recovery; no permanent initial ceiling.
  * ======================================================================== */
-Scanner Scanner_0(void) { return (Scanner) {0}; }
-Scanner Scanner_2(char *bytes, bytes capacity) {
-    if (bytes == nullptr && capacity != 0) {
+Scanner Scanner_0() { return (Scanner) {0}; }
+Scanner Scanner_2(char *data, bytes capacity) {
+    if (data == nullptr && capacity != 0) {
         THROW("Scanner construct: null backing");
         return Scanner_0();
     }
-    return (Scanner) {.bytes = bytes, .capacity = capacity};
+    return (Scanner) {.bytes = data, .capacity = capacity};
 }
-bool Scanner_feed(Scanner *self, const char *bytes, bytes length, bool ended) {
-    if (self == nullptr || (*self).ended || (bytes == nullptr && length != 0)) {
+bool Scanner_feed(Scanner *self, const char *data, bytes length, bool ended) {
+    if (self == nullptr || (*self).ended || (data == nullptr && length != 0)) {
         THROW("Scanner feed: invalid span or ended");
         return false;
     }
@@ -69,28 +69,28 @@ bool Scanner_feed(Scanner *self, const char *bytes, bytes length, bool ended) {
         return false;
     }
     for (bytes i = 0; i < length; ++i) {
-        unsigned char c = (unsigned char) bytes[i];
+        unsigned char c = (unsigned char) data[i];
         if (c == 0 || c >= 127 || (c < 32 && c != '\n' && c != '\r' && c != '\t')) {
             THROW("Scanner feed: invalid ASCII byte at %zu", i);
             return false;
         }
     }
     if (length != 0)
-        memcpy((*self).bytes + (*self).length, bytes, length);
+        memcpy((*self).bytes + (*self).length, data, length);
     (*self).length += length;
     (*self).ended = ended;
     return true;
 }
-bool Scanner_reserve(Scanner *self, char *bytes, bytes capacity) {
-    if (self == nullptr || bytes == nullptr || capacity < (*self).capacity
-        || (bytes == (*self).bytes && capacity != (*self).capacity)) {
+bool Scanner_reserve(Scanner *self, char *data, bytes capacity) {
+    if (self == nullptr || data == nullptr || capacity < (*self).capacity
+        || (data == (*self).bytes && capacity != (*self).capacity)) {
         THROW("Scanner reserve: invalid backing");
         return false;
     }
     bytes pending = (*self).length - (*self).position;
     if (pending != 0)
-        memmove(bytes, (*self).bytes + (*self).position, pending);
-    (*self).bytes = bytes;
+        memmove(data, (*self).bytes + (*self).position, pending);
+    (*self).bytes = data;
     (*self).capacity = capacity;
     (*self).length = pending;
     (*self).position = 0;
@@ -144,7 +144,7 @@ u8 *Scanner_nextWord(Scanner *self) {
         return nullptr;
     return take(self, start, end, end);
 }
-void Scanner_reset(Scanner *self) {
+fn Scanner_reset(Scanner *self) {
     if (self == nullptr)
         return;
     (*self).length = 0;

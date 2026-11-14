@@ -29,7 +29,7 @@ typedef struct TerminalListView {
 typedef struct TerminalListViewLabels { const char *const *data; bytes count; } TerminalListViewLabels;
 typedef struct TerminalListViewPens { TerminalPen normal; TerminalPen selected; } TerminalListViewPens;
 
-TerminalListView TerminalListView_0(void);
+TerminalListView TerminalListView_0();
 TerminalListView TerminalListView_2(const char *const *labels, bytes count);
 #define TerminalListView(...) CONSTRUCTOR_DISPATCH(TerminalListView, __VA_ARGS__)
 #define TerminalListView_zero() TerminalListView_0()
@@ -42,12 +42,12 @@ bool TerminalListView_setScroll(TerminalListView *self, bytes scroll);
 bytes TerminalListView_getScroll(const TerminalListView *self);
 bool TerminalListView_setMarker(TerminalListView *self, const char *marker);
 const char *TerminalListView_getMarker(const TerminalListView *self);
-void TerminalListView_setPens(TerminalListView *self, TerminalPen normal, TerminalPen selected);
+fn TerminalListView_setPens(TerminalListView *self, TerminalPen normal, TerminalPen selected);
 TerminalListViewPens TerminalListView_getPens(const TerminalListView *self);
 // Move the selection within [0, count) and keep it visible; false at an edge.
 bool TerminalListView_move(TerminalListView *self, long delta, bytes visibleRows);
 
-void TerminalListView_render(const TerminalListView *self, TerminalCanvas *canvas);
+fn TerminalListView_render(const TerminalListView *self, TerminalCanvas *canvas);
 
 TerminalProjection TerminalListView_toString(const TerminalListView *self);
 TerminalProjection TerminalListView_toStringStruct(const TerminalListView *self);

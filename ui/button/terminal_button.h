@@ -10,7 +10,7 @@ typedef struct TerminalButton {
     bool enabled;
 } TerminalButton;
 typedef struct TerminalButtonPosition { bytes x; bytes y; } TerminalButtonPosition;
-TerminalButton TerminalButton_0(void);
+TerminalButton TerminalButton_0();
 TerminalButton TerminalButton_3(const char *label, bytes x, bytes y);
 #define TerminalButton(...) CONSTRUCTOR_DISPATCH(TerminalButton, __VA_ARGS__)
 #define TerminalButton_zero() TerminalButton_0()
@@ -19,9 +19,9 @@ bool TerminalButton_setLabel(TerminalButton *self, const char *label);
 const char *TerminalButton_getLabel(const TerminalButton *self);
 bool TerminalButton_setPosition(TerminalButton *self, bytes x, bytes y);
 TerminalButtonPosition TerminalButton_getPosition(const TerminalButton *self);
-void TerminalButton_setFocused(TerminalButton *self, bool focused);
+fn TerminalButton_setFocused(TerminalButton *self, bool focused);
 bool TerminalButton_isFocused(const TerminalButton *self);
-void TerminalButton_setEnabled(TerminalButton *self, bool enabled);
+fn TerminalButton_setEnabled(TerminalButton *self, bool enabled);
 bool TerminalButton_isEnabled(const TerminalButton *self);
 // Caller-fed normalized input; press returns activation, no retained callback.
 // click acquires focus only for enabled button and returns true for an inside hit.

@@ -19,7 +19,7 @@
  * bool tail                 keep the newest line visible (default true)
  * TerminalPen pen           text pen
  * FUNCTION REGISTRY (exports)
- * Constructors: TerminalTextView_0(void), TerminalTextView_2(lines, count)
+ * Constructors: TerminalTextView_0(), TerminalTextView_2(lines, count)
  * Config: set/getLines, set/getScroll, setTail/isTail, set/getPen
  * Navigation: bool TerminalTextView_scrollBy(self, delta, visibleRows)
  * Render: TerminalTextView_render(self, canvas)
@@ -28,7 +28,7 @@
  * renders blank; render never allocates or logs.
  * ======================================================================== */
 
-TerminalTextView TerminalTextView_0(void) {
+TerminalTextView TerminalTextView_0() {
     TerminalTextView view = {0};
     view.tail = true;
     view.pen = TerminalPen_0();
@@ -61,13 +61,13 @@ bool TerminalTextView_setScroll(TerminalTextView *self, bytes scroll) {
     return true;
 }
 bytes TerminalTextView_getScroll(const TerminalTextView *self) { return self ? (*self).scroll : 0; }
-void TerminalTextView_setTail(TerminalTextView *self, bool tail) { if (self != nullptr) (*self).tail = tail; }
+fn TerminalTextView_setTail(TerminalTextView *self, bool tail) { if (self != nullptr) (*self).tail = tail; }
 bool TerminalTextView_isTail(const TerminalTextView *self) { return self && (*self).tail; }
-void TerminalTextView_setPen(TerminalTextView *self, TerminalPen pen) { if (self != nullptr) (*self).pen = pen; }
+fn TerminalTextView_setPen(TerminalTextView *self, TerminalPen pen) { if (self != nullptr) (*self).pen = pen; }
 TerminalPen TerminalTextView_getPen(const TerminalTextView *self) { return self ? (*self).pen : TerminalPen_0(); }
 
 bool TerminalTextView_scrollBy(TerminalTextView *self, long delta, bytes visibleRows) {
-    (void) visibleRows;
+    (fn) visibleRows;
     if (self == nullptr)
         return false;
     if (delta > 0) {
@@ -84,7 +84,7 @@ bool TerminalTextView_scrollBy(TerminalTextView *self, long delta, bytes visible
     return false;
 }
 
-void TerminalTextView_render(const TerminalTextView *self, TerminalCanvas *canvas) {
+fn TerminalTextView_render(const TerminalTextView *self, TerminalCanvas *canvas) {
     if (self == nullptr || !TerminalCanvas_isValid(canvas))
         return;
     bytes rows = TerminalCanvas_getHeight(canvas);

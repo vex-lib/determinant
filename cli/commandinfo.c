@@ -24,7 +24,7 @@
  * Getters: CommandKind CommandInfo_getKind(const CommandInfo *self)
  *   CommandOperation CommandInfo_getOperation(const CommandInfo *self)
  *   Command *CommandInfo_getCommand(const CommandInfo *self)
- * Lifecycle: void CommandInfo_free(CommandInfo *self)
+ * Lifecycle: fn CommandInfo_free(CommandInfo *self)
  * Projections: bool CommandInfo_toString/CommandInfo_toStringStruct(
  *   const CommandInfo *self, char *dest, bytes cap, bool *outTruncated)
  * CONTRACT: takes ownership of command only on success; null command rejects
@@ -915,7 +915,7 @@ bool CommandInfo_isRecursiveDelete(const CommandInfo *self) { return self && (*s
 bool CommandInfo_isDelete(const CommandInfo *self) {
     return self && ((*self).operation == COMMAND_RM_DELETE_FILE || (*self).operation == COMMAND_RM_RECURSIVE_DELETE || (*self).operation == COMMAND_RMDIR_DELETE_FOLDER);
 }
-void CommandInfo_free(CommandInfo *self) {
+fn CommandInfo_free(CommandInfo *self) {
     if (self == nullptr)
         return;
     Command_free((*self).command);

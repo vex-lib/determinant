@@ -49,12 +49,12 @@
  * buttonFor(low)              low two bits -> TerminalPointerButton
  * complete(self, raw, x, y, release, sgr)  shared decode for both encodings
  * FUNCTION REGISTRY (exports)
- * Constructor: TerminalInput TerminalInput_0(void) [zero/arity chooser]
+ * Constructor: TerminalInput TerminalInput_0() [zero/arity chooser]
  * Feed: bool TerminalInput_feed(self, byte)
  * Queries: TerminalPointerEvent getEvent(self), getKind/getButton(self)
  *   bool isReady/isPending(self), TerminalInputState getState(self)
  *   bytes malformedCount(self)
- * Lifecycle: void TerminalInput_reset(self), void clearMalformed(self)
+ * Lifecycle: fn TerminalInput_reset(self), fn clearMalformed(self)
  * Projections: TerminalProjection TerminalInput_toString/toStringStruct(self)
  * CONTRACT: feed is hot and quiet — one range guard, no allocation, no logging,
  * and a malformed byte only increments a counter. Coordinates arrive 1-based and
@@ -73,7 +73,7 @@ static TerminalPointerButton buttonFor(bytes low) {
     }
 }
 
-static void noteMalformed(TerminalInput *self) {
+static fn noteMalformed(TerminalInput *self) {
     if ((*self).malformed != SIZE_MAX)
         ++(*self).malformed;
     (*self).state = TERMINAL_INPUT_IDLE;
@@ -82,7 +82,7 @@ static void noteMalformed(TerminalInput *self) {
     (*self).digits = 0;
 }
 
-static void beginSgr(TerminalInput *self) {
+static fn beginSgr(TerminalInput *self) {
     (*self).state = TERMINAL_INPUT_SGR_BUTTON;
     (*self).field = 0;
     (*self).digits = 0;
@@ -93,7 +93,7 @@ static void beginSgr(TerminalInput *self) {
 
 // Shared decode for both encodings. `motion` exists only in SGR, and `release` is
 // SGR's lowercase final byte; X10 signals a release by reporting low bits 3.
-static void complete(TerminalInput *self, bytes raw, bytes x, bytes y,
+static fn complete(TerminalInput *self, bytes raw, bytes x, bytes y,
                      bool release, bool sgr) {
     if (x == 0 || y == 0) {
         noteMalformed(self);
@@ -137,7 +137,7 @@ static void complete(TerminalInput *self, bytes raw, bytes x, bytes y,
     (*self).digits = 0;
 }
 
-TerminalInput TerminalInput_0(void) { return (TerminalInput) {0}; }
+TerminalInput TerminalInput_0() { return (TerminalInput) {0}; }
 
 ;;INTENTION("feed is a hot path: one guard per byte, no logging, no allocation, and a malformed sequence only raises a queryable counter")
 bool TerminalInput_feed(TerminalInput *self, int byte) {
@@ -224,12 +224,12 @@ TerminalInputState TerminalInput_getState(const TerminalInput *self) {
 bytes TerminalInput_malformedCount(const TerminalInput *self) {
     return self != nullptr ? (*self).malformed : 0;
 }
-void TerminalInput_clearMalformed(TerminalInput *self) {
+fn TerminalInput_clearMalformed(TerminalInput *self) {
     if (self != nullptr)
         (*self).malformed = 0;
 }
 
-void TerminalInput_reset(TerminalInput *self) {
+fn TerminalInput_reset(TerminalInput *self) {
     if (self == nullptr) {
         THROW("TerminalInput reset: null input");
         return;

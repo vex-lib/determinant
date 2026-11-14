@@ -26,7 +26,7 @@
  * clampRail(requested, total)  rail width clamped to a third of the root
  * frameGeometry(self, root)    computed rails + band offsets
  * FUNCTION REGISTRY (exports)
- * Constructors: TerminalFrame_0(void), TerminalFrame_2(left, right)
+ * Constructors: TerminalFrame_0(), TerminalFrame_2(left, right)
  * Rules: TerminalRule_0/_2/_4, TerminalRule_draw(rule, canvas, ly, pen),
  *   TerminalRule_drawCut(rule, canvas, ly, inset, pen)  cut, stopped-short run
  *   TerminalRule_drawBox(rule, canvas, pen)             detached box + corners
@@ -79,7 +79,7 @@ static bytes centreW(const FrameGeometry *g, const TerminalCanvas *root) {
     return W - (*g).left - (*g).right - ((*g).rails ? 2 : 0);
 }
 
-TerminalFrame TerminalFrame_0(void) { return TerminalFrame_2(0, 0); }
+TerminalFrame TerminalFrame_0() { return TerminalFrame_2(0, 0); }
 
 TerminalFrame TerminalFrame_2(bytes leftWidth, bytes rightWidth) {
     TerminalFrame frame = {0};
@@ -90,7 +90,7 @@ TerminalFrame TerminalFrame_2(bytes leftWidth, bytes rightWidth) {
     return frame;
 }
 
-TerminalRule TerminalRule_0(void) {
+TerminalRule TerminalRule_0() {
     return (TerminalRule) { '-', '|', '+', '+', 0, 0, 0, 0, 0, 0, 0, 0 };
 }
 TerminalRule TerminalRule_2(u32 horizontal, u32 vertical) {
@@ -100,7 +100,7 @@ TerminalRule TerminalRule_4(u32 horizontal, u32 vertical, u32 stripe, bytes stri
     return (TerminalRule) { horizontal, vertical, '+', '+', stripe, stripeEvery, 0, 0, 0, 0, 0, 0 };
 }
 
-void TerminalRule_draw(const TerminalRule *rule, TerminalCanvas *canvas, bytes ly, TerminalPen pen) {
+fn TerminalRule_draw(const TerminalRule *rule, TerminalCanvas *canvas, bytes ly, TerminalPen pen) {
     if (rule == nullptr || !TerminalCanvas_isValid(canvas))
         return;
     bytes width = TerminalCanvas_getWidth(canvas);
@@ -115,7 +115,7 @@ void TerminalRule_draw(const TerminalRule *rule, TerminalCanvas *canvas, bytes l
 // A CUT run: it stops short of both edges and ends in the cut-endpoint glyphs, so
 // a panel divider reads as `╶──────╴` (or a plain, clearly-ended ` ------ `)
 // rather than a line that runs into the borders.
-void TerminalRule_drawCut(const TerminalRule *rule, TerminalCanvas *canvas, bytes ly,
+fn TerminalRule_drawCut(const TerminalRule *rule, TerminalCanvas *canvas, bytes ly,
                           bytes inset, TerminalPen pen) {
     if (rule == nullptr || !TerminalCanvas_isValid(canvas))
         return;
@@ -138,7 +138,7 @@ void TerminalRule_drawCut(const TerminalRule *rule, TerminalCanvas *canvas, byte
 
 // A DETACHED box: its own four corners and its own verticals. Nothing joins it to
 // a neighbour, which is what keeps panels reading as separate instruments.
-void TerminalRule_drawBox(const TerminalRule *rule, TerminalCanvas *canvas, TerminalPen pen) {
+fn TerminalRule_drawBox(const TerminalRule *rule, TerminalCanvas *canvas, TerminalPen pen) {
     if (rule == nullptr || !TerminalCanvas_isValid(canvas))
         return;
     bytes width = TerminalCanvas_getWidth(canvas);
@@ -213,7 +213,7 @@ TerminalFrameLayout TerminalFrame_getLayout(const TerminalFrame *self, const Ter
     return (TerminalFrameLayout) { g.left, g.right, g.rails };
 }
 
-void TerminalFrame_paintBackground(const TerminalFrame *self, TerminalCanvas *root) {
+fn TerminalFrame_paintBackground(const TerminalFrame *self, TerminalCanvas *root) {
     if (self == nullptr || (*self).background == nullptr || !TerminalCanvas_isValid(root))
         return;
     TerminalImage_renderFit((*self).background, root);
@@ -267,7 +267,7 @@ TerminalCanvas TerminalFrame_footer(const TerminalFrame *self, const TerminalCan
     return TerminalCanvas_sub(root, centreX(&g), y, w, g.footerRows);
 }
 
-void TerminalFrame_drawRules(const TerminalFrame *self, TerminalCanvas *root, TerminalPen pen) {
+fn TerminalFrame_drawRules(const TerminalFrame *self, TerminalCanvas *root, TerminalPen pen) {
     if (self == nullptr || !TerminalCanvas_isValid(root))
         return;
     FrameGeometry g = frameGeometry(self, root);

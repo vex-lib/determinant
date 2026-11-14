@@ -18,7 +18,7 @@ static bytes feedString(TerminalInput *input, const char *bytes) {
     return completions;
 }
 
-int main(void) {
+int main() {
     // --- Constructor and null safety ---
     TerminalInput fresh = TerminalInput_0();
     assert(TerminalInput_getState(&fresh) == TERMINAL_INPUT_IDLE);

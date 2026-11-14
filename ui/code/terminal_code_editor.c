@@ -88,7 +88,7 @@ static bool reserveArrayCapacity(TerminalCodeEditor *self, bytes needed) {
     return true;
 }
 
-static void freeAllLines(TerminalCodeEditor *self) {
+static fn freeAllLines(TerminalCodeEditor *self) {
     if (self == nullptr || (*self).lines == nullptr)
         return;
     for (bytes i = 0u; i < (*self).lineCount; ++i) {
@@ -105,7 +105,7 @@ static void freeAllLines(TerminalCodeEditor *self) {
     (*self).lineCapacity = 0u;
 }
 
-TerminalCodeEditor *TerminalCodeEditor_0(void) {
+TerminalCodeEditor *TerminalCodeEditor_0() {
     return TerminalCodeEditor_1(nullptr);
 }
 
@@ -142,7 +142,7 @@ TerminalCodeEditor *TerminalCodeEditor_1(const char *initialText) {
     return self;
 }
 
-void TerminalCodeEditor_free(TerminalCodeEditor *self) {
+fn TerminalCodeEditor_free(TerminalCodeEditor *self) {
     if (self == nullptr)
         return;
     freeAllLines(self);
@@ -379,13 +379,13 @@ bool TerminalCodeEditor_delete(TerminalCodeEditor *self) {
     return false;
 }
 
-void TerminalCodeEditor_clear(TerminalCodeEditor *self) {
+fn TerminalCodeEditor_clear(TerminalCodeEditor *self) {
     if (self == nullptr)
         return;
     TerminalCodeEditor_setText(self, "");
 }
 
-void TerminalCodeEditor_moveCursor(TerminalCodeEditor *self, int deltaLine, int deltaCol) {
+fn TerminalCodeEditor_moveCursor(TerminalCodeEditor *self, int deltaLine, int deltaCol) {
     if (self == nullptr || (*self).lineCount == 0u)
         return;
 
@@ -463,7 +463,7 @@ bytes TerminalCodeEditor_getGutterWidth(const TerminalCodeEditor *self) {
     return digits + 3u; // line digits + trailing padding
 }
 
-void TerminalCodeEditor_render(const TerminalCodeEditor *self, TerminalCanvas *canvas) {
+fn TerminalCodeEditor_render(const TerminalCodeEditor *self, TerminalCanvas *canvas) {
     if (self == nullptr || canvas == nullptr || !TerminalCanvas_isValid(canvas))
         return;
 
@@ -527,7 +527,7 @@ TerminalProjection TerminalCodeEditor_toStringStruct(const TerminalCodeEditor *s
         return TerminalProjection_format("nullptr");
     return TerminalProjection_format(
         "TerminalCodeEditor { lines=%p lineCount=%zu lineCap=%zu cursorLine=%zu cursorCol=%zu scrollTop=%zu scrollLeft=%zu showGutter=%d }",
-        (const void*) (*self).lines, (*self).lineCount, (*self).lineCapacity,
+        (const_any) (*self).lines, (*self).lineCount, (*self).lineCapacity,
         (*self).cursorLine, (*self).cursorCol, (*self).scrollTop, (*self).scrollLeft,
         (*self).showGutter);
 }

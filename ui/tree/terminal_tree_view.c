@@ -71,8 +71,8 @@
  * rebuild(self)               recompute the visible rows from the fold state
  * clampScroll(self)           hold the viewport inside the current tree
  * FUNCTION REGISTRY (exports)
- * Constructor: TerminalTreeView *TerminalTreeView_0(void) [zero/arity chooser]
- * Lifecycle: void TerminalTreeView_free(self)
+ * Constructor: TerminalTreeView *TerminalTreeView_0() [zero/arity chooser]
+ * Lifecycle: fn TerminalTreeView_free(self)
  * Structure: TerminalTreeNodeId addChild(self, parent, label, folder)
  *   bool setLabel(self, id, label) / remove(self, id) / clear(self)
  * Folding: bool setExpanded(self, id, expanded) / toggle(self, id) / reveal(self, id)
@@ -88,7 +88,7 @@
  * Queries: bool isNode(self, id)
  *   const char *getLabel(self, id)
  *   bytes depthOf/childCountOf/subtreeCountOf/nodeCount/capacity/exhaustionCount(self)
- *   void clearExhaustion(self)
+ *   fn clearExhaustion(self)
  * Projections: TerminalProjection TerminalTreeView_toString/toStringStruct(self)
  * CONTRACT: every operation validates its id and refuses an unknown one by returning
  * the safe default (false / NO_NODE / NO_ROW / an empty row) WITHOUT mutating anything.
@@ -101,7 +101,7 @@
 #define TERMINAL_TREE_NO_INDEX ((bytes) -1)
 #define TERMINAL_TREE_NO_PARENT ((i32) -1)
 
-static void refuseNode(TerminalTreeView *self, const char *reason) {
+static fn refuseNode(TerminalTreeView *self, const char *reason) {
     if ((*self).nodeRefusals == 0)
         THROW("TerminalTreeView exhausted: %s (node capacity %zu, live %zu)",
               reason, (*self).nodeCapacity, (*self).nodeCount);
@@ -109,7 +109,7 @@ static void refuseNode(TerminalTreeView *self, const char *reason) {
         ++(*self).nodeRefusals;
 }
 
-static void refuseRow(TerminalTreeView *self, const char *reason) {
+static fn refuseRow(TerminalTreeView *self, const char *reason) {
     if ((*self).rowRefusals == 0)
         THROW("TerminalTreeView exhausted: %s (row capacity %zu, live %zu)",
               reason, (*self).rowsCapacity, (*self).visibleCount);
@@ -181,7 +181,7 @@ static bool appendRow(TerminalTreeView *self, bytes index) {
 // Recompute the rows that are actually shown. The pre-order layout is the whole trick: a
 // folded node's subtree is one contiguous range, so folding skips it in a single step and
 // unfolding descends into it one node at a time.
-static void rebuild(TerminalTreeView *self) {
+static fn rebuild(TerminalTreeView *self) {
     (*self).visibleCount = 0;
     bytes at = 0;
     while (at < (*self).nodeCount) {
@@ -198,7 +198,7 @@ static void rebuild(TerminalTreeView *self) {
         (*self).scrollRow = maximum;
 }
 
-TerminalTreeView *TerminalTreeView_0(void) {
+TerminalTreeView *TerminalTreeView_0() {
     TerminalTreeView *self = Memory_alloc(TYPE_BYTE_ARRAY, sizeof(TerminalTreeView));
     if (self == nullptr)
         return nullptr;
@@ -212,7 +212,7 @@ TerminalTreeView *TerminalTreeView_0(void) {
     return self;
 }
 
-void TerminalTreeView_free(TerminalTreeView *self) {
+fn TerminalTreeView_free(TerminalTreeView *self) {
     if (self == nullptr)
         return;
     Memory_free((*self).nodes);
@@ -314,7 +314,7 @@ bool TerminalTreeView_remove(TerminalTreeView *self, TerminalTreeNodeId id) {
     return true;
 }
 
-void TerminalTreeView_clear(TerminalTreeView *self) {
+fn TerminalTreeView_clear(TerminalTreeView *self) {
     if (self == nullptr)
         return;
     (*self).nodeCount = 0;
@@ -519,7 +519,7 @@ bytes TerminalTreeView_exhaustionCount(const TerminalTreeView *self) {
     return (*self).nodeRefusals + (*self).rowRefusals;
 }
 
-void TerminalTreeView_clearExhaustion(TerminalTreeView *self) {
+fn TerminalTreeView_clearExhaustion(TerminalTreeView *self) {
     if (self == nullptr)
         return;
     (*self).nodeRefusals = 0;
@@ -548,7 +548,7 @@ bool TerminalTreeView_getNerdIcons(const TerminalTreeView *self) {
     return self != nullptr ? (*self).nerdIcons : true;
 }
 
-void TerminalTreeView_paint(const TerminalTreeView *self, TerminalCanvas *canvas) {
+fn TerminalTreeView_paint(const TerminalTreeView *self, TerminalCanvas *canvas) {
     if (self == nullptr || canvas == nullptr || !TerminalCanvas_isValid(canvas))
         return;
     bytes visible = (*self).visibleCount;
@@ -615,8 +615,8 @@ TerminalProjection TerminalTreeView_toStringStruct(const TerminalTreeView *self)
         "TerminalTreeView { nodes=%p nodeCount=%zu nodeCapacity=%zu rows=%p visibleCount=%zu "
         "rowsCapacity=%zu nextId=%u selected=%u scrollRow=%zu viewportRows=%zu "
         "nodeRefusals=%zu rowRefusals=%zu indentSpaces=%zu nerdIcons=%d }",
-        (const void*) (*self).nodes, (*self).nodeCount, (*self).nodeCapacity,
-        (const void*) (*self).rows, (*self).visibleCount, (*self).rowsCapacity,
+        (const_any) (*self).nodes, (*self).nodeCount, (*self).nodeCapacity,
+        (const_any) (*self).rows, (*self).visibleCount, (*self).rowsCapacity,
         (unsigned) (*self).nextId, (unsigned) (*self).selected, (*self).scrollRow,
         (*self).viewportRows, (*self).nodeRefusals, (*self).rowRefusals,
         (*self).indentSpaces, (*self).nerdIcons);

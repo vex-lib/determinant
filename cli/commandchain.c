@@ -22,7 +22,7 @@
  * Getters: bytes CommandChain_getCount(const CommandChain *self)
  *   CommandInfo *CommandChain_getEntry(const CommandChain *self,
  *   bytes index)
- * Lifecycle: void CommandChain_free(CommandChain *self)
+ * Lifecycle: fn CommandChain_free(CommandChain *self)
  * Projections: bool CommandChain_toString/CommandChain_toStringStruct(
  *   const CommandChain *self, char *dest, bytes cap, bool *outTruncated)
  * CONTRACT: takes ownership of entries only on success; duplicates and null
@@ -64,7 +64,7 @@ CommandInfo *CommandChain_getEntry(const CommandChain *self, bytes index) {
         return nullptr;
     return (*self).entries[index];
 }
-void CommandChain_free(CommandChain *self) {
+fn CommandChain_free(CommandChain *self) {
     if (self == nullptr)
         return;
     for (bytes i = 0; i < (*self).count; ++i)

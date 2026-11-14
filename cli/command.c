@@ -20,12 +20,12 @@
  * bytes argumentCount       initialized directory extent
  * u8 **arguments        owned strings in inline pointer directory
  * FUNCTION REGISTRY (exports)
- * Constructors: Command *Command_0(void)
+ * Constructors: Command *Command_0()
  *   Command *Command_3(u8 *name, u8 **arguments, bytes count)
  * Getters: u8 *Command_name(const Command *self)
  *   bytes Command_argumentCount(const Command *self)
  *   u8 *Command_argument(const Command *self, bytes index)
- * Lifecycle: void Command_free(Command *self)
+ * Lifecycle: fn Command_free(Command *self)
  * Projections: bool Command_toString/Command_toStringStruct(
  *   const Command *self, char *dest, bytes cap, bool *outTruncated)
  * CONTRACT: caller-thread cold allocation; live string blocks required;
@@ -35,7 +35,7 @@
  * Null getters return zero/null. Free null is harmless. Projections redact
  * owned strings, avoiding raw control/secret text; truncation always flagged.
  * ======================================================================== */
-Command *Command_0(void) {
+Command *Command_0() {
     u8 *name = String("");
     if (name == nullptr)
         return nullptr;
@@ -79,7 +79,7 @@ u8 *Command_argument(const Command *self, bytes index) {
         return nullptr;
     return (*self).arguments[index];
 }
-void Command_free(Command *self) {
+fn Command_free(Command *self) {
     if (self == nullptr)
         return;
     string_free((*self).name);

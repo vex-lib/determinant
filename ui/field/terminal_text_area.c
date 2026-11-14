@@ -28,7 +28,7 @@
  * TerminalPen pen, cursorPen              text and cursor brush pens
  * ======================================================================== */
 
-TerminalTextArea *TerminalTextArea_0(void) {
+TerminalTextArea *TerminalTextArea_0() {
     return TerminalTextArea_2(nullptr, 0u);
 }
 
@@ -58,7 +58,7 @@ TerminalTextArea *TerminalTextArea_2(char *buffer, bytes capacity) {
     return self;
 }
 
-void TerminalTextArea_free(TerminalTextArea *self) {
+fn TerminalTextArea_free(TerminalTextArea *self) {
     if (self == nullptr)
         return;
     Memory_free(self);
@@ -159,7 +159,7 @@ bool TerminalTextArea_delete(TerminalTextArea *self) {
     return true;
 }
 
-void TerminalTextArea_clear(TerminalTextArea *self) {
+fn TerminalTextArea_clear(TerminalTextArea *self) {
     if (self == nullptr)
         return;
     if ((*self).buffer != nullptr && (*self).capacity > 0u)
@@ -170,7 +170,7 @@ void TerminalTextArea_clear(TerminalTextArea *self) {
     (*self).scrollCol = 0u;
 }
 
-void TerminalTextArea_moveCursor(TerminalTextArea *self, int deltaRow, int deltaCol) {
+fn TerminalTextArea_moveCursor(TerminalTextArea *self, int deltaRow, int deltaCol) {
     if (self == nullptr || (*self).buffer == nullptr || (*self).length == 0u)
         return;
 
@@ -236,7 +236,7 @@ TerminalPen TerminalTextArea_getPen(const TerminalTextArea *self) {
     return self != nullptr ? (*self).pen : TerminalPen_0();
 }
 
-void TerminalTextArea_render(const TerminalTextArea *self, TerminalCanvas *canvas) {
+fn TerminalTextArea_render(const TerminalTextArea *self, TerminalCanvas *canvas) {
     if (self == nullptr || canvas == nullptr || !TerminalCanvas_isValid(canvas))
         return;
 
@@ -302,6 +302,6 @@ TerminalProjection TerminalTextArea_toStringStruct(const TerminalTextArea *self)
         return TerminalProjection_format("nullptr");
     return TerminalProjection_format(
         "TerminalTextArea { buffer=%p capacity=%zu length=%zu cursorByte=%zu scrollRow=%zu scrollCol=%zu wrap=%d }",
-        (const void*) (*self).buffer, (*self).capacity, (*self).length, (*self).cursorByte,
+        (const_any) (*self).buffer, (*self).capacity, (*self).length, (*self).cursorByte,
         (*self).scrollRow, (*self).scrollCol, (*self).wrap);
 }

@@ -71,12 +71,12 @@ static short colorIndex256(u32 color) {
     return (short) (16 + 36 * cr + 6 * cg + cb);
 }
 
-static void compositorWriteRaw(TerminalCompositor *self, const char *bytes, bytes length) {
+static fn compositorWriteRaw(TerminalCompositor *self, const char *data, bytes length) {
     if (self == nullptr || length == 0u || (*self).fd < 0)
         return;
     bytes written = 0u;
     while (written < length) {
-        ssize_t result = write((*self).fd, bytes + written, length - written);
+        ssize_t result = write((*self).fd, data + written, length - written);
         if (result <= 0) {
             (*self).outFailed = true;
             return;
@@ -85,8 +85,8 @@ static void compositorWriteRaw(TerminalCompositor *self, const char *bytes, byte
     }
 }
 
-static void compositorAppend(TerminalCompositor *self, const char *bytes, bytes length) {
-    if (self == nullptr || bytes == nullptr || length == 0u)
+static fn compositorAppend(TerminalCompositor *self, const char *data, bytes length) {
+    if (self == nullptr || data == nullptr || length == 0u)
         return;
     while (length != 0u) {
         bytes room = sizeof((*self).out) - (*self).outLength;
@@ -95,20 +95,20 @@ static void compositorAppend(TerminalCompositor *self, const char *bytes, bytes 
             room = sizeof((*self).out);
         }
         bytes count = length < room ? length : room;
-        memcpy((*self).out + (*self).outLength, bytes, count);
+        memcpy((*self).out + (*self).outLength, data, count);
         (*self).outLength += count;
-        bytes += count;
+        data += count;
         length -= count;
     }
 }
 
-static void compositorText(TerminalCompositor *self, const char *text) {
+static fn compositorText(TerminalCompositor *self, const char *text) {
     if (text == nullptr)
         return;
     compositorAppend(self, text, strlen(text));
 }
 
-static void compositorByte(TerminalCompositor *self, char byte) {
+static fn compositorByte(TerminalCompositor *self, char byte) {
     compositorAppend(self, &byte, 1u);
 }
 
@@ -154,7 +154,7 @@ static bytes formatPenParams(TerminalCompositor *self, char *params, bytes capac
     return at;
 }
 
-static void compositorPen(TerminalCompositor *self, u16 style, u32 fg, u32 bg) {
+static fn compositorPen(TerminalCompositor *self, u16 style, u32 fg, u32 bg) {
     char params[TERMINAL_COMPOSITOR_PEN_CAPACITY];
     bytes length = formatPenParams(self, params, sizeof(params), style, fg, bg);
     if ((*self).penValid && length == (*self).penLength
@@ -168,7 +168,7 @@ static void compositorPen(TerminalCompositor *self, u16 style, u32 fg, u32 bg) {
     compositorByte(self, 'm');
 }
 
-static void compositorMove(TerminalCompositor *self, bytes column, bytes row) {
+static fn compositorMove(TerminalCompositor *self, bytes column, bytes row) {
     if ((*self).cursorColumn == column && (*self).cursorRow == row)
         return;
     char sequence[32];
@@ -179,7 +179,7 @@ static void compositorMove(TerminalCompositor *self, bytes column, bytes row) {
     (*self).cursorRow = row;
 }
 
-TerminalCompositor *TerminalCompositor_0(void) {
+TerminalCompositor *TerminalCompositor_0() {
     return TerminalCompositor_1(STDOUT_FILENO);
 }
 
@@ -204,7 +204,7 @@ TerminalCompositor *TerminalCompositor_1(int fd) {
     return self;
 }
 
-void TerminalCompositor_free(TerminalCompositor *self) {
+fn TerminalCompositor_free(TerminalCompositor *self) {
     if (self == nullptr)
         return;
     if ((*self).inAlternate)
@@ -238,14 +238,14 @@ bool TerminalCompositor_leave(TerminalCompositor *self) {
     return !(*self).outFailed;
 }
 
-void TerminalCompositor_flush(TerminalCompositor *self) {
+fn TerminalCompositor_flush(TerminalCompositor *self) {
     if (self == nullptr || (*self).outLength == 0u)
         return;
     compositorWriteRaw(self, (*self).out, (*self).outLength);
     (*self).outLength = 0u;
 }
 
-void TerminalCompositor_forget(TerminalCompositor *self) {
+fn TerminalCompositor_forget(TerminalCompositor *self) {
     if (self == nullptr)
         return;
     (*self).cursorColumn = (bytes) -1;
@@ -254,7 +254,7 @@ void TerminalCompositor_forget(TerminalCompositor *self) {
     (*self).penValid = false;
 }
 
-void TerminalCompositor_clear(TerminalCompositor *self) {
+fn TerminalCompositor_clear(TerminalCompositor *self) {
     if (self == nullptr)
         return;
     TerminalCompositor_forget(self);
@@ -262,7 +262,7 @@ void TerminalCompositor_clear(TerminalCompositor *self) {
     TerminalCompositor_flush(self);
 }
 
-bool TerminalCompositor_blitRun(void *context, TerminalRun run) {
+bool TerminalCompositor_blitRun(any context, TerminalRun run) {
     TerminalCompositor *self = (TerminalCompositor*) context;
     if (self == nullptr)
         return false;
@@ -307,7 +307,7 @@ bool TerminalCompositor_blitRun(void *context, TerminalRun run) {
     return !(*self).outFailed;
 }
 
-void TerminalCompositor_phase(void *context, TerminalPresentPhase phase) {
+fn TerminalCompositor_phase(any context, TerminalPresentPhase phase) {
     TerminalCompositor *self = (TerminalCompositor*) context;
     if (self == nullptr)
         return;

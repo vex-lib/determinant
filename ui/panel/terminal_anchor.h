@@ -77,7 +77,7 @@ typedef struct TerminalAnchor {
     bytes insetY;
 } TerminalAnchor;
 
-TerminalAnchor TerminalAnchor_0(void);                                       // FILL
+TerminalAnchor TerminalAnchor_0();                                       // FILL
 TerminalAnchor TerminalAnchor_1(TerminalAnchorKind kind);
 TerminalAnchor TerminalAnchor_2(TerminalAnchorKind kind, bytes extent);
 TerminalAnchor TerminalAnchor_3(TerminalAnchorKind kind, bytes width, bytes height);

@@ -18,7 +18,7 @@ static bool sink(void *context, const char *text, bytes length) {
     captured[used++] = '\n'; captured[used] = 0;
     return true;
 }
-int main(void) {
+int main() {
     char path[4096];
     const char *tmp = getenv("TMPDIR");
     assert(tmp != nullptr);

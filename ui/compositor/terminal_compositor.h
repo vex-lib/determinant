@@ -51,22 +51,22 @@ typedef struct TerminalCompositor {
     char out[TERMINAL_COMPOSITOR_BUFFER_CAPACITY];
 } TerminalCompositor;
 
-TerminalCompositor *TerminalCompositor_0(void);
+TerminalCompositor *TerminalCompositor_0();
 TerminalCompositor *TerminalCompositor_1(int fd);
 #define TerminalCompositor(...) CONSTRUCTOR_DISPATCH(TerminalCompositor, __VA_ARGS__)
 #define TerminalCompositor_zero() TerminalCompositor_0()
 
-void TerminalCompositor_free(TerminalCompositor *self);
+fn TerminalCompositor_free(TerminalCompositor *self);
 
 bool TerminalCompositor_enter(TerminalCompositor *self);
 bool TerminalCompositor_leave(TerminalCompositor *self);
-void TerminalCompositor_flush(TerminalCompositor *self);
-void TerminalCompositor_forget(TerminalCompositor *self);
-void TerminalCompositor_clear(TerminalCompositor *self);
+fn TerminalCompositor_flush(TerminalCompositor *self);
+fn TerminalCompositor_forget(TerminalCompositor *self);
+fn TerminalCompositor_clear(TerminalCompositor *self);
 
 // TerminalSurface sink callbacks:
-bool TerminalCompositor_blitRun(void *context, TerminalRun run);
-void TerminalCompositor_phase(void *context, TerminalPresentPhase phase);
+bool TerminalCompositor_blitRun(any context, TerminalRun run);
+fn TerminalCompositor_phase(any context, TerminalPresentPhase phase);
 
 bool TerminalCompositor_setFd(TerminalCompositor *self, int fd);
 int TerminalCompositor_getFd(const TerminalCompositor *self);

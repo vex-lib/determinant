@@ -55,7 +55,7 @@ TerminalMarkdownTheme TerminalMarkdownView_getTheme(const TerminalMarkdownView *
 TerminalMarkdownAction TerminalMarkdownView_actionAt(const TerminalMarkdownView *self,
                                                      bytes row, bytes column);
 bool TerminalMarkdownView_setHover(TerminalMarkdownView *self, bytes row, bytes column);
-void TerminalMarkdownView_clearHover(TerminalMarkdownView *self);
+fn TerminalMarkdownView_clearHover(TerminalMarkdownView *self);
 
 // Copy the fence at `block` into `dest` (newline-separated, no trailing
 // newline). Atomic and allocation-free; false when it does not fit. The caller
@@ -77,12 +77,12 @@ TerminalMarkdownCodeLine TerminalMarkdownView_codeBlockLine(const TerminalMarkdo
                                                             TerminalMarkdownCodeBlock block,
                                                             bytes line);
 
-TerminalMarkdownView *TerminalMarkdownView_0(void);
+TerminalMarkdownView *TerminalMarkdownView_0();
 #define TerminalMarkdownView(...) CONSTRUCTOR_DISPATCH(TerminalMarkdownView, __VA_ARGS__)
 #define TerminalMarkdownView_zero() TerminalMarkdownView_0()
 
 // Frees the view and its row/segment pools. The borrowed source is never freed.
-void TerminalMarkdownView_free(TerminalMarkdownView *self);
+fn TerminalMarkdownView_free(TerminalMarkdownView *self);
 
 // Borrow `count` non-null lines. A null list or null line with a nonzero count is refused. The source
 // stays borrowed: the caller must clear it before freeing the lines. Marking the
@@ -123,7 +123,7 @@ bool TerminalMarkdownView_scrollXBy(TerminalMarkdownView *self, long delta);
 bool TerminalMarkdownView_isReady(const TerminalMarkdownView *self);
 bool TerminalMarkdownView_isTruncated(const TerminalMarkdownView *self);
 bytes TerminalMarkdownView_exhaustionCount(const TerminalMarkdownView *self);
-void TerminalMarkdownView_clearExhaustion(TerminalMarkdownView *self);
+fn TerminalMarkdownView_clearExhaustion(TerminalMarkdownView *self);
 
 bool TerminalMarkdownView_setStyle(TerminalMarkdownView *self, TerminalMarkdownStyle style);
 TerminalMarkdownStyle TerminalMarkdownView_getStyle(const TerminalMarkdownView *self);
@@ -131,7 +131,7 @@ TerminalMarkdownStyle TerminalMarkdownView_getStyle(const TerminalMarkdownView *
 // Hot: draw the rows visible from the current scroll into `canvas`, row 0 first.
 // Clipped to the canvas, allocation-free and quiet. A null view, an invalid
 // canvas, or a view that is not ready is a no-op.
-void TerminalMarkdownView_render(const TerminalMarkdownView *self, TerminalCanvas *canvas);
+fn TerminalMarkdownView_render(const TerminalMarkdownView *self, TerminalCanvas *canvas);
 
 TerminalProjection TerminalMarkdownView_toString(const TerminalMarkdownView *self);
 TerminalProjection TerminalMarkdownView_toStringStruct(const TerminalMarkdownView *self);

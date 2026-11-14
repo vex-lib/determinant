@@ -20,7 +20,7 @@
  *   TerminalPen tableHeader/tableBorder/copy/copied
  *   const char *bar/copyGlyph/copiedGlyph   borrowed glyph strings
  * FUNCTION REGISTRY (exports)
- * Constructors: TerminalMarkdownTheme_0(void)
+ * Constructors: TerminalMarkdownTheme_0()
  * Resolve:      TerminalMarkdownTheme_pen(self, role, variant, hovered)
  * Projection:   fromStyle(style); TerminalMarkdownStyle style(self)
  * CONTRACT: null theme resolves to the default body pen; a heading variant
@@ -34,7 +34,7 @@ static u8 headingIndex(u8 level) {
     return (u8) (level - 1u > 5u ? 5u : level - 1u);
 }
 
-TerminalMarkdownTheme TerminalMarkdownTheme_0(void) {
+TerminalMarkdownTheme TerminalMarkdownTheme_0() {
     TerminalMarkdownTheme theme = {0};
     theme.heading[0] = TerminalPen_2(TERMINAL_STYLE_BOLD, TERMINAL_RGB(0xE8, 0xC4, 0x6A));
     theme.heading[1] = TerminalPen_2(TERMINAL_STYLE_BOLD, TERMINAL_RGB(0x8F, 0xC7, 0xE8));

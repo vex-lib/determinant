@@ -8,7 +8,7 @@
 // a cause fragment; quiet admitted paths fail on any unexpected diagnostics.
 static FILE *diagnostics;
 static int savedStderr;
-static void beginDiagnostics(void) {
+static fn beginDiagnostics() {
     fflush(stderr);
     diagnostics = tmpfile();
     assert(diagnostics != nullptr);
@@ -16,7 +16,7 @@ static void beginDiagnostics(void) {
     assert(savedStderr >= 0);
     assert(dup2(fileno(diagnostics), STDERR_FILENO) >= 0);
 }
-static void endDiagnostics(bytes expected, const char *fragment) {
+static fn endDiagnostics(bytes expected, const char *fragment) {
     fflush(stderr);
     assert(dup2(savedStderr, STDERR_FILENO) >= 0);
     close(savedStderr);
