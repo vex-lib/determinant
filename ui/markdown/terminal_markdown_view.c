@@ -2007,13 +2007,13 @@ void TerminalMarkdownView_render(const TerminalMarkdownView *self, TerminalCanva
                 while (at < (*segment).length) {
                     TerminalCanvasDecodedScalar decoded =
                         TerminalCanvas_utf8Decode((*segment).text + at, (*segment).length - at);
-                    bytes bytes = decoded.bytes == 0 ? 1u : decoded.bytes;
+                    bytes consumed = decoded.bytes == 0 ? 1u : decoded.bytes;
                     bytes cellW = decoded.bytes == 0 ? 1u : TerminalCanvas_widthOf(decoded.codepoint);
                     if (x >= scrollX && x + cellW <= scrollX + width) {
-                        TerminalCanvas_text(canvas, x - scrollX, row, (*segment).text + at, bytes, pen);
+                        TerminalCanvas_text(canvas, x - scrollX, row, (*segment).text + at, consumed, pen);
                     }
                     x += cellW;
-                    at += bytes;
+                    at += consumed;
                 }
                 if (advance == 0)
                     break;
