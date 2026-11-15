@@ -152,8 +152,8 @@ int main() {
         TerminalRule_drawCut(&boxed, nullptr, 0, 1, TerminalPen());
         TerminalRule_drawCut(nullptr, &line, 0, 1, TerminalPen());
     }
-    (fn) TerminalFrame_getRails(nullptr);
-    (fn) TerminalFrame_getBands(nullptr);
+    (discard) TerminalFrame_getRails(nullptr);
+    (discard) TerminalFrame_getBands(nullptr);
 
     TERMINAL_PROJECT(TerminalFrame, &frame);
     return 0;

@@ -12,9 +12,9 @@
 #include "determinant/test/support.h"
 
 // Feed a literal sequence, returning how many feed calls completed an event.
-static bytes feedString(TerminalInput *input, const char *bytes) {
+static bytes feedString(TerminalInput *input, const char *literal) {
     bytes completions = 0;
-    for (const char *at = bytes; *at != '\0'; ++at)
+    for (const char *at = literal; *at != '\0'; ++at)
         if (TerminalInput_feed(input, (unsigned char) *at))
             ++completions;
     return completions;

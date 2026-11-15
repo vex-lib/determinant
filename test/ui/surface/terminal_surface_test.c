@@ -91,7 +91,7 @@ static bool reentrantSink(any hostContext, TerminalRun run) {
     TerminalPresentResult nested = TerminalSurface_present((*log).surface);
     if (!nested.ok && !nested.changed && nested.runs == 0)
         ++(*log).reentered;
-    (fn) run;
+    (discard) run;
     ++(*log).runs;
     return true;
 }
@@ -102,7 +102,7 @@ static bool busyProbeSink(any hostContext, TerminalRun run) {
     ++(*log).calls;
     assert(!TerminalSurface_reset((*log).surface));
     assert(!TerminalSurface_setGapTolerance((*log).surface, 2));
-    (fn) run;
+    (discard) run;
     ++(*log).runs;
     return true;
 }

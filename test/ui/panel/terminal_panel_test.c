@@ -211,7 +211,7 @@ int main() {
     TerminalText *orphan = TerminalText("orphan");
     REJECT(TerminalPanel_isChildId(TerminalPanel_addText(nullptr, orphan, TerminalAnchor())), "add");
     TerminalText_free(orphan);            // the refused add left it with the caller
-    (fn) underId;
+    (discard) underId;
 
     // --- Cold growth past the named default; every child survives ---
     TerminalPanel *grown = TerminalPanel();

@@ -6,7 +6,7 @@
 #include "ui/button/terminal_button.h"
 #include "determinant/test/support.h"
 static bool sink(any context, const char *text, bytes length) {
-    (fn) context; (fn) text; (fn) length; return true;
+    (discard) context; (discard) text; (discard) length; return true;
 }
 int main() {
     char cells[20];

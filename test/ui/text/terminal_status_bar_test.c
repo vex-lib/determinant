@@ -37,7 +37,7 @@ int main() {
     TerminalStatusBar_render(&bar, nullptr);
     assert(TerminalStatusBar_getLeft(nullptr) == nullptr && TerminalStatusBar_getRight(nullptr) == nullptr);
     TerminalStatusBar_setPens(nullptr, TerminalPen_0(), TerminalPen_0());
-    (fn) TerminalStatusBar_getPens(nullptr);
+    (discard) TerminalStatusBar_getPens(nullptr);
     REJECT(TerminalStatusBar_setLeft(nullptr, "x"), "null self");
     REJECT(TerminalStatusBar_setRight(nullptr, "x"), "null self");
     TerminalStatusBar empty = TerminalStatusBar_0();

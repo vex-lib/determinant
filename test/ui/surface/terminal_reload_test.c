@@ -7,13 +7,13 @@
 #include "determinant/test/support.h"
 #include <dlfcn.h>
 static bool sink(any context, const char *text, bytes length) {
-    (fn) context; assert(text && length == 4); return true;
+    (discard) context; assert(text && length == 4); return true;
 }
 int main() {
 #if !defined(DETERMINANT_MODULE_A) || !defined(DETERMINANT_MODULE_B)
-    (fn) sink;
-    (fn) beginDiagnostics;
-    (fn) endDiagnostics;
+    (discard) sink;
+    (discard) beginDiagnostics;
+    (discard) endDiagnostics;
     fprintf(stderr, "SKIP: externally built module paths unavailable\n");
     return B_TEST_SKIP;
 #else

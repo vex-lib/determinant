@@ -91,10 +91,10 @@ static bool isBoundary(const char *text, bytes length, bytes offset) {
                                                                           length - at);
         if (decoded.bytes == 0)
             return false;
-        bytes bytes = scalarBytes(text + at, length - at);
-        if (bytes > offset - at)
+        bytes byteCount = scalarBytes(text + at, length - at);
+        if (byteCount > offset - at)
             return false;
-        at += bytes;
+        at += byteCount;
     }
     return at == offset;
 }
@@ -144,13 +144,13 @@ static fn paintRange(const TerminalCodeView *self, TerminalCanvas *canvas,
                        bytes *cell, bytes left, bytes right) {
     bytes at = first;
     while (at < end) {
-        bytes bytes = scalarBytes((*self).text + at, end - at);
+        bytes byteCount = scalarBytes((*self).text + at, end - at);
         bytes width = cellWidth((*self).text + at, end - at);
         if ((*cell) >= left && (*cell) + width <= right)
             TerminalCanvas_text(canvas, x + (*cell) - left, y,
-                                (*self).text + at, bytes, penAt(self, at));
+                                (*self).text + at, byteCount, penAt(self, at));
         (*cell) += width;
-        at += bytes;
+        at += byteCount;
     }
 }
 
@@ -234,13 +234,13 @@ fn TerminalCodeView_render(const TerminalCodeView *self, TerminalCanvas *canvas,
             const TerminalCodeHint *hint = &(*self).hints[hintIndex++];
             bytes hintAt = 0;
             while (hintAt < (*hint).length) {
-                bytes bytes = scalarBytes((*hint).text + hintAt, (*hint).length - hintAt);
+                bytes byteCount = scalarBytes((*hint).text + hintAt, (*hint).length - hintAt);
                 bytes glyphWidth = cellWidth((*hint).text + hintAt, (*hint).length - hintAt);
                 if (cell >= left && cell + glyphWidth <= right)
                     TerminalCanvas_text(canvas, x + cell - left, y,
-                                        (*hint).text + hintAt, bytes, (*hint).pen);
+                                        (*hint).text + hintAt, byteCount, (*hint).pen);
                 cell += glyphWidth;
-                hintAt += bytes;
+                hintAt += byteCount;
             }
         }
         if (at == (*self).length)

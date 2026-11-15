@@ -133,7 +133,7 @@ TerminalAppearanceColors TerminalAppearance_getColors(const TerminalAppearance *
 fn TerminalAppearance_applyTo(const TerminalAppearance *self, TerminalFrame *frame) {
     if (self == nullptr || frame == nullptr)
         return;
-    (fn) TerminalFrame_setRule(frame, (*self).rule);
+    (discard) TerminalFrame_setRule(frame, (*self).rule);
 }
 
 fn TerminalAppearance_drawRule(const TerminalAppearance *self, TerminalCanvas *canvas,

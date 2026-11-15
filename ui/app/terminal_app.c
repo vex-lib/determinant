@@ -40,7 +40,7 @@
 static volatile sig_atomic_t gSignalQuit = 0;
 
 static fn onSignal(int sig) {
-    (fn) sig;
+    (discard) sig;
     gSignalQuit = 1;
 }
 

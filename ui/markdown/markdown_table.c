@@ -142,7 +142,7 @@ bytes TerminalMarkdownTable_longestWord(const char *text, bytes length) {
     bytes at = 0;
     while (text != nullptr && at < length) {
         TerminalCanvasDecodedScalar decoded = TerminalCanvas_utf8Decode(text + at, length - at);
-        bytes bytes = decoded.bytes == 0 ? 1u : decoded.bytes;
+        bytes byteCount = decoded.bytes == 0 ? 1u : decoded.bytes;
         if (decoded.bytes == 0 || TerminalMarkdownText_isSpace(text[at])) {
             if (word > longest)
                 longest = word;
@@ -150,7 +150,7 @@ bytes TerminalMarkdownTable_longestWord(const char *text, bytes length) {
         } else {
             word += TerminalCanvas_widthOf(decoded.codepoint);
         }
-        at += bytes;
+        at += byteCount;
     }
     if (word > longest)
         longest = word;
@@ -193,7 +193,7 @@ TerminalMarkdownTableCellLine TerminalMarkdownTable_cellLine(const char *text, b
                 ++afterSpace;
         }
         TerminalCanvasDecodedScalar decoded = TerminalCanvas_utf8Decode(text + at, length - at);
-        bytes bytes = decoded.bytes == 0 ? 1u : decoded.bytes;
+        bytes byteCount = decoded.bytes == 0 ? 1u : decoded.bytes;
         bytes glyphCells = decoded.bytes == 0 ? 1u : TerminalCanvas_widthOf(decoded.codepoint);
         if (glyphCells != 0 && used + glyphCells > availableWidth) {
             if (lastSpace != SIZE_MAX) {
@@ -217,7 +217,7 @@ TerminalMarkdownTableCellLine TerminalMarkdownTable_cellLine(const char *text, b
             return line;
         }
         used += glyphCells;
-        at += bytes;
+        at += byteCount;
     }
     line.length = at - offset;
     line.next = length;
@@ -302,29 +302,29 @@ bool TerminalMarkdownTable_allocate(const bytes *needed, const bytes *minimums, 
         return true;
     }
     bytes used = 0;
-    long d64 fractions[TERMINAL_MARKDOWN_TABLE_COLUMNS] = {0};
+    d64 fractions[TERMINAL_MARKDOWN_TABLE_COLUMNS] = {0};
     for (bytes column = 0; column < columns; ++column) {
         bytes extra = needed[column] > minimums[column] ? needed[column] - minimums[column] : 0u;
-        long d64 share = (long d64) extraBudget * (long d64) extra
-                          / (long d64) remainingNeed;
+        d64 share = (d64) extraBudget * (d64) extra
+                          / (d64) remainingNeed;
         bytes whole = (bytes) share;
         if (whole > extra)
             whole = extra;
         widths[column] += whole;
         used += whole;
-        fractions[column] = whole == extra ? -1.0L : share - (long d64) whole;
+        fractions[column] = whole == extra ? -1.0 : share - (d64) whole;
     }
     while (used < extraBudget) {
         bytes chosen = SIZE_MAX;
         for (bytes column = 0; column < columns; ++column)
-            if (fractions[column] >= 0.0L
+            if (fractions[column] >= 0.0
                 && (chosen == SIZE_MAX || fractions[column] > fractions[chosen]))
                 chosen = column;
         if (chosen == SIZE_MAX)
             break;
         ++widths[chosen];
         ++used;
-        fractions[chosen] = -1.0L;
+        fractions[chosen] = -1.0;
     }
     applySpacing(widths, columns, available);
     return true;

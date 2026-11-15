@@ -227,21 +227,21 @@ bytes TerminalBreadcrumb_format(const TerminalBreadcrumb *self, char *destinatio
 
     if (!isInsideRoot) {
         if (segmentCount >= 2u) {
-            (fn) snprintf(scratchBuffer, sizeof scratchBuffer, "…%s%.*s%s%.*s",
+            (discard) snprintf(scratchBuffer, sizeof scratchBuffer, "…%s%.*s%s%.*s",
                             activeSeparator,
                             (int) lastSegmentLengths[0], lastSegmentPointers[0],
                             activeSeparator,
                             (int) lastSegmentLengths[1], lastSegmentPointers[1]);
         } else if (segmentCount == 1u) {
-            (fn) snprintf(scratchBuffer, sizeof scratchBuffer, "…%s%.*s",
+            (discard) snprintf(scratchBuffer, sizeof scratchBuffer, "…%s%.*s",
                             activeSeparator,
                             (int) lastSegmentLengths[1], lastSegmentPointers[1]);
         } else {
-            (fn) snprintf(scratchBuffer, sizeof scratchBuffer, "…");
+            (discard) snprintf(scratchBuffer, sizeof scratchBuffer, "…");
         }
     } else {
         if (segmentCount == 0u) {
-            (fn) snprintf(scratchBuffer, sizeof scratchBuffer, "%s", rootBaseName);
+            (discard) snprintf(scratchBuffer, sizeof scratchBuffer, "%s", rootBaseName);
         } else if (segmentCount <= 4u) {
             bytes writtenBytes = (bytes) snprintf(scratchBuffer, sizeof scratchBuffer, "%s", rootBaseName);
             const char *componentScanner = relativeCursor;
@@ -260,7 +260,7 @@ bytes TerminalBreadcrumb_format(const TerminalBreadcrumb *self, char *destinatio
                 componentScanner = nextSlash + 1u;
             }
         } else {
-            (fn) snprintf(scratchBuffer, sizeof scratchBuffer, "%s%s%.*s%s…%s%.*s%s%.*s",
+            (discard) snprintf(scratchBuffer, sizeof scratchBuffer, "%s%s%.*s%s…%s%.*s%s%.*s",
                             rootBaseName, activeSeparator,
                             (int) firstSegmentLengths[0], firstSegmentPointers[0],
                             activeSeparator, activeSeparator,

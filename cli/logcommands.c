@@ -1,6 +1,6 @@
 #include "vex.h"
 #include "cli/logcommands.h"
-#include "io/file.h"
+#include "io/file/file.h"
 #include "io/logparser.h"
 #include <stdio.h>
 

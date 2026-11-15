@@ -239,7 +239,7 @@ static fn parseInto(SpanSink *sink, const char *text, bytes length,
         } else {
             emitSpan(sink, text + start, at - start, base, style, link, linkLength);
         }
-        (fn) intraword;
+        (discard) intraword;
     }
 }
 

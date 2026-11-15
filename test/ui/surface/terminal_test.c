@@ -12,7 +12,7 @@ static bool sink(any context, const char *text, bytes length) {
     return true;
 }
 static bool failedSink(any context, const char *text, bytes length) {
-    (fn) context; (fn) text; (fn) length; return false;
+    (discard) context; (discard) text; (discard) length; return false;
 }
 static bool viewA(any state, Terminal *terminal) {
     ++*(bytes*) state;

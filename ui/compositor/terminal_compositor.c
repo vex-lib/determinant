@@ -297,9 +297,9 @@ bool TerminalCompositor_blitRun(any context, TerminalRun run) {
 
         compositorMove(self, column, run.y);
         compositorPen(self, style, cellFg, cellBg);
-        char bytes[4];
-        bytes length = utf8Encode(glyph, bytes);
-        compositorAppend(self, bytes, length);
+        char encoded[4];
+        bytes length = utf8Encode(glyph, encoded);
+        compositorAppend(self, encoded, length);
         (*self).cursorColumn = column + width;
         (*self).cursorRow = run.y;
     }

@@ -65,7 +65,7 @@ fn TerminalTextView_setPen(TerminalTextView *self, TerminalPen pen) { if (self !
 TerminalPen TerminalTextView_getPen(const TerminalTextView *self) { return self ? (*self).pen : TerminalPen_0(); }
 
 bool TerminalTextView_scrollBy(TerminalTextView *self, long delta, bytes visibleRows) {
-    (fn) visibleRows;
+    (discard) visibleRows;
     if (self == nullptr)
         return false;
     if (delta > 0) {

@@ -937,7 +937,7 @@ static bool emitFenceBlock(TerminalMarkdownView *self, const char *const *lines,
 
 static bool emitFence(TerminalMarkdownView *self, const char *const *lines, bytes lineCount,
                       bytes *index, char marker, bytes run, bytes contentStart) {
-    (fn) contentStart;
+    (discard) contentStart;
     if (!emitGap(self))
         return false;
     MarkdownPrefix prefix = {0};
