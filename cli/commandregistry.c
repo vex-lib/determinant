@@ -83,7 +83,7 @@ bool CommandRegistry_register(CommandRegistry *self, const char *name, CommandFn
         THROW("CommandRegistry register: invalid input or busy");
         return false;
     }
-    for (const unsigned char *p = (const unsigned char*) name; *p != 0; ++p)
+    for (const u8 *p = (const u8*) name; *p != 0; ++p)
         if (*p <= 32 || *p >= 127) {
             THROW("CommandRegistry register: invalid ASCII name");
             return false;
@@ -164,7 +164,7 @@ bool CommandRegistry_toStringStruct(const CommandRegistry *self, char *dest, byt
         THROW("CommandRegistry projection: missing destination");
         return false;
     }
-    int n = self ? snprintf(dest, cap, "CommandRegistry{rows=<borrowed>,capacity=%zu,count=%zu,output=%s,hostContext=<opaque>,refusalCount=%zu,active=%d}",
+    i32 n = self ? snprintf(dest, cap, "CommandRegistry{rows=<borrowed>,capacity=%zu,count=%zu,output=%s,hostContext=<opaque>,refusalCount=%zu,active=%d}",
         (*self).capacity, (*self).count, (*self).output ? "bound" : "none", (*self).refusalCount, (*self).active)
         : snprintf(dest, cap, "nullptr");
     bool cut = n < 0 || (bytes) n >= cap;

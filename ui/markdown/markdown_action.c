@@ -35,7 +35,7 @@ TerminalProjection TerminalMarkdownAction_toString(TerminalMarkdownAction action
     switch (action.kind) {
         case TERMINAL_MARKDOWN_ACTION_LINK:
             return TerminalProjection_format("link{target=%.*s}",
-                                             (int) action.targetLength,
+                                             (i32) action.targetLength,
                                              action.target != nullptr ? action.target : "");
         case TERMINAL_MARKDOWN_ACTION_COPY_CODE:
             return TerminalProjection_format("copy{block=%zu}", action.block);
@@ -47,6 +47,6 @@ TerminalProjection TerminalMarkdownAction_toString(TerminalMarkdownAction action
 TerminalProjection TerminalMarkdownAction_toStringStruct(TerminalMarkdownAction action) {
     return TerminalProjection_format(
         "TerminalMarkdownAction{kind=%d,target=%s,targetLength=%zu,block=%zu}",
-        (int) action.kind, action.target != nullptr ? "<borrowed>" : "nullptr",
+        (i32) action.kind, action.target != nullptr ? "<borrowed>" : "nullptr",
         action.targetLength, action.block);
 }

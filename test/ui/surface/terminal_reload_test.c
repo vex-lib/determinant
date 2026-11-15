@@ -9,7 +9,7 @@
 static bool sink(any context, const char *text, bytes length) {
     (discard) context; assert(text && length == 4); return true;
 }
-int main() {
+i32 main() {
 #if !defined(DETERMINANT_MODULE_A) || !defined(DETERMINANT_MODULE_B)
     (discard) sink;
     (discard) beginDiagnostics;

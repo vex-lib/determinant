@@ -86,7 +86,7 @@ TerminalListViewPens TerminalListView_getPens(const TerminalListView *self) {
                 : (TerminalListViewPens) { TerminalPen_0(), TerminalPen_0() };
 }
 
-bool TerminalListView_move(TerminalListView *self, long delta, bytes visibleRows) {
+bool TerminalListView_move(TerminalListView *self, i64 delta, bytes visibleRows) {
     if (self == nullptr || (*self).count == 0)
         return false;
     bytes selection = (*self).selection;

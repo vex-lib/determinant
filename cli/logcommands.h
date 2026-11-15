@@ -8,5 +8,5 @@
 bool LogCommands_stat(const char *path, DeterminantOutputFn output, any hostContext);
 // limit < 0 means all records. Sink failure returns false; already delivered
 // prefix cannot roll back. The underlying R2 parser cannot cancel mid-read.
-bool LogCommands_cat(const char *path, int limit, DeterminantOutputFn output, any hostContext);
+bool LogCommands_cat(const char *path, i32 limit, DeterminantOutputFn output, any hostContext);
 #endif

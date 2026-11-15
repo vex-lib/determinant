@@ -5,7 +5,7 @@
 #include "ui/image/terminal_image.h"
 #include "determinant/test/support.h"
 
-int main() {
+i32 main() {
     // 2x1 image: black then white.
     static const u8 two[2 * 1 * 4] = {
         0, 0, 0, 255,
@@ -108,7 +108,7 @@ int main() {
         TerminalCanvas_fill(&noisyCanvas, ' ', TerminalPen());
         TerminalImage_renderContain(&noisy, &noisyCanvas);
         assert(TerminalCanvas_glyphAt(&noisyCanvas, 5, 3) == first);
-        int rescattered = 0;
+        i32 rescattered = 0;
         for (u32 seed = 1; seed <= 8 && !rescattered; ++seed) {
             TerminalImage_setNoiseSeed(&noisy, seed);
             TerminalCanvas_fill(&noisyCanvas, ' ', TerminalPen());
@@ -214,10 +214,10 @@ int main() {
         assert(TerminalImage_getPaletteScatter(&flat) == purple.count);
         TerminalImage_render(&flat, &wide, 0, 0);
         u32 firstColour = TerminalCanvas_fgAt(&wide, 0, 0);
-        int distinct = 0;
+        i32 distinct = 0;
         for (bytes x = 0; x < 64; ++x) {
             u32 colour = TerminalCanvas_fgAt(&wide, x, 0);
-            int inRamp = 0;
+            i32 inRamp = 0;
             for (bytes i = 0; i < purple.count; ++i)
                 if (colour == purple.data[i])
                     inRamp = 1;

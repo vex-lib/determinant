@@ -15,7 +15,7 @@ static inline TerminalProjection TerminalProjection_format(const char *format, .
     TerminalProjection projection = {0};
     va_list arguments;
     va_start(arguments, format);
-    int length = vsnprintf(projection.text, sizeof projection.text, format, arguments);
+    i32 length = vsnprintf(projection.text, sizeof projection.text, format, arguments);
     va_end(arguments);
     if (length < 0) {
         projection.text[0] = '\0';

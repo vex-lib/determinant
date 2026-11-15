@@ -89,7 +89,7 @@ bytes TerminalTextArea_getLength(const TerminalTextArea *self) {
     return self != nullptr ? (*self).length : 0u;
 }
 
-bool TerminalTextArea_insertChar(TerminalTextArea *self, int character) {
+bool TerminalTextArea_insertChar(TerminalTextArea *self, i32 character) {
     if (self == nullptr || (*self).buffer == nullptr)
         return false;
     if ((*self).length + 1u >= (*self).capacity)
@@ -169,7 +169,7 @@ fn TerminalTextArea_clear(TerminalTextArea *self) {
     (*self).scrollCol = 0u;
 }
 
-fn TerminalTextArea_moveCursor(TerminalTextArea *self, int deltaRow, int deltaCol) {
+fn TerminalTextArea_moveCursor(TerminalTextArea *self, i32 deltaRow, i32 deltaCol) {
     if (self == nullptr || (*self).buffer == nullptr || (*self).length == 0u)
         return;
 

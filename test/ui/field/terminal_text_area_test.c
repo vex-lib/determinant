@@ -71,7 +71,7 @@ static fn testNegativeRejections() {
     TerminalTextArea_free(empty);
 }
 
-int main() {
+i32 main() {
     testTextAreaEditing();
     testNegativeRejections();
     return 0;

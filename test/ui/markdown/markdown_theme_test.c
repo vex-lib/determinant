@@ -7,7 +7,7 @@
 #include <assert.h>
 #include <string.h>
 
-int main() {
+i32 main() {
     TerminalMarkdownTheme theme = TerminalMarkdownTheme();
     // Every heading level is a different pen, not one pen with a flag: that is
     // what makes `#`, `##` and `####` distinguishable in one document.

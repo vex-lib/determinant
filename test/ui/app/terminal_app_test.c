@@ -11,7 +11,7 @@
 #include <fcntl.h>
 
 static fn testHeadlessLifecycle() {
-    int fds[2];
+    i32 fds[2];
     assert(pipe(fds) == 0);
     assert(fcntl(fds[0], F_SETFL, O_NONBLOCK) == 0);
 
@@ -76,7 +76,7 @@ static fn testNegativeAppRejections() {
     TerminalApp_free(app);
 }
 
-int main() {
+i32 main() {
     testHeadlessLifecycle();
     testNegativeAppRejections();
     return 0;

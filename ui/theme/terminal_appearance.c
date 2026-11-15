@@ -40,7 +40,7 @@
 #define CP_f64_T 0x2566u   // ╦
 #define CP_f64_L 0x2560u   // ╠
 // Detached-box corners and cut endpoints. A panel gets its OWN corners instead of
-// meeting its neighbours at a junction, and a divider stops short ('╶───╴').
+// meeting its neighbours at a junction, and a divider stops i16 ('╶───╴').
 #define CP_TL       0x250Cu   // ┌
 #define CP_TR       0x2510u   // ┐
 #define CP_BL       0x2514u   // └
@@ -53,7 +53,7 @@
 #define CP_DBR      0x255Du   // ╝
 #define CP_CUT_DL   0x255Eu   // ╞
 #define CP_CUT_DR   0x2561u   // ╡
-// Every preset frames its panels with real corners and cuts its dividers short.
+// Every preset frames its panels with real corners and cuts its dividers i16.
 #define BOX_LIGHT   CP_TL, CP_TR, CP_BL, CP_BR, CP_CUT_L, CP_CUT_R
 #define BOX_f64  CP_DTL, CP_DTR, CP_DBL, CP_DBR, CP_CUT_DL, CP_CUT_DR
 

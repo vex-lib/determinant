@@ -6,7 +6,7 @@
 #include "format/terminal_color.h"
 #include "determinant/test/support.h"
 
-int main() {
+i32 main() {
     enum { W = 12, H = 4 };
     u32 cells[W * H];
     u16 styles[W * H];

@@ -82,7 +82,7 @@ bool CommandChain_toStringStruct(const CommandChain *self, char *dest, bytes cap
         THROW("CommandChain projection: missing destination");
         return false;
     }
-    int n = self ? snprintf(dest, cap, "CommandChain{count=%zu,entries=<owned>}", (*self).count)
+    i32 n = self ? snprintf(dest, cap, "CommandChain{count=%zu,entries=<owned>}", (*self).count)
                  : snprintf(dest, cap, "nullptr");
     bool cut = n < 0 || (bytes) n >= cap;
     if (outTruncated != nullptr)

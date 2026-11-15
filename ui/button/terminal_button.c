@@ -49,7 +49,7 @@ static bool validLabel(const char *label) {
     if (n > SIZE_MAX - 2)
         return false;
     for (bytes i = 0; i < n; ++i)
-        if ((unsigned char) label[i] < 32 || (unsigned char) label[i] >= 127)
+        if ((u8) label[i] < 32 || (u8) label[i] >= 127)
             return false;
     return true;
 }

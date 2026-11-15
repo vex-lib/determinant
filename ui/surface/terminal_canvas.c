@@ -116,8 +116,8 @@ TerminalCanvasDecodedScalar TerminalCanvas_utf8Decode(const char *text, bytes le
     TerminalCanvasDecodedScalar decoded = {0};
     if (text == nullptr || length == 0)
         return decoded;
-    const unsigned char *p = (const unsigned char*) text;
-    unsigned char b0 = p[0];
+    const u8 *p = (const u8*) text;
+    u8 b0 = p[0];
     if (b0 < 0x80u) {
         decoded.codepoint = b0;
         decoded.bytes = 1;

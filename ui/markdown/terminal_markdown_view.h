@@ -100,7 +100,7 @@ bytes TerminalMarkdownView_visibleRows(const TerminalMarkdownView *self);
 bytes TerminalMarkdownView_maxScroll(const TerminalMarkdownView *self);
 bool TerminalMarkdownView_setScroll(TerminalMarkdownView *self, bytes row);
 bytes TerminalMarkdownView_getScroll(const TerminalMarkdownView *self);
-bool TerminalMarkdownView_scrollBy(TerminalMarkdownView *self, long delta);
+bool TerminalMarkdownView_scrollBy(TerminalMarkdownView *self, i64 delta);
 
 // The horizontal scroll is in COLUMNS, clamped to [0, maxScrollX]. `contentWidth`
 // is the unwarped extent of the widest row/table in the document. The offset is a
@@ -114,7 +114,7 @@ bytes TerminalMarkdownView_getScrollX(const TerminalMarkdownView *self);
 // `min(scrollX, rowExtent - width)`. A caller mapping a pointer to a DOCUMENT
 // column adds this after the content-rect origin.
 bytes TerminalMarkdownView_rowScrollX(const TerminalMarkdownView *self, bytes row);
-bool TerminalMarkdownView_scrollXBy(TerminalMarkdownView *self, long delta);
+bool TerminalMarkdownView_scrollXBy(TerminalMarkdownView *self, i64 delta);
 
 bool TerminalMarkdownView_isReady(const TerminalMarkdownView *self);
 bool TerminalMarkdownView_isTruncated(const TerminalMarkdownView *self);

@@ -15,14 +15,14 @@
  * PUBLIC REGISTRY
  * bool LogCommands_stat(const char *path, DeterminantOutputFn output,
  *     any hostContext)
- * bool LogCommands_cat(const char *path, int limit, DeterminantOutputFn output,
+ * bool LogCommands_cat(const char *path, i32 limit, DeterminantOutputFn output,
  *     any hostContext)
  * PRIVATE HELPERS: bool admit(path, output, outBytes); checks format and extent.
  * fn catHandler(context,kind,ts,v0,v1,v2,v3,v4); bounded per-record sink.
  * PRIVATE HELPERS: Cat (file-local behaviorless accumulator)
- * int64_t shown             delivered record count
- * int64_t total             parsed record count
- * int limit                 max records (<0 all)
+ * i64 shown             delivered record count
+ * i64 total             parsed record count
+ * i32 limit                 max records (<0 all)
  * bool failed               sticky sink/format failure
  * DeterminantOutputFn output borrowed callback
  * any hostContext         borrowed opaque sink state
@@ -33,14 +33,14 @@
  * stops delivering after failure but parser continues (R2 has no cancel seam).
  * ======================================================================== */
 typedef struct Cat {
-    int64_t shown;
-    int64_t total;
-    int limit;
+    i64 shown;
+    i64 total;
+    i32 limit;
     bool failed;
     DeterminantOutputFn output;
     any hostContext;
 } Cat;
-static bool admit(const char *path, DeterminantOutputFn output, int64_t *outBytes) {
+static bool admit(const char *path, DeterminantOutputFn output, i64 *outBytes) {
     if (path == nullptr || output == nullptr) {
         THROW("LogCommands admission: null path or sink");
         return false;
@@ -50,7 +50,7 @@ static bool admit(const char *path, DeterminantOutputFn output, int64_t *outByte
         return false;
     }
     File *file = File_open(path, FILE_MODE_READ);
-    int64_t bytes = file ? File_size(file) : 0;
+    i64 bytes = file ? File_size(file) : 0;
     if (file != nullptr)
         File_close(file);
     if (bytes < LOGPARSER_HEADER_BYTES || (bytes - LOGPARSER_HEADER_BYTES) % LOGPARSER_RECORD_BYTES != 0) {
@@ -61,48 +61,48 @@ static bool admit(const char *path, DeterminantOutputFn output, int64_t *outByte
     return true;
 }
 bool LogCommands_stat(const char *path, DeterminantOutputFn output, any hostContext) {
-    int64_t bytes;
+    i64 bytes;
     if (!admit(path, output, &bytes))
         return false;
     char text[160];
-    int n = snprintf(text, sizeof(text), "log: records=%lld bytes=%lld payload=%lld",
-        (long long) ((bytes - LOGPARSER_HEADER_BYTES) / LOGPARSER_RECORD_BYTES),
-        (long long) bytes, (long long) (bytes - LOGPARSER_HEADER_BYTES));
+    i32 n = snprintf(text, sizeof(text), "log: records=%lld bytes=%lld payload=%lld",
+        (i64) ((bytes - LOGPARSER_HEADER_BYTES) / LOGPARSER_RECORD_BYTES),
+        (i64) bytes, (i64) (bytes - LOGPARSER_HEADER_BYTES));
     if (n < 0 || (bytes) n >= sizeof(text) || !output(hostContext, text, (bytes) n)) {
         THROW("LogCommands stat: formatting or sink failure");
         return false;
     }
     return true;
 }
-static fn catHandler(any context, int kind, int64_t ts, int64_t v0, int64_t v1,
-                       int64_t v2, int64_t v3, int64_t v4) {
+static fn catHandler(any context, i32 kind, i64 ts, i64 v0, i64 v1,
+                       i64 v2, i64 v3, i64 v4) {
     Cat *cat = context;
     ++(*cat).total;
     if ((*cat).failed || ((*cat).limit >= 0 && (*cat).shown >= (*cat).limit))
         return;
     char text[256]; // Seven int64/32 values + fixed separators fit by construction.
-    int n = snprintf(text, sizeof(text), "timestamp=%lld kind=%d values=%lld %lld %lld %lld %lld",
-        (long long) ts, kind, (long long) v0, (long long) v1, (long long) v2,
-        (long long) v3, (long long) v4);
+    i32 n = snprintf(text, sizeof(text), "timestamp=%lld kind=%d values=%lld %lld %lld %lld %lld",
+        (i64) ts, kind, (i64) v0, (i64) v1, (i64) v2,
+        (i64) v3, (i64) v4);
     if (n < 0 || (bytes) n >= sizeof(text) || !(*cat).output((*cat).hostContext, text, (bytes) n)) {
         (*cat).failed = true;
         return;
     }
     ++(*cat).shown;
 }
-bool LogCommands_cat(const char *path, int limit, DeterminantOutputFn output, any hostContext) {
-    int64_t bytes;
+bool LogCommands_cat(const char *path, i32 limit, DeterminantOutputFn output, any hostContext) {
+    i64 bytes;
     if (!admit(path, output, &bytes))
         return false;
     Cat cat = {.limit = limit, .output = output, .hostContext = hostContext};
-    int64_t count = LogParser_parse(path, catHandler, &cat);
+    i64 count = LogParser_parse(path, catHandler, &cat);
     if (count != (bytes - LOGPARSER_HEADER_BYTES) / LOGPARSER_RECORD_BYTES || cat.failed) {
         THROW("LogCommands cat: parse or sink failure");
         return false;
     }
     if (cat.shown < cat.total) {
         char text[64];
-        int n = snprintf(text, sizeof(text), "(%lld more)", (long long) (cat.total - cat.shown));
+        i32 n = snprintf(text, sizeof(text), "(%lld more)", (i64) (cat.total - cat.shown));
         if (n < 0 || (bytes) n >= sizeof(text) || !output(hostContext, text, (bytes) n)) {
             THROW("LogCommands cat: tail sink failure");
             return false;

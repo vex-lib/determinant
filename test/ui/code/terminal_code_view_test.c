@@ -95,7 +95,7 @@ static fn testCellScrollAndClipping() {
     TerminalCodeView_free(view);
 }
 
-int main() {
+i32 main() {
     testColoredLineAndVirtualHint();
     testRejectPreservesAdmittedLine();
     testCellScrollAndClipping();

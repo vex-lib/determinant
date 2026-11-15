@@ -8,7 +8,7 @@
 static bool sink(any context, const char *text, bytes length) {
     (discard) context; (discard) text; (discard) length; return true;
 }
-int main() {
+i32 main() {
     char cells[20];
     Terminal terminal = Terminal();
     assert(Terminal_bind(&terminal, cells, 20, 10, 2, sink, nullptr));

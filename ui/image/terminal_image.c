@@ -134,8 +134,8 @@ TerminalImageColorRamp TerminalImage_rampPurple() {
     return (TerminalImageColorRamp) { PURPLE_RAMP, sizeof(PURPLE_RAMP) / sizeof(PURPLE_RAMP[0]) };
 }
 
-static u8 shiftChannel(u8 value, int delta) {
-    int shifted = (int) value + delta;
+static u8 shiftChannel(u8 value, i32 delta) {
+    i32 shifted = (i32) value + delta;
     if (shifted < 0) shifted = 0;
     if (shifted > 255) shifted = 255;
     return (u8) shifted;
@@ -160,7 +160,7 @@ static u32 imageColor(const TerminalImage *self, bytes lx, bytes ly,
         if ((*self).jitter != 0) {
             // The jitter only ever LIGHTENS a palette colour (delta >= 0), so a
             // light ramp never dips dark on some cells.
-            int delta = (int) ((hash >> 8) % ((u32) (*self).jitter + 1u));
+            i32 delta = (i32) ((hash >> 8) % ((u32) (*self).jitter + 1u));
             return TERMINAL_RGBA(shiftChannel(TERMINAL_COLOR_RED(colour), delta),
                                  shiftChannel(TERMINAL_COLOR_GREEN(colour), delta),
                                  shiftChannel(TERMINAL_COLOR_BLUE(colour), delta),

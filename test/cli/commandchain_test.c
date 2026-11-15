@@ -13,7 +13,7 @@ static CommandChain *parseOk(const char *line) {
     assert(chain != nullptr);
     return chain;
 }
-int main() {
+i32 main() {
     beginDiagnostics();
     assert(strcmp(CommandKind_title(COMMAND_LS), "COMMAND_LS") == 0);
     assert(strcmp(CommandKind_title(COMMAND_PYTHON), "COMMAND_PYTHON") == 0);

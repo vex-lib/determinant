@@ -22,7 +22,7 @@ static TerminalRect rectOf(bytes x, bytes y, bytes w, bytes h) {
     return (TerminalRect) { x, y, w, h };
 }
 
-int main() {
+i32 main() {
     // --- Constructors: zero / one / two / three, and the chooser ---
     TerminalAnchor fill = TerminalAnchor();
     assert(TerminalAnchor_getKind(&fill) == TERMINAL_ANCHOR_FILL);
@@ -46,7 +46,7 @@ int main() {
     assert(TerminalAnchor_getKind(&badKind) == TERMINAL_ANCHOR_FILL);   // rejected -> default
 
     // Exactly the four band kinds reserve; every pin and FILL does not.
-    for (int kind = TERMINAL_ANCHOR_FILL; kind <= TERMINAL_ANCHOR_PIN_BOTTOM_RIGHT; ++kind) {
+    for (i32 kind = TERMINAL_ANCHOR_FILL; kind <= TERMINAL_ANCHOR_PIN_BOTTOM_RIGHT; ++kind) {
         TerminalAnchor probe = TerminalAnchor_1((TerminalAnchorKind) kind);
         bool expected = kind >= TERMINAL_ANCHOR_BAND_TOP && kind <= TERMINAL_ANCHOR_BAND_RIGHT;
         assert(TerminalAnchor_isBand(&probe) == expected);

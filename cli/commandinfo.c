@@ -932,7 +932,7 @@ bool CommandInfo_toStringStruct(const CommandInfo *self, char *dest, bytes cap, 
         THROW("CommandInfo projection: missing destination");
         return false;
     }
-    int n = self ? snprintf(dest, cap, "CommandInfo{kind=%s,command=<owned>}", CommandKind_title((*self).kind))
+    i32 n = self ? snprintf(dest, cap, "CommandInfo{kind=%s,command=<owned>}", CommandKind_title((*self).kind))
                  : snprintf(dest, cap, "nullptr");
     bool cut = n < 0 || (bytes) n >= cap;
     if (outTruncated != nullptr)

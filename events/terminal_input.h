@@ -101,7 +101,7 @@ TerminalInput TerminalInput_0();
 // Feed one byte. Returns true when that byte completed an event, which is then
 // readable with TerminalInput_getEvent. Any other byte returns false; a byte
 // inside a sequence never emits.
-bool TerminalInput_feed(TerminalInput *self, int byte);
+bool TerminalInput_feed(TerminalInput *self, i32 byte);
 
 TerminalPointerEvent TerminalInput_getEvent(const TerminalInput *self);
 TerminalPointerKind TerminalInput_getKind(const TerminalInput *self);
@@ -111,7 +111,7 @@ bool TerminalInput_isReady(const TerminalInput *self);
 // an idle stream (and decide whether to wait for more bytes).
 bool TerminalInput_isPending(const TerminalInput *self);
 TerminalInputState TerminalInput_getState(const TerminalInput *self);
-// Sequences refused in this epoch: a malformed byte, an over-long numeric field,
+// Sequences refused in this epoch: a malformed byte, an over-i64 numeric field,
 // or a zero coordinate. A count, never a log line — this runs per byte.
 bytes TerminalInput_malformedCount(const TerminalInput *self);
 fn TerminalInput_clearMalformed(TerminalInput *self);

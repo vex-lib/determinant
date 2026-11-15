@@ -7,7 +7,7 @@
 #include "primitive/vex-string.h"
 #include "nio/mem.h"
 #include "determinant/test/support.h"
-int main() {
+i32 main() {
     beginDiagnostics();
     Command *empty = Command();
     assert(empty && Command_argumentCount(empty) == 0);

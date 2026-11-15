@@ -112,7 +112,7 @@ static TerminalTreeView *buildTree(TerminalTreeNodeId *ids) {
     return view;
 }
 
-int main() {
+i32 main() {
     // --- Null safety, on every entry point ---
     assert(TerminalTreeView_visibleCount(nullptr) == 0);
     assert(TerminalTreeView_scrollRow(nullptr) == 0);
@@ -336,7 +336,7 @@ int main() {
     assert(TerminalTreeView_scrollRow(view) == 5u);
     assert(TerminalTreeView_scrollBy(view, 100) == 5u);
     assert(TerminalTreeView_scrollBy(view, -100) == 0u);
-    assert(TerminalTreeView_scrollBy(view, -1) == 0u);           // no unsigned underflow
+    assert(TerminalTreeView_scrollBy(view, -1) == 0u);           // no u32 underflow
     assert(TerminalTreeView_scrollBy(view, 3) == 3u);
     // A viewport that already shows everything has nowhere to scroll, and resizing the
     // viewport clamps what was stored.

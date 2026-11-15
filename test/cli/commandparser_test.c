@@ -7,7 +7,7 @@
 #include "oop/oop.h"
 #include "determinant/test/support.h"
 #include <stdlib.h>
-int main() {
+i32 main() {
     beginDiagnostics();
     assert(CommandParser_parse("") == nullptr);
     assert(CommandParser_parse(" \t\r\n") == nullptr);
@@ -47,7 +47,7 @@ int main() {
         blocks[live] = Memory_alloc(TYPE_BYTE_ARRAY, BLOCK_BYTES);
         if (blocks[live] == nullptr)
             break;
-        memset(blocks[live], (int) live, BLOCK_BYTES);
+        memset(blocks[live], (i32) live, BLOCK_BYTES);
         ++live;
     }
     assert(live != 0 && live < MAX_BLOCKS && Memory_exhaustionCount() == 1);
@@ -60,8 +60,8 @@ int main() {
     assert(strcmp((const char*) Command_name(survivor), "retained") == 0);
     assert(strcmp((const char*) Command_argument(survivor, 0), "value") == 0);
     for (bytes j = 0; j < live; ++j) {
-        const unsigned char *data = blocks[j];
-        assert(data[0] == (unsigned char) j && data[BLOCK_BYTES - 1] == (unsigned char) j);
+        const u8 *data = blocks[j];
+        assert(data[0] == (u8) j && data[BLOCK_BYTES - 1] == (u8) j);
         Memory_free(blocks[j]);
     }
     Command_free(survivor);

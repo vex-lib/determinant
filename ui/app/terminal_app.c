@@ -39,7 +39,7 @@
 
 static volatile sig_atomic_t gSignalQuit = 0;
 
-static fn onSignal(int sig) {
+static fn onSignal(i32 sig) {
     (discard) sig;
     gSignalQuit = 1;
 }
@@ -291,7 +291,7 @@ bool TerminalApp_isHeadless(const TerminalApp *self) {
     return self != nullptr && (*self).headless;
 }
 
-int TerminalApp_run(TerminalApp *self) {
+i32 TerminalApp_run(TerminalApp *self) {
     if (self == nullptr || (*self).root == nullptr)
         return 1;
 

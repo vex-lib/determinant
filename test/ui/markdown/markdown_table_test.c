@@ -7,7 +7,7 @@
 #include <assert.h>
 #include <string.h>
 
-int main() {
+i32 main() {
     TerminalMarkdownTableAlign aligns[TERMINAL_MARKDOWN_TABLE_COLUMNS] = {0};
     bytes columns = TerminalMarkdownTable_parseDelimiter("| :--- | :---: | ---: |",
                                                           strlen("| :--- | :---: | ---: |"),

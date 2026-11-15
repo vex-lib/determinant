@@ -98,7 +98,7 @@ bool Command_toStringStruct(const Command *self, char *dest, bytes cap, bool *ou
         THROW("Command projection: missing destination");
         return false;
     }
-    int n = self ? snprintf(dest, cap, "Command{name=<owned>,argumentCount=%zu,arguments=<owned>}", (*self).argumentCount)
+    i32 n = self ? snprintf(dest, cap, "Command{name=<owned>,argumentCount=%zu,arguments=<owned>}", (*self).argumentCount)
                  : snprintf(dest, cap, "nullptr");
     bool cut = n < 0 || (bytes) n >= cap;
     if (outTruncated != nullptr)

@@ -6,7 +6,7 @@
 #include <assert.h>
 #include <string.h>
 
-int main() {
+i32 main() {
     // GFM spelling, with and without a title.
     static const char *warning = "[!WARNING] watch out";
     TerminalMarkdownCallout callout = TerminalMarkdownCallout_parse(warning, strlen(warning));

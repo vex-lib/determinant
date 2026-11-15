@@ -64,7 +64,7 @@ bool TerminalTextView_isTail(const TerminalTextView *self) { return self && (*se
 fn TerminalTextView_setPen(TerminalTextView *self, TerminalPen pen) { if (self != nullptr) (*self).pen = pen; }
 TerminalPen TerminalTextView_getPen(const TerminalTextView *self) { return self ? (*self).pen : TerminalPen_0(); }
 
-bool TerminalTextView_scrollBy(TerminalTextView *self, long delta, bytes visibleRows) {
+bool TerminalTextView_scrollBy(TerminalTextView *self, i64 delta, bytes visibleRows) {
     (discard) visibleRows;
     if (self == nullptr)
         return false;

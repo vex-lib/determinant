@@ -205,7 +205,7 @@ const char *TerminalCodeEditor_getLine(const TerminalCodeEditor *self, bytes lin
     return (*self).lines[lineIndex];
 }
 
-bool TerminalCodeEditor_insertChar(TerminalCodeEditor *self, int character) {
+bool TerminalCodeEditor_insertChar(TerminalCodeEditor *self, i32 character) {
     if (self == nullptr || (*self).lineCount == 0u)
         return false;
 
@@ -384,7 +384,7 @@ fn TerminalCodeEditor_clear(TerminalCodeEditor *self) {
     TerminalCodeEditor_setText(self, "");
 }
 
-fn TerminalCodeEditor_moveCursor(TerminalCodeEditor *self, int deltaLine, int deltaCol) {
+fn TerminalCodeEditor_moveCursor(TerminalCodeEditor *self, i32 deltaLine, i32 deltaCol) {
     if (self == nullptr || (*self).lineCount == 0u)
         return;
 
@@ -482,7 +482,7 @@ fn TerminalCodeEditor_render(const TerminalCodeEditor *self, TerminalCanvas *can
         // Render gutter
         if ((*self).showGutter && gutterW > 0u) {
             char numBuf[16];
-            int written = snprintf(numBuf, sizeof(numBuf), " %*zu ", (int) (gutterW - 2u), lineIdx + 1u);
+            i32 written = snprintf(numBuf, sizeof(numBuf), " %*zu ", (i32) (gutterW - 2u), lineIdx + 1u);
             if (written > 0 && (bytes) written <= gutterW)
                 TerminalCanvas_text(canvas, 0u, y, numBuf, (bytes) written, (*self).gutterPen);
         }

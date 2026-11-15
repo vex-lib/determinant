@@ -5,7 +5,7 @@
 #include "ui/list/terminal_list_view.h"
 #include "determinant/test/support.h"
 
-int main() {
+i32 main() {
     static const char *labels[] = { "alpha", "beta", "gamma", "delta" };
     enum { W = 16, H = 3 };
     static u32 cells[W * H];

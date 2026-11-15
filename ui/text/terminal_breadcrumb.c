@@ -229,13 +229,13 @@ bytes TerminalBreadcrumb_format(const TerminalBreadcrumb *self, char *destinatio
         if (segmentCount >= 2u) {
             (discard) snprintf(scratchBuffer, sizeof scratchBuffer, "…%s%.*s%s%.*s",
                             activeSeparator,
-                            (int) lastSegmentLengths[0], lastSegmentPointers[0],
+                            (i32) lastSegmentLengths[0], lastSegmentPointers[0],
                             activeSeparator,
-                            (int) lastSegmentLengths[1], lastSegmentPointers[1]);
+                            (i32) lastSegmentLengths[1], lastSegmentPointers[1]);
         } else if (segmentCount == 1u) {
             (discard) snprintf(scratchBuffer, sizeof scratchBuffer, "…%s%.*s",
                             activeSeparator,
-                            (int) lastSegmentLengths[1], lastSegmentPointers[1]);
+                            (i32) lastSegmentLengths[1], lastSegmentPointers[1]);
         } else {
             (discard) snprintf(scratchBuffer, sizeof scratchBuffer, "…");
         }
@@ -253,7 +253,7 @@ bytes TerminalBreadcrumb_format(const TerminalBreadcrumb *self, char *destinatio
                     writtenBytes += (bytes) snprintf(scratchBuffer + writtenBytes,
                                                      sizeof scratchBuffer - writtenBytes,
                                                      "%s%.*s", activeSeparator,
-                                                     (int) componentLength, componentScanner);
+                                                     (i32) componentLength, componentScanner);
                 }
                 if (nextSlash == nullptr)
                     break;
@@ -262,11 +262,11 @@ bytes TerminalBreadcrumb_format(const TerminalBreadcrumb *self, char *destinatio
         } else {
             (discard) snprintf(scratchBuffer, sizeof scratchBuffer, "%s%s%.*s%s…%s%.*s%s%.*s",
                             rootBaseName, activeSeparator,
-                            (int) firstSegmentLengths[0], firstSegmentPointers[0],
+                            (i32) firstSegmentLengths[0], firstSegmentPointers[0],
                             activeSeparator, activeSeparator,
-                            (int) lastSegmentLengths[0], lastSegmentPointers[0],
+                            (i32) lastSegmentLengths[0], lastSegmentPointers[0],
                             activeSeparator,
-                            (int) lastSegmentLengths[1], lastSegmentPointers[1]);
+                            (i32) lastSegmentLengths[1], lastSegmentPointers[1]);
         }
     }
 

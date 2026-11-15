@@ -27,7 +27,7 @@ static TerminalRect rectOf(bytes x, bytes y, bytes w, bytes h) {
     return (TerminalRect) { x, y, w, h };
 }
 
-int main() {
+i32 main() {
     u32 cells[W * H];
     u16 styles[W * H];
     u32 fg[W * H];

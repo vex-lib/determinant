@@ -23,7 +23,7 @@ static fn busy(Command *cmd) {
     assert(!CommandRegistry_free(current));
     assert(!CommandRegistry_setOutput(current, sink, &notices));
 }
-int main() {
+i32 main() {
     CommandRegistryRow small[1], larger[4], largest[8];
     CommandRegistry zero = CommandRegistry();
     assert(CommandRegistry_getCount(&zero) == 0);

@@ -148,7 +148,7 @@ bool TerminalScrollGlide_isActive(const TerminalScrollGlide *self) {
         || gap((*self).columnShown, (*self).columnTarget) >= (*self).epsilon;
 }
 
-fn TerminalScrollGlide_impulse(TerminalScrollGlide *self, long rows, long columns,
+fn TerminalScrollGlide_impulse(TerminalScrollGlide *self, i64 rows, i64 columns,
                                  bytes maxRows, bytes maxColumns) {
     if (self == nullptr)
         return;

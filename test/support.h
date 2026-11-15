@@ -9,7 +9,7 @@
 // Owner-local stderr capture. Each negative block checks exact line count and
 // a cause fragment; quiet admitted paths fail on any unexpected diagnostics.
 static FILE *diagnostics;
-static int savedStderr;
+static i32 savedStderr;
 static fn beginDiagnostics() {
     fflush(stderr);
     diagnostics = tmpfile();

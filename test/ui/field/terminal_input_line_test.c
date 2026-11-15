@@ -5,7 +5,7 @@
 #include "ui/field/terminal_input_line.h"
 #include "determinant/test/support.h"
 
-int main() {
+i32 main() {
     char buffer[8];
     TerminalInputLine line = TerminalInputLine(buffer, sizeof buffer);
     assert(TerminalInputLine_isBound(&line));
@@ -35,7 +35,7 @@ int main() {
 
     // Capacity: an 8-byte buffer keeps a NUL, so 7 characters fit; the 8th is refused.
     TerminalInputLine_clear(&line);
-    for (int i = 0; i < 7; ++i)
+    for (i32 i = 0; i < 7; ++i)
         assert(TerminalInputLine_add(&line, 'x'));
     REJECT(TerminalInputLine_add(&line, 'x'), "capacity");
 

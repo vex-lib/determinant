@@ -422,10 +422,10 @@ bytes TerminalTreeView_setScrollRow(TerminalTreeView *self, bytes row) {
     return (*self).scrollRow;
 }
 
-bytes TerminalTreeView_scrollBy(TerminalTreeView *self, long rows) {
+bytes TerminalTreeView_scrollBy(TerminalTreeView *self, i64 rows) {
     if (self == nullptr)
         return 0;
-    long wanted = (long) (*self).scrollRow + rows;
+    i64 wanted = (i64) (*self).scrollRow + rows;
     if (wanted < 0)
         wanted = 0;
     return TerminalTreeView_setScrollRow(self, (bytes) wanted);
@@ -616,7 +616,7 @@ TerminalProjection TerminalTreeView_toStringStruct(const TerminalTreeView *self)
         "nodeRefusals=%zu rowRefusals=%zu indentSpaces=%zu nerdIcons=%d }",
         (const_any) (*self).nodes, (*self).nodeCount, (*self).nodeCapacity,
         (const_any) (*self).rows, (*self).visibleCount, (*self).rowsCapacity,
-        (unsigned) (*self).nextId, (unsigned) (*self).selected, (*self).scrollRow,
+        (u32) (*self).nextId, (u32) (*self).selected, (*self).scrollRow,
         (*self).viewportRows, (*self).nodeRefusals, (*self).rowRefusals,
         (*self).indentSpaces, (*self).nerdIcons);
 }

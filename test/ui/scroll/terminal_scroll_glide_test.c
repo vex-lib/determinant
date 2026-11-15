@@ -11,7 +11,7 @@ static fn assertNear(d64 actual, d64 expected) {
     assert(fabs(actual - expected) < 1e-9);
 }
 
-int main() {
+i32 main() {
     TerminalScrollGlide glide = TerminalScrollGlide();
     assertNear(TerminalScrollGlide_getEase(&glide), TERMINAL_SCROLL_EASE_DEFAULT);
     assertNear(TerminalScrollGlide_getEpsilon(&glide), TERMINAL_SCROLL_EPSILON_DEFAULT);
@@ -163,7 +163,7 @@ int main() {
     assert(TerminalScrollGlide_getPosition(nullptr).row == 0u);
     assertNear(TerminalScrollGlide_getEase(nullptr), TERMINAL_SCROLL_EASE_DEFAULT);
     assertNear(TerminalScrollGlide_getEpsilon(nullptr), TERMINAL_SCROLL_EPSILON_DEFAULT);
-    for (int frame = 0; frame < 10000; ++frame) {
+    for (i32 frame = 0; frame < 10000; ++frame) {
         position = TerminalScrollGlide_step(&glide);
         assert(position.row == 10u && position.column == 10u);
     }

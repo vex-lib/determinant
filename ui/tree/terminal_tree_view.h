@@ -143,7 +143,7 @@ bytes TerminalTreeView_maxScrollRow(const TerminalTreeView *self);
 // Scroll, clamped to [0, maxScrollRow]. Returns the row actually scrolled to, so a
 // caller that has run off the end can see where it landed instead of guessing.
 bytes TerminalTreeView_setScrollRow(TerminalTreeView *self, bytes row);
-bytes TerminalTreeView_scrollBy(TerminalTreeView *self, long rows);
+bytes TerminalTreeView_scrollBy(TerminalTreeView *self, i64 rows);
 
 // --- rows ------------------------------------------------------------------------
 // The row at an absolute index. An out-of-range row is reported as an empty row rather

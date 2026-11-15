@@ -139,11 +139,11 @@ static fn complete(TerminalInput *self, bytes raw, bytes x, bytes y,
 TerminalInput TerminalInput_0() { return (TerminalInput) {0}; }
 
 ;;INTENTION("feed is a hot path: one guard per byte, no logging, no allocation, and a malformed sequence only raises a queryable counter")
-bool TerminalInput_feed(TerminalInput *self, int byte) {
+bool TerminalInput_feed(TerminalInput *self, i32 byte) {
     if (self == nullptr || byte < 0 || byte > 255)
         return false;
     (*self).ready = false;
-    unsigned char incoming = (unsigned char) byte;
+    u8 incoming = (u8) byte;
     switch ((*self).state) {
         case TERMINAL_INPUT_IDLE:
             if (incoming == 0x1Bu)

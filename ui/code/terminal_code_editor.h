@@ -43,13 +43,13 @@ bool TerminalCodeEditor_setText(TerminalCodeEditor *self, const char *text);
 bytes TerminalCodeEditor_getLineCount(const TerminalCodeEditor *self);
 const char *TerminalCodeEditor_getLine(const TerminalCodeEditor *self, bytes lineIndex);
 
-bool TerminalCodeEditor_insertChar(TerminalCodeEditor *self, int character);
+bool TerminalCodeEditor_insertChar(TerminalCodeEditor *self, i32 character);
 bool TerminalCodeEditor_insertText(TerminalCodeEditor *self, const char *text, bytes length);
 bool TerminalCodeEditor_backspace(TerminalCodeEditor *self);
 bool TerminalCodeEditor_delete(TerminalCodeEditor *self);
 fn TerminalCodeEditor_clear(TerminalCodeEditor *self);
 
-fn TerminalCodeEditor_moveCursor(TerminalCodeEditor *self, int deltaLine, int deltaCol);
+fn TerminalCodeEditor_moveCursor(TerminalCodeEditor *self, i32 deltaLine, i32 deltaCol);
 bytes TerminalCodeEditor_getCursorLine(const TerminalCodeEditor *self);
 bytes TerminalCodeEditor_getCursorCol(const TerminalCodeEditor *self);
 bool TerminalCodeEditor_setCursor(TerminalCodeEditor *self, bytes line, bytes col);

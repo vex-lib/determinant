@@ -6,7 +6,7 @@
 #include <assert.h>
 #include <string.h>
 
-int main() {
+i32 main() {
     TerminalMarkdownCodeBlockPool *pool = TerminalMarkdownCodeBlockPool();
     assert(pool != nullptr);
     assert(TerminalMarkdownCodeBlockPool_count(pool) == 0u);
@@ -40,7 +40,7 @@ int main() {
     assert(!TerminalMarkdownCodeBlock_lineOf(nullptr, 5u, block, 0u).valid);
     assert(!TerminalMarkdownCodeBlock_lineOf(lines, 5u, block, 7u).valid);
 
-    // Copy is newline-separated and atomic: a short buffer writes nothing.
+    // Copy is newline-separated and atomic: a i16 buffer writes nothing.
     char buffer[8];
     bytes written = 99u;
     assert(TerminalMarkdownCodeBlockPool_copy(pool, lines, 5u, 0u, buffer, sizeof buffer,

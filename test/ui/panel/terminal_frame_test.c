@@ -5,7 +5,7 @@
 #include "ui/panel/terminal_frame.h"
 #include "determinant/test/support.h"
 
-int main() {
+i32 main() {
     enum { W = 40, H = 10 };
     static u32 cells[W * H];
     static u16 styles[W * H];
@@ -123,7 +123,7 @@ int main() {
         assert(TerminalCanvas_glyphAt(&tiny, 0, 0) == 'x');
     }
 
-    // CUT run: it stops short of both edges and ends in the endpoint glyphs, so a
+    // CUT run: it stops i16 of both edges and ends in the endpoint glyphs, so a
     // divider never runs into the panel's verticals.
     {
         static u32 cut[10];
@@ -141,7 +141,7 @@ int main() {
         assert(TerminalCanvas_glyphAt(&line, 9, 0) == ' ');
         TerminalRule_drawCut(&boxed, &line, 0, 5, TerminalPen());        // too narrow: no-op
         assert(TerminalCanvas_glyphAt(&line, 1, 0) == 0x2576);            // unchanged
-        // With no cut glyphs the run simply stops short, leaving blank ends.
+        // With no cut glyphs the run simply stops i16, leaving blank ends.
         TerminalRule plain = TerminalRule_0();
         TerminalCanvas_fill(&line, ' ', TerminalPen());
         TerminalRule_drawCut(&plain, &line, 0, 1, TerminalPen_1(TERMINAL_STYLE_DIM));

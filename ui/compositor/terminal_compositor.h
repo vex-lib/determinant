@@ -31,7 +31,7 @@ typedef enum TerminalCompositorColorMode {
 } TerminalCompositorColorMode;
 
 typedef struct TerminalCompositor {
-    int fd;
+    i32 fd;
     TerminalCompositorColorMode colorMode;
     u32 deviceBg;
     bytes presentWidth;
@@ -48,7 +48,7 @@ typedef struct TerminalCompositor {
 } TerminalCompositor;
 
 TerminalCompositor *TerminalCompositor_0();
-TerminalCompositor *TerminalCompositor_1(int fd);
+TerminalCompositor *TerminalCompositor_1(i32 fd);
 #define TerminalCompositor(...) CONSTRUCTOR_DISPATCH(TerminalCompositor, __VA_ARGS__)
 #define TerminalCompositor_zero() TerminalCompositor_0()
 
@@ -64,8 +64,8 @@ fn TerminalCompositor_clear(TerminalCompositor *self);
 bool TerminalCompositor_blitRun(any context, TerminalRun run);
 fn TerminalCompositor_phase(any context, TerminalPresentPhase phase);
 
-bool TerminalCompositor_setFd(TerminalCompositor *self, int fd);
-int TerminalCompositor_getFd(const TerminalCompositor *self);
+bool TerminalCompositor_setFd(TerminalCompositor *self, i32 fd);
+i32 TerminalCompositor_getFd(const TerminalCompositor *self);
 bool TerminalCompositor_setDeviceBackground(TerminalCompositor *self, u32 bg);
 u32 TerminalCompositor_getDeviceBackground(const TerminalCompositor *self);
 bool TerminalCompositor_setPresentWidth(TerminalCompositor *self, bytes width);

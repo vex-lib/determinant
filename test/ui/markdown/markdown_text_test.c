@@ -6,7 +6,7 @@
 #include <assert.h>
 #include <string.h>
 
-int main() {
+i32 main() {
     // ASCII is one cell per byte; a CJK scalar is two; a combining mark is zero.
     assert(TerminalMarkdownText_cells("abc", 3) == 3u);
     assert(TerminalMarkdownText_cells("λ", 2) == 1u);

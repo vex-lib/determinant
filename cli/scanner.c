@@ -68,7 +68,7 @@ bool Scanner_feed(Scanner *self, const char *data, bytes length, bool ended) {
         return false;
     }
     for (bytes i = 0; i < length; ++i) {
-        unsigned char c = (unsigned char) data[i];
+        u8 c = (u8) data[i];
         if (c == 0 || c >= 127 || (c < 32 && c != '\n' && c != '\r' && c != '\t')) {
             THROW("Scanner feed: invalid ASCII byte at %zu", i);
             return false;
@@ -169,7 +169,7 @@ bool Scanner_toStringStruct(const Scanner *self, char *dest, bytes cap, bool *ou
         THROW("Scanner projection: missing destination");
         return false;
     }
-    int n = self ? snprintf(dest, cap, "Scanner{bytes=<borrowed>,capacity=%zu,length=%zu,position=%zu,refusalCount=%zu,ended=%d}",
+    i32 n = self ? snprintf(dest, cap, "Scanner{bytes=<borrowed>,capacity=%zu,length=%zu,position=%zu,refusalCount=%zu,ended=%d}",
         (*self).capacity, (*self).length, (*self).position, (*self).refusalCount, (*self).ended)
         : snprintf(dest, cap, "nullptr");
     bool cut = n < 0 || (bytes) n >= cap;

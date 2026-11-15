@@ -78,7 +78,7 @@ TerminalInputLinePens TerminalInputLine_getPens(const TerminalInputLine *self) {
                 : (TerminalInputLinePens) { TerminalPen_0(), TerminalPen_0() };
 }
 
-bool TerminalInputLine_add(TerminalInputLine *self, int character) {
+bool TerminalInputLine_add(TerminalInputLine *self, i32 character) {
     if (self == nullptr || (*self).buffer == nullptr || character < 32 || character >= 127) {
         THROW("TerminalInputLine add: unbound or non-printable");
         return false;

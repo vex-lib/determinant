@@ -66,7 +66,7 @@ bool TerminalApp_step(TerminalApp *self);
 bool TerminalApp_feedInput(TerminalApp *self, const char *data, bytes length);
 
 // Runs the interactive event loop until stopped or interrupted.
-int TerminalApp_run(TerminalApp *self);
+i32 TerminalApp_run(TerminalApp *self);
 fn TerminalApp_stop(TerminalApp *self);
 bool TerminalApp_isRunning(const TerminalApp *self);
 

@@ -20,7 +20,7 @@
  * CommandChain *CommandParser_parseChain(const char *line)
  * CommandChain *CommandParser_parseChainBytes(const char *line,
  *   bytes length)
- * PRIVATE HELPERS: bool space(unsigned char c), ASCII whitespace predicate;
+ * PRIVATE HELPERS: bool space(u8 c), ASCII whitespace predicate;
  * static bool andToken(const char*,bytes,bytes), standalone && check;
  * static bool admitBytes(const char*,bytes,const char*), shared ASCII gate.
  * CONTRACT: NUL form requires a live terminated string; span form admits at
@@ -32,13 +32,13 @@
  * owned; free returned Command/CommandChain before Memory teardown. Caller
  * externally serializes.
  * ======================================================================== */
-static bool space(unsigned char c) { return c == ' ' || c == '\t' || c == '\r' || c == '\n'; }
+static bool space(u8 c) { return c == ' ' || c == '\t' || c == '\r' || c == '\n'; }
 static bool andToken(const char *line, bytes start, bytes length) {
     return length == 2 && line[start] == '&' && line[start + 1] == '&';
 }
 static bool admitBytes(const char *line, bytes length, const char *what) {
     for (bytes i = 0; i < length; ++i) {
-        unsigned char c = (unsigned char) line[i];
+        u8 c = (u8) line[i];
         if (c == 0 || c >= 127 || (c < 32 && !space(c))) {
             THROW("%s: invalid ASCII byte at %zu", what, i);
             return false;
@@ -63,7 +63,7 @@ Command *CommandParser_parseBytes(const char *line, bytes length) {
     bytes tokens = 0;
     bool inToken = false;
     for (bytes i = 0; i < length; ++i) {
-        unsigned char c = (unsigned char) line[i];
+        u8 c = (u8) line[i];
         if (!space(c) && !inToken)
             ++tokens;
         inToken = !space(c);
@@ -80,12 +80,12 @@ Command *CommandParser_parseBytes(const char *line, bytes length) {
     bytes built = 0;
     bytes i = 0;
     while (i < length) {
-        while (i < length && space((unsigned char) line[i]))
+        while (i < length && space((u8) line[i]))
             ++i;
         if (i == length)
             break;
         bytes start = i;
-        while (i < length && !space((unsigned char) line[i]))
+        while (i < length && !space((u8) line[i]))
             ++i;
         parts[built] = string_allocateBytes((const u8*) line + start, i - start);
         if (parts[built] == nullptr)
@@ -115,16 +115,16 @@ CommandChain *CommandParser_parseChainBytes(const char *line, bytes length) {
         return nullptr;
     bytes segments = 1;
     for (bytes i = 0; i < length;) {
-        while (i < length && space((unsigned char) line[i]))
+        while (i < length && space((u8) line[i]))
             ++i;
         bytes start = i;
-        while (i < length && !space((unsigned char) line[i]))
+        while (i < length && !space((u8) line[i]))
             ++i;
         if (i - start == 2 && andToken(line, start, i - start))
             ++segments;
     }
     bytes firstToken = 0;
-    while (firstToken < length && space((unsigned char) line[firstToken]))
+    while (firstToken < length && space((u8) line[firstToken]))
         ++firstToken;
     if (segments > 1 && firstToken + 2 <= length && andToken(line, firstToken, 2)) {
         THROW("CommandParser parseChain: empty segment");
@@ -146,13 +146,13 @@ CommandChain *CommandParser_parseChainBytes(const char *line, bytes length) {
             split = true;
             next = length;
         }
-        else if (space((unsigned char) line[i])) {
+        else if (space((u8) line[i])) {
             bytes s = i;
-            while (s < length && space((unsigned char) line[s]))
+            while (s < length && space((u8) line[s]))
                 ++s;
             if (s + 1 < length && line[s] == '&' && line[s + 1] == '&') {
                 bytes after = s + 2;
-                if (after == length || space((unsigned char) line[after])) {
+                if (after == length || space((u8) line[after])) {
                     split = true;
                     next = after;
                 }
@@ -162,7 +162,7 @@ CommandChain *CommandParser_parseChainBytes(const char *line, bytes length) {
             continue;
         /* for a space-triggered split, i is position of space before &&; segment ends at i */
         bytes first = segStart;
-        while (first < i && space((unsigned char) line[first]))
+        while (first < i && space((u8) line[first]))
             ++first;
         if (first == i) {
             THROW("CommandParser parseChain: empty segment");
@@ -174,7 +174,7 @@ CommandChain *CommandParser_parseChainBytes(const char *line, bytes length) {
         bytes segEnd = i;
         {
             bytes p = first;
-            while (p < segEnd && !space((unsigned char) line[p]))
+            while (p < segEnd && !space((u8) line[p]))
                 ++p;
             if (p - first == 2 && andToken(line, first, 2)) {
                 THROW("CommandParser parseChain: empty segment");
@@ -187,7 +187,7 @@ CommandChain *CommandParser_parseChainBytes(const char *line, bytes length) {
         /* trailing &&: split at position after last token, next==length and rest is spaces */
         if (i < length) {
             bytes rest = next;
-            while (rest < length && space((unsigned char) line[rest]))
+            while (rest < length && space((u8) line[rest]))
                 ++rest;
             if (rest == length) {
                 THROW("CommandParser parseChain: empty segment");
@@ -228,7 +228,7 @@ CommandChain *CommandParser_parseChainBytes(const char *line, bytes length) {
         /* next segment starts after &&; skip following spaces to next token */
         {
             bytes p = segStart;
-            while (p < length && space((unsigned char) line[p]))
+            while (p < length && space((u8) line[p]))
                 ++p;
             if (p == length) {
                 THROW("CommandParser parseChain: empty segment");
@@ -239,7 +239,7 @@ CommandChain *CommandParser_parseChainBytes(const char *line, bytes length) {
             }
         }
         i = next;
-        while (i < length && space((unsigned char) line[i]))
+        while (i < length && space((u8) line[i]))
             ++i;
     }
     CommandChain *chain = count == segments ? CommandChain_2(infos, count) : nullptr;

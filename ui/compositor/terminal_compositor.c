@@ -21,7 +21,7 @@
  * CLASS: TerminalCompositor (ui/compositor/terminal_compositor.c)
  * STRUCT FIELDS (Mirroring ui/compositor/terminal_compositor.h)
  *
- * int fd                                  target file descriptor (default STDOUT_FILENO)
+ * i32 fd                                  target file descriptor (default STDOUT_FILENO)
  * TerminalCompositorColorMode colorMode   TRUECOLOR, 256 or BASIC
  * u32 deviceBg                       backdrop color for alpha blending
  * bytes presentWidth                     boundary for wide-glyph clipping
@@ -58,16 +58,16 @@ static bytes utf8Encode(u32 glyph, char *bytes) {
     return 4u;
 }
 
-static short colorIndex256(u32 color) {
+static i16 colorIndex256(u32 color) {
     if (!TERMINAL_COLOR_IS_SET(color))
         return -1;
-    int r = TERMINAL_COLOR_RED(color);
-    int g = TERMINAL_COLOR_GREEN(color);
-    int b = TERMINAL_COLOR_BLUE(color);
-    int cr = (r * 5 + 127) / 255;
-    int cg = (g * 5 + 127) / 255;
-    int cb = (b * 5 + 127) / 255;
-    return (short) (16 + 36 * cr + 6 * cg + cb);
+    i32 r = TERMINAL_COLOR_RED(color);
+    i32 g = TERMINAL_COLOR_GREEN(color);
+    i32 b = TERMINAL_COLOR_BLUE(color);
+    i32 cr = (r * 5 + 127) / 255;
+    i32 cg = (g * 5 + 127) / 255;
+    i32 cb = (b * 5 + 127) / 255;
+    return (i16) (16 + 36 * cr + 6 * cg + cb);
 }
 
 static fn compositorWriteRaw(TerminalCompositor *self, const char *data, bytes length) {
@@ -115,21 +115,21 @@ static bytes formatPenColor(TerminalCompositor *self, char *params, bytes capaci
                              bytes at, bool foreground, u32 color) {
     if (!TERMINAL_COLOR_IS_SET(color))
         return at;
-    int prefix = foreground ? 3 : 4;
-    int written = 0;
+    i32 prefix = foreground ? 3 : 4;
+    i32 written = 0;
     if ((*self).colorMode == TERMINAL_COMPOSITOR_COLOR_TRUECOLOR) {
         written = snprintf(params + at, capacity - at, ";%d8;2;%u;%u;%u",
                            prefix,
-                           (unsigned) TERMINAL_COLOR_RED(color),
-                           (unsigned) TERMINAL_COLOR_GREEN(color),
-                           (unsigned) TERMINAL_COLOR_BLUE(color));
+                           (u32) TERMINAL_COLOR_RED(color),
+                           (u32) TERMINAL_COLOR_GREEN(color),
+                           (u32) TERMINAL_COLOR_BLUE(color));
     } else if ((*self).colorMode == TERMINAL_COMPOSITOR_COLOR_256) {
-        short index = colorIndex256(color);
+        i16 index = colorIndex256(color);
         if (index >= 0)
-            written = snprintf(params + at, capacity - at, ";%d8;5;%d", prefix, (int) index);
+            written = snprintf(params + at, capacity - at, ";%d8;5;%d", prefix, (i32) index);
     } else {
-        short index = colorIndex256(color);
-        int basic = index >= 0 ? (index % 8) : 7;
+        i16 index = colorIndex256(color);
+        i32 basic = index >= 0 ? (index % 8) : 7;
         written = snprintf(params + at, capacity - at, ";%d", (foreground ? 30 : 40) + basic);
     }
     if (written <= 0 || (bytes) written >= capacity - at)
@@ -139,7 +139,7 @@ static bytes formatPenColor(TerminalCompositor *self, char *params, bytes capaci
 
 static bytes formatPenParams(TerminalCompositor *self, char *params, bytes capacity,
                               u16 style, u32 fg, u32 bg) {
-    int written = snprintf(params, capacity, "0%s%s%s%s%s",
+    i32 written = snprintf(params, capacity, "0%s%s%s%s%s",
                            (style & TERMINAL_STYLE_BOLD) ? ";1" : "",
                            (style & (TERMINAL_STYLE_DIM | TERMINAL_STYLE_MUTED)) ? ";2" : "",
                            (style & TERMINAL_STYLE_ITALIC) ? ";3" : "",
@@ -171,7 +171,7 @@ static fn compositorMove(TerminalCompositor *self, bytes column, bytes row) {
     if ((*self).cursorColumn == column && (*self).cursorRow == row)
         return;
     char sequence[32];
-    int written = snprintf(sequence, sizeof(sequence), "\033[%zu;%zuH", row + 1u, column + 1u);
+    i32 written = snprintf(sequence, sizeof(sequence), "\033[%zu;%zuH", row + 1u, column + 1u);
     if (written > 0)
         compositorAppend(self, sequence, (bytes) written);
     (*self).cursorColumn = column;
@@ -182,7 +182,7 @@ TerminalCompositor *TerminalCompositor_0() {
     return TerminalCompositor_1(STDOUT_FILENO);
 }
 
-TerminalCompositor *TerminalCompositor_1(int fd) {
+TerminalCompositor *TerminalCompositor_1(i32 fd) {
     TerminalCompositor *self = (TerminalCompositor*) Memory_alloc(TYPE_BYTE_ARRAY, sizeof(TerminalCompositor));
     if (self == nullptr)
         return nullptr;
@@ -322,7 +322,7 @@ fn TerminalCompositor_phase(any context, TerminalPresentPhase phase) {
     }
 }
 
-bool TerminalCompositor_setFd(TerminalCompositor *self, int fd) {
+bool TerminalCompositor_setFd(TerminalCompositor *self, i32 fd) {
     if (self == nullptr || fd < 0) {
         THROW("TerminalCompositor: invalid fd");
         return false;
@@ -331,7 +331,7 @@ bool TerminalCompositor_setFd(TerminalCompositor *self, int fd) {
     return true;
 }
 
-int TerminalCompositor_getFd(const TerminalCompositor *self) {
+i32 TerminalCompositor_getFd(const TerminalCompositor *self) {
     return self != nullptr ? (*self).fd : -1;
 }
 

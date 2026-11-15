@@ -38,13 +38,13 @@ const char *TerminalTextArea_getBuffer(const TerminalTextArea *self);
 bytes TerminalTextArea_getCapacity(const TerminalTextArea *self);
 bytes TerminalTextArea_getLength(const TerminalTextArea *self);
 
-bool TerminalTextArea_insertChar(TerminalTextArea *self, int character);
+bool TerminalTextArea_insertChar(TerminalTextArea *self, i32 character);
 bool TerminalTextArea_insertText(TerminalTextArea *self, const char *text, bytes length);
 bool TerminalTextArea_backspace(TerminalTextArea *self);
 bool TerminalTextArea_delete(TerminalTextArea *self);
 fn TerminalTextArea_clear(TerminalTextArea *self);
 
-fn TerminalTextArea_moveCursor(TerminalTextArea *self, int deltaRow, int deltaCol);
+fn TerminalTextArea_moveCursor(TerminalTextArea *self, i32 deltaRow, i32 deltaCol);
 bytes TerminalTextArea_getCursorByte(const TerminalTextArea *self);
 bool TerminalTextArea_setCursorByte(TerminalTextArea *self, bytes byteOffset);
 

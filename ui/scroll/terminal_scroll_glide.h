@@ -47,7 +47,7 @@ bool TerminalScrollGlide_isActive(const TerminalScrollGlide *self);
 
 // Input moves only the target. Both bounds are inclusive maxima; the target is
 // clamped into [0, max] so the glide cannot aim past a bound.
-fn TerminalScrollGlide_impulse(TerminalScrollGlide *self, long rows, long columns,
+fn TerminalScrollGlide_impulse(TerminalScrollGlide *self, i64 rows, i64 columns,
                                  bytes maxRows, bytes maxColumns);
 fn TerminalScrollGlide_setTarget(TerminalScrollGlide *self, bytes row, bytes column,
                                    bytes maxRows, bytes maxColumns);

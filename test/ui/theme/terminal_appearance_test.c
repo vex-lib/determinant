@@ -4,7 +4,7 @@
 #include "ui/theme/terminal_appearance.h"
 #include "determinant/test/support.h"
 
-int main() {
+i32 main() {
     assert(TerminalAppearance_presetCount() >= 6);
     assert(strcmp(TerminalAppearance_presetName(0), "ascii-solid") == 0);
     assert(strcmp(TerminalAppearance_presetName(1), "ascii-striped") == 0);

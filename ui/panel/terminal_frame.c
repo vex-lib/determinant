@@ -26,7 +26,7 @@
  * FUNCTION REGISTRY (exports)
  * Constructors: TerminalFrame_0(), TerminalFrame_2(left, right)
  * Rules: TerminalRule_0/_2/_4, TerminalRule_draw(rule, canvas, ly, pen),
- *   TerminalRule_drawCut(rule, canvas, ly, inset, pen)  cut, stopped-short run
+ *   TerminalRule_drawCut(rule, canvas, ly, inset, pen)  cut, stopped-i16 run
  *   TerminalRule_drawBox(rule, canvas, pen)             detached box + corners
  *   TerminalFrame_setRule/getRule(self, rule)
  * Config: setRails/getRails, setBands/getBands, setBackground/getBackground
@@ -110,7 +110,7 @@ fn TerminalRule_draw(const TerminalRule *rule, TerminalCanvas *canvas, bytes ly,
     }
 }
 
-// A CUT run: it stops short of both edges and ends in the cut-endpoint glyphs, so
+// A CUT run: it stops i16 of both edges and ends in the cut-endpoint glyphs, so
 // a panel divider reads as `╶──────╴` (or a plain, clearly-ended ` ------ `)
 // rather than a line that runs into the borders.
 fn TerminalRule_drawCut(const TerminalRule *rule, TerminalCanvas *canvas, bytes ly,

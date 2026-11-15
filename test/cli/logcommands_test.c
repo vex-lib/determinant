@@ -19,19 +19,19 @@ static bool sink(any context, const char *text, bytes length) {
     captured[used++] = '\n'; captured[used] = 0;
     return true;
 }
-int main() {
+i32 main() {
     char path[4096];
     const char *tmp = getenv("TMPDIR");
     assert(tmp != nullptr);
-    int n = snprintf(path, sizeof(path), "%s/determinant-log-XXXXXX", tmp);
+    i32 n = snprintf(path, sizeof(path), "%s/determinant-log-XXXXXX", tmp);
     assert(n > 0 && (bytes) n < sizeof(path));
-    int fd = mkstemp(path);
+    i32 fd = mkstemp(path);
     assert(fd >= 0);
     FILE *file = fdopen(fd, "wb");
     assert(file);
-    const unsigned char header[] = {'A','N','T','I','L','O','G',1,0,0,0,52};
+    const u8 header[] = {'A','N','T','I','L','O','G',1,0,0,0,52};
     assert(fwrite(header, 1, sizeof(header), file) == sizeof(header));
-    unsigned char record[52]; memset(record, 255, sizeof(record));
+    u8 record[52]; memset(record, 255, sizeof(record));
     record[0] = 0; record[1] = 0; record[2] = 0; record[3] = 1;
     assert(fwrite(record, 1, sizeof(record), file) == sizeof(record));
     record[4] = 0x80; memset(record + 5, 0, 7); // INT64_MIN timestamp

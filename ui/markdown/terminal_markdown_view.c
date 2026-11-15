@@ -1770,7 +1770,7 @@ bytes TerminalMarkdownView_getScroll(const TerminalMarkdownView *self) {
     return self != nullptr ? (*self).scroll : 0u;
 }
 
-bool TerminalMarkdownView_scrollBy(TerminalMarkdownView *self, long delta) {
+bool TerminalMarkdownView_scrollBy(TerminalMarkdownView *self, i64 delta) {
     if (self == nullptr)
         return false;
     bytes maximum = TerminalMarkdownView_maxScroll(self);
@@ -1833,7 +1833,7 @@ bytes TerminalMarkdownView_rowScrollX(const TerminalMarkdownView *self, bytes ro
     return rowScrollX(self, row);
 }
 
-bool TerminalMarkdownView_scrollXBy(TerminalMarkdownView *self, long delta) {
+bool TerminalMarkdownView_scrollXBy(TerminalMarkdownView *self, i64 delta) {
     if (self == nullptr)
         return false;
     bytes maximum = TerminalMarkdownView_maxScrollX(self);

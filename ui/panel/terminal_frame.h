@@ -30,7 +30,7 @@
 // DETACHED boxes: a panel is drawn as its OWN box with real corners
 // ('┌','┐','└','┘') instead of meeting every neighbour at a junction — that is
 // the visual language of a terminal instrument, not one continuous table.
-// A rule drawn between panels is CUT: it stops short of the panel's verticals
+// A rule drawn between panels is CUT: it stops i16 of the panel's verticals
 // and may carry cut-endpoint glyphs ('╶','╴') so the line visibly ends.
 typedef struct TerminalRule {
     u32 horizontal;  // horizontal run glyph (default '-')
@@ -41,7 +41,7 @@ typedef struct TerminalRule {
     bytes stripeEvery;   // period of the stripe (e.g. 4 => "---.")
     // Detached-box corners; 0 falls back to `corner`.
     u32 cornerTopLeft, cornerTopRight, cornerBottomLeft, cornerBottomRight;
-    // CUT endpoints for a rule that stops short (0 => a plain space).
+    // CUT endpoints for a rule that stops i16 (0 => a plain space).
     u32 cutLeft, cutRight;
 } TerminalRule;
 typedef struct TerminalFramePair { bytes first; bytes second; } TerminalFramePair;
@@ -56,7 +56,7 @@ TerminalRule TerminalRule_4(u32 horizontal, u32 vertical, u32 stripe, bytes stri
 // Draw one styled horizontal run into a canvas region row (app footer rules).
 fn TerminalRule_draw(const TerminalRule *rule, TerminalCanvas *canvas, bytes ly, TerminalPen pen);
 // Draw ONE horizontal run that is CUT: inset from both edges of the region and
-// terminated with the cut-endpoint glyphs, so it stops short the way a panel
+// terminated with the cut-endpoint glyphs, so it stops i16 the way a panel
 // divider does. `inset` is the blank margin inside each edge (0 => touching).
 fn TerminalRule_drawCut(const TerminalRule *rule, TerminalCanvas *canvas, bytes ly,
                           bytes inset, TerminalPen pen);

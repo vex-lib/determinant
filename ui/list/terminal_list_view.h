@@ -42,7 +42,7 @@ const char *TerminalListView_getMarker(const TerminalListView *self);
 fn TerminalListView_setPens(TerminalListView *self, TerminalPen normal, TerminalPen selected);
 TerminalListViewPens TerminalListView_getPens(const TerminalListView *self);
 // Move the selection within [0, count) and keep it visible; false at an edge.
-bool TerminalListView_move(TerminalListView *self, long delta, bytes visibleRows);
+bool TerminalListView_move(TerminalListView *self, i64 delta, bytes visibleRows);
 
 fn TerminalListView_render(const TerminalListView *self, TerminalCanvas *canvas);
 

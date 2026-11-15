@@ -39,7 +39,7 @@ const char *TerminalInputLine_getPrefix(const TerminalInputLine *self);
 fn TerminalInputLine_setPens(TerminalInputLine *self, TerminalPen prefixPen, TerminalPen textPen);
 TerminalInputLinePens TerminalInputLine_getPens(const TerminalInputLine *self);
 
-bool TerminalInputLine_add(TerminalInputLine *self, int character);
+bool TerminalInputLine_add(TerminalInputLine *self, i32 character);
 bool TerminalInputLine_backspace(TerminalInputLine *self);
 fn TerminalInputLine_clear(TerminalInputLine *self);
 

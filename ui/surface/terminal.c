@@ -143,7 +143,7 @@ bool Terminal_command(Terminal *self, const char *text, bytes length) {
         return false;
     }
     for (bytes i = 0; i < length; ++i)
-        if ((unsigned char) text[i] < 32 || (unsigned char) text[i] >= 127) {
+        if ((u8) text[i] < 32 || (u8) text[i] >= 127) {
             THROW("Terminal command: invalid ASCII byte at %zu", i);
             return false;
         }
@@ -168,7 +168,7 @@ bool Terminal_text(Terminal *self, bytes x, bytes y, const char *text, bytes len
         return false;
     }
     for (bytes i = 0; i < length; ++i)
-        if ((unsigned char) text[i] < 32 || (unsigned char) text[i] >= 127) {
+        if ((u8) text[i] < 32 || (u8) text[i] >= 127) {
             THROW("Terminal text: invalid ASCII byte at %zu", i);
             return false;
         }
@@ -219,5 +219,5 @@ TerminalProjection Terminal_toStringStruct(const Terminal *self) {
     TerminalModule const *module = self ? &(*self).module : nullptr;
     return TerminalProjection_format("Terminal{cells=<borrowed>,capacity=%zu,width=%zu,height=%zu,output=%s,hostContext=<opaque>,residentState=<opaque>,module={abi=%u},generation=%llu,refusalCount=%zu,paused=%d,active=%d}",
         (*self).capacity, (*self).width, (*self).height, (*self).output ? "bound" : "none", (*module).abi,
-        (unsigned long long) (*self).generation, (*self).refusalCount, (*self).paused, (*self).active);
+        (u64) (*self).generation, (*self).refusalCount, (*self).paused, (*self).active);
 }

@@ -112,7 +112,7 @@ static fn clearBoth(TerminalCanvas *back, TerminalCanvas *front) {
     TerminalCanvas_fill(front, ' ', TerminalPen());
 }
 
-int main() {
+i32 main() {
     enum { CELLS = W * H };
     u32 backCells[CELLS], frontCells[CELLS];
     u16 backStyles[CELLS], frontStyles[CELLS];

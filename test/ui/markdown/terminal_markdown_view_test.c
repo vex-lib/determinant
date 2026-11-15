@@ -21,7 +21,7 @@ static bool canvasContainsText(const TerminalCanvas *canvas, const char *text) {
             bool matches = true;
             for (bytes index = 0; index < length; ++index)
                 if (TerminalCanvas_glyphAt(canvas, column + index, row)
-                    != (unsigned char) text[index]) {
+                    != (u8) text[index]) {
                     matches = false;
                     break;
                 }
@@ -38,7 +38,7 @@ static bytes rowOfText(const TerminalCanvas *canvas, const char *text) {
             bool matches = true;
             for (bytes index = 0; index < length; ++index)
                 if (TerminalCanvas_glyphAt(canvas, column + index, row)
-                    != (unsigned char) text[index]) {
+                    != (u8) text[index]) {
                     matches = false;
                     break;
                 }
@@ -48,7 +48,7 @@ static bytes rowOfText(const TerminalCanvas *canvas, const char *text) {
     return SIZE_MAX;
 }
 
-int main() {
+i32 main() {
     static const char *lines[] = {
         "# Semicolon",
         "",

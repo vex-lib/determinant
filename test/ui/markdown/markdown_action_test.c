@@ -6,7 +6,7 @@
 #include <assert.h>
 #include <string.h>
 
-int main() {
+i32 main() {
     // The icon sits flush right with one cell of margin, and a row too narrow
     // for it reports no column rather than an underflowed one.
     assert(TerminalMarkdownAction_iconColumn(10u, 1u) == 8u);

@@ -93,7 +93,7 @@ static fn testCursorMovementAndClamping() {
     assert(TerminalCodeEditor_getCursorLine(editor) == 1u);
     assert(TerminalCodeEditor_getCursorCol(editor) == 11u);
 
-    // Move up: line 0 ("short", length 5) -> cursor column clamped to 5
+    // Move up: line 0 ("i16", length 5) -> cursor column clamped to 5
     TerminalCodeEditor_moveCursor(editor, -1, 0);
     assert(TerminalCodeEditor_getCursorLine(editor) == 0u);
     assert(TerminalCodeEditor_getCursorCol(editor) == 5u);
@@ -165,7 +165,7 @@ static fn testNegativeRejections() {
     assert(TerminalCodeEditor_getCursorCol(nullptr) == 0u);
 }
 
-int main() {
+i32 main() {
     testCodeEditorBasicsAndText();
     testEditingOperations();
     testCursorMovementAndClamping();

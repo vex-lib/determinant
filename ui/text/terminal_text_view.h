@@ -34,7 +34,7 @@ bool TerminalTextView_isTail(const TerminalTextView *self);
 fn TerminalTextView_setPen(TerminalTextView *self, TerminalPen pen);
 TerminalPen TerminalTextView_getPen(const TerminalTextView *self);
 // Scroll by rows (positive = toward newer at the tail); false at an end.
-bool TerminalTextView_scrollBy(TerminalTextView *self, long delta, bytes visibleRows);
+bool TerminalTextView_scrollBy(TerminalTextView *self, i64 delta, bytes visibleRows);
 
 fn TerminalTextView_render(const TerminalTextView *self, TerminalCanvas *canvas);
 

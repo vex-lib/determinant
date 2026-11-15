@@ -15,12 +15,12 @@
 static bytes feedString(TerminalInput *input, const char *literal) {
     bytes completions = 0;
     for (const char *at = literal; *at != '\0'; ++at)
-        if (TerminalInput_feed(input, (unsigned char) *at))
+        if (TerminalInput_feed(input, (u8) *at))
             ++completions;
     return completions;
 }
 
-int main() {
+i32 main() {
     // --- Constructor and null safety ---
     TerminalInput fresh = TerminalInput_0();
     assert(TerminalInput_getState(&fresh) == TERMINAL_INPUT_IDLE);
@@ -113,7 +113,7 @@ int main() {
     const char *sequence = "\x1b[<32;40;11M";
     bytes completions = 0;
     for (const char *at = sequence; *at != '\0'; ++at)
-        if (TerminalInput_feed(&split, (unsigned char) *at))
+        if (TerminalInput_feed(&split, (u8) *at))
             ++completions;
     assert(completions == 1);
     assert(TerminalInput_isReady(&split));                    // the last byte completed it

@@ -7,7 +7,7 @@
 #include "primitive/vex-string.h"
 #include "nio/mem.h"
 #include "determinant/test/support.h"
-int main() {
+i32 main() {
     char small[4], medium[8], large[32];
     Scanner zero = Scanner();
     assert(Scanner_getCapacity(&zero) == 0);

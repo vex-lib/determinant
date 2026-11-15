@@ -13,7 +13,7 @@
 
 enum { W = 12, H = 1 };
 
-int main() {
+i32 main() {
     u32 cells[W * H];
     u16 styles[W * H];
     u32 fg[W * H];
