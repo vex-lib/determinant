@@ -20,8 +20,8 @@ i32 main() {
     any a = dlopen(DETERMINANT_MODULE_A, RTLD_NOW | RTLD_LOCAL);
     any b = dlopen(DETERMINANT_MODULE_B, RTLD_NOW | RTLD_LOCAL);
     assert(a && b);
-    TerminalModule (*getA)() = (TerminalModule (*)()) dlsym(a, "determinantModule");
-    TerminalModule (*getB)() = (TerminalModule (*)()) dlsym(b, "determinantModule");
+    TerminalModule (*getA)() = (TerminalModule (*) ()) dlsym(a, "determinantModule");
+    TerminalModule (*getB)() = (TerminalModule (*) ()) dlsym(b, "determinantModule");
     assert(getA && getB);
     TerminalModule first = getA(), second = getB();
     char cells[4];
