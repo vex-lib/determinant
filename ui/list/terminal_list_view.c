@@ -30,6 +30,50 @@
  * renders blank; render never allocates or logs.
  * ======================================================================== */
 
+
+;;GETTER
+static inline bytes TerminalListView_count(const TerminalListView *s) { return (*s).count; }
+;;GETTER
+static inline bytes *TerminalListView_countMut(TerminalListView *s) { return &(*s).count; }
+;;SETTER
+static inline fn TerminalListView_setCount(TerminalListView *s, bytes v) { (*s).count = v; }
+;;GETTER
+static inline const char *const * TerminalListView_labels(const TerminalListView *s) { return (*s).labels; }
+;;GETTER
+static inline const char *const * *TerminalListView_labelsMut(TerminalListView *s) { return &(*s).labels; }
+;;SETTER
+static inline fn TerminalListView_setLabels(TerminalListView *s, const char *const * v) { (*s).labels = v; }
+;;GETTER
+static inline const char * TerminalListView_marker(const TerminalListView *s) { return (*s).marker; }
+;;GETTER
+static inline const char * *TerminalListView_markerMut(TerminalListView *s) { return &(*s).marker; }
+;;SETTER
+static inline fn TerminalListView_setMarker(TerminalListView *s, const char * v) { (*s).marker = v; }
+;;GETTER
+static inline TerminalPen TerminalListView_normal(const TerminalListView *s) { return (*s).normal; }
+;;GETTER
+static inline TerminalPen *TerminalListView_normalMut(TerminalListView *s) { return &(*s).normal; }
+;;SETTER
+static inline fn TerminalListView_setNormal(TerminalListView *s, TerminalPen v) { (*s).normal = v; }
+;;GETTER
+static inline bytes TerminalListView_scroll(const TerminalListView *s) { return (*s).scroll; }
+;;GETTER
+static inline bytes *TerminalListView_scrollMut(TerminalListView *s) { return &(*s).scroll; }
+;;SETTER
+static inline fn TerminalListView_setScroll(TerminalListView *s, bytes v) { (*s).scroll = v; }
+;;GETTER
+static inline TerminalPen TerminalListView_selected(const TerminalListView *s) { return (*s).selected; }
+;;GETTER
+static inline TerminalPen *TerminalListView_selectedMut(TerminalListView *s) { return &(*s).selected; }
+;;SETTER
+static inline fn TerminalListView_setSelected(TerminalListView *s, TerminalPen v) { (*s).selected = v; }
+;;GETTER
+static inline bytes TerminalListView_selection(const TerminalListView *s) { return (*s).selection; }
+;;GETTER
+static inline bytes *TerminalListView_selectionMut(TerminalListView *s) { return &(*s).selection; }
+;;SETTER
+static inline fn TerminalListView_setSelection(TerminalListView *s, bytes v) { (*s).selection = v; }
+
 TerminalListView TerminalListView_0() {
     TerminalListView view = {0};
     view.marker = TERMINAL_LIST_MARKER_DEFAULT;
@@ -50,64 +94,64 @@ bool TerminalListView_setLabels(TerminalListView *self, const char *const *label
         THROW("TerminalListView labels: null list");
         return false;
     }
-    (*self).labels = labels;
-    (*self).count = count;
+    TerminalListView_setLabels(self, labels);
+    TerminalListView_setCount(self, count);
     return true;
 }
 TerminalListViewLabels TerminalListView_getLabels(const TerminalListView *self) {
-    return self ? (TerminalListViewLabels) { (*self).labels, (*self).count }
+    return self ? (TerminalListViewLabels) { TerminalListView_labels(self), TerminalListView_count(self) }
                 : (TerminalListViewLabels) { nullptr, 0u };
 }
 bool TerminalListView_setSelection(TerminalListView *self, bytes selection) {
     if (self == nullptr) { THROW("TerminalListView selection: null"); return false; }
-    (*self).selection = selection;
+    TerminalListView_setSelection(self, selection);
     return true;
 }
-bytes TerminalListView_getSelection(const TerminalListView *self) { return self ? (*self).selection : 0; }
+bytes TerminalListView_getSelection(const TerminalListView *self) { return self ? TerminalListView_selection(self) : 0; }
 bool TerminalListView_setScroll(TerminalListView *self, bytes scroll) {
     if (self == nullptr) { THROW("TerminalListView scroll: null"); return false; }
-    (*self).scroll = scroll;
+    TerminalListView_setScroll(self, scroll);
     return true;
 }
-bytes TerminalListView_getScroll(const TerminalListView *self) { return self ? (*self).scroll : 0; }
+bytes TerminalListView_getScroll(const TerminalListView *self) { return self ? TerminalListView_scroll(self) : 0; }
 bool TerminalListView_setMarker(TerminalListView *self, const char *marker) {
     if (self == nullptr) { THROW("TerminalListView marker: null"); return false; }
-    (*self).marker = marker;
+    TerminalListView_setMarker(self, marker);
     return true;
 }
 const char *TerminalListView_getMarker(const TerminalListView *self) {
-    return (self && (*self).marker) ? (*self).marker : TERMINAL_LIST_MARKER_DEFAULT;
+    return (self && TerminalListView_marker(self)) ? TerminalListView_marker(self) : TERMINAL_LIST_MARKER_DEFAULT;
 }
 fn TerminalListView_setPens(TerminalListView *self, TerminalPen normal, TerminalPen selected) {
-    if (self != nullptr) { (*self).normal = normal; (*self).selected = selected; }
+    if (self != nullptr) { (*TerminalListView_normalMut(self)) = normal; (*TerminalListView_selectedMut(self)) = selected; }
 }
 TerminalListViewPens TerminalListView_getPens(const TerminalListView *self) {
-    return self ? (TerminalListViewPens) { (*self).normal, (*self).selected }
+    return self ? (TerminalListViewPens) { TerminalListView_normal(self), TerminalListView_selected(self) }
                 : (TerminalListViewPens) { TerminalPen_0(), TerminalPen_0() };
 }
 
 bool TerminalListView_move(TerminalListView *self, i64 delta, bytes visibleRows) {
-    if (self == nullptr || (*self).count == 0)
+    if (self == nullptr || TerminalListView_count(self) == 0)
         return false;
-    bytes selection = (*self).selection;
+    bytes selection = TerminalListView_selection(self);
     if (delta < 0) {
         if (selection == 0)
             return false;
         selection -= (bytes) -delta;
     } else {
         bytes next = selection + (bytes) delta;
-        if (next >= (*self).count)
-            next = (*self).count - 1;
+        if (next >= TerminalListView_count(self))
+            next = TerminalListView_count(self) - 1;
         if (next == selection)
             return false;
         selection = next;
     }
-    (*self).selection = selection;
+    TerminalListView_setSelection(self, selection);
     if (visibleRows > 0) {
-        if (selection < (*self).scroll)
-            (*self).scroll = selection;
-        else if (selection >= (*self).scroll + visibleRows)
-            (*self).scroll = selection - visibleRows + 1;
+        if (selection < TerminalListView_scroll(self))
+            TerminalListView_setScroll(self, selection);
+        else if (selection >= TerminalListView_scroll(self) + visibleRows)
+            TerminalListView_setScroll(self, selection - visibleRows + 1);
     }
     return true;
 }
@@ -118,14 +162,14 @@ fn TerminalListView_render(const TerminalListView *self, TerminalCanvas *canvas)
     bytes rows = TerminalCanvas_getHeight(canvas);
     bytes markerLen = self ? strlen(TerminalListView_getMarker(self)) : 0;
     for (bytes row = 0; row < rows; ++row) {
-        bytes index = (*self).scroll + row;
-        if (index >= (*self).count)
+        bytes index = TerminalListView_scroll(self) + row;
+        if (index >= TerminalListView_count(self))
             break;
-        bool selected = index == (*self).selection;
-        TerminalPen pen = selected ? (*self).selected : (*self).normal;
+        bool selected = index == TerminalListView_selection(self);
+        TerminalPen pen = selected ? TerminalListView_selected(self) : TerminalListView_normal(self);
         if (selected)
             TerminalCanvas_text(canvas, 0, row, TerminalListView_getMarker(self), markerLen, pen);
-        const char *label = (*self).labels[index];
+        const char *label = TerminalListView_labels(self)[index];
         if (label != nullptr)
             TerminalCanvas_text(canvas, markerLen, row, label, strlen(label), pen);
     }
@@ -140,5 +184,5 @@ TerminalProjection TerminalListView_toStringStruct(const TerminalListView *self)
         return TerminalProjection_format("nullptr");
     return TerminalProjection_format(
         "TerminalListView{count=%zu,selection=%zu,scroll=%zu,marker=\"%s\"}",
-        (*self).count, (*self).selection, (*self).scroll, TerminalListView_getMarker(self));
+        TerminalListView_count(self), TerminalListView_selection(self), TerminalListView_scroll(self), TerminalListView_getMarker(self));
 }
