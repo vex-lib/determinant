@@ -26,6 +26,38 @@
  * renders blank; render never allocates or logs.
  * ======================================================================== */
 
+
+;;GETTER
+static inline bytes TerminalTextView_count(const TerminalTextView *s) { return (*s).count; }
+;;GETTER
+static inline bytes *TerminalTextView_countMut(TerminalTextView *s) { return &(*s).count; }
+;;SETTER
+static inline fn TerminalTextView_setCount(TerminalTextView *s, bytes v) { (*s).count = v; }
+;;GETTER
+static inline const char *const * TerminalTextView_lines(const TerminalTextView *s) { return (*s).lines; }
+;;GETTER
+static inline const char *const * *TerminalTextView_linesMut(TerminalTextView *s) { return &(*s).lines; }
+;;SETTER
+static inline fn TerminalTextView_setLines(TerminalTextView *s, const char *const * v) { (*s).lines = v; }
+;;GETTER
+static inline TerminalPen TerminalTextView_pen(const TerminalTextView *s) { return (*s).pen; }
+;;GETTER
+static inline TerminalPen *TerminalTextView_penMut(TerminalTextView *s) { return &(*s).pen; }
+;;SETTER
+static inline fn TerminalTextView_setPen(TerminalTextView *s, TerminalPen v) { (*s).pen = v; }
+;;GETTER
+static inline bytes TerminalTextView_scroll(const TerminalTextView *s) { return (*s).scroll; }
+;;GETTER
+static inline bytes *TerminalTextView_scrollMut(TerminalTextView *s) { return &(*s).scroll; }
+;;SETTER
+static inline fn TerminalTextView_setScroll(TerminalTextView *s, bytes v) { (*s).scroll = v; }
+;;GETTER
+static inline bool TerminalTextView_tail(const TerminalTextView *s) { return (*s).tail; }
+;;GETTER
+static inline bool *TerminalTextView_tailMut(TerminalTextView *s) { return &(*s).tail; }
+;;SETTER
+static inline fn TerminalTextView_setTail(TerminalTextView *s, bool v) { (*s).tail = v; }
+
 TerminalTextView TerminalTextView_0() {
     TerminalTextView view = {0};
     view.tail = true;
@@ -45,38 +77,38 @@ bool TerminalTextView_setLines(TerminalTextView *self, const char *const *lines,
         THROW("TerminalTextView lines: null list");
         return false;
     }
-    (*self).lines = lines;
-    (*self).count = count;
+    TerminalTextView_setLines(self, lines);
+    TerminalTextView_setCount(self, count);
     return true;
 }
 TerminalTextViewLines TerminalTextView_getLines(const TerminalTextView *self) {
-    return self ? (TerminalTextViewLines) { (*self).lines, (*self).count }
+    return self ? (TerminalTextViewLines) { TerminalTextView_lines(self), TerminalTextView_count(self) }
                 : (TerminalTextViewLines) { nullptr, 0u };
 }
 bool TerminalTextView_setScroll(TerminalTextView *self, bytes scroll) {
     if (self == nullptr) { THROW("TerminalTextView scroll: null"); return false; }
-    (*self).scroll = scroll;
+    TerminalTextView_setScroll(self, scroll);
     return true;
 }
-bytes TerminalTextView_getScroll(const TerminalTextView *self) { return self ? (*self).scroll : 0; }
-fn TerminalTextView_setTail(TerminalTextView *self, bool tail) { if (self != nullptr) (*self).tail = tail; }
-bool TerminalTextView_isTail(const TerminalTextView *self) { return self && (*self).tail; }
-fn TerminalTextView_setPen(TerminalTextView *self, TerminalPen pen) { if (self != nullptr) (*self).pen = pen; }
-TerminalPen TerminalTextView_getPen(const TerminalTextView *self) { return self ? (*self).pen : TerminalPen_0(); }
+bytes TerminalTextView_getScroll(const TerminalTextView *self) { return self ? TerminalTextView_scroll(self) : 0; }
+fn TerminalTextView_setTail(TerminalTextView *self, bool tail) { if (self != nullptr) (*TerminalTextView_tailMut(self)) = tail; }
+bool TerminalTextView_isTail(const TerminalTextView *self) { return self && TerminalTextView_tail(self); }
+fn TerminalTextView_setPen(TerminalTextView *self, TerminalPen pen) { if (self != nullptr) (*TerminalTextView_penMut(self)) = pen; }
+TerminalPen TerminalTextView_getPen(const TerminalTextView *self) { return self ? TerminalTextView_pen(self) : TerminalPen_0(); }
 
 bool TerminalTextView_scrollBy(TerminalTextView *self, i64 delta, bytes visibleRows) {
     (discard) visibleRows;
     if (self == nullptr)
         return false;
     if (delta > 0) {
-        if ((*self).scroll == 0)
+        if (TerminalTextView_scroll(self) == 0)
             return false;
         bytes step = (bytes) delta;
-        (*self).scroll = step < (*self).scroll ? (*self).scroll - step : 0;
+        TerminalTextView_setScroll(self, step < TerminalTextView_scroll(self) ? TerminalTextView_scroll(self) - step : 0);
         return true;
     }
     if (delta < 0) {
-        (*self).scroll += (bytes) -delta;
+        TerminalTextView_setScroll(self, TerminalTextView_scroll(self) + ((bytes) -delta));
         return true;
     }
     return false;
@@ -87,13 +119,13 @@ fn TerminalTextView_render(const TerminalTextView *self, TerminalCanvas *canvas)
         return;
     bytes rows = TerminalCanvas_getHeight(canvas);
     bytes first = 0;
-    if ((*self).count > rows)
-        first = (*self).count - rows;
-    first = (*self).scroll <= first ? first - (*self).scroll : 0;
-    for (bytes row = 0; row < rows && first + row < (*self).count; ++row) {
-        const char *line = (*self).lines[first + row];
+    if (TerminalTextView_count(self) > rows)
+        first = TerminalTextView_count(self) - rows;
+    first = TerminalTextView_scroll(self) <= first ? first - TerminalTextView_scroll(self) : 0;
+    for (bytes row = 0; row < rows && first + row < TerminalTextView_count(self); ++row) {
+        const char *line = TerminalTextView_lines(self)[first + row];
         if (line != nullptr)
-            TerminalCanvas_text(canvas, 0, row, line, strlen(line), (*self).pen);
+            TerminalCanvas_text(canvas, 0, row, line, strlen(line), TerminalTextView_pen(self));
     }
 }
 
@@ -105,5 +137,5 @@ TerminalProjection TerminalTextView_toStringStruct(const TerminalTextView *self)
     if (self == nullptr)
         return TerminalProjection_format("nullptr");
     return TerminalProjection_format("TerminalTextView{count=%zu,scroll=%zu,tail=%d}",
-                                     (*self).count, (*self).scroll, (*self).tail);
+                                     TerminalTextView_count(self), TerminalTextView_scroll(self), TerminalTextView_tail(self));
 }

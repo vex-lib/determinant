@@ -49,6 +49,63 @@
  * at the region edge, so an over-wide label degrades rather than wrapping.
  * ======================================================================== */
 
+
+;;GETTER
+static inline u32 TerminalPen_bg(const TerminalPen *s) { return (*s).bg; }
+;;GETTER
+static inline u32 *TerminalPen_bgMut(TerminalPen *s) { return &(*s).bg; }
+;;SETTER
+static inline fn TerminalPen_setBg(TerminalPen *s, u32 v) { (*s).bg = v; }
+;;GETTER
+static inline u32 TerminalPen_fg(const TerminalPen *s) { return (*s).fg; }
+;;GETTER
+static inline u32 *TerminalPen_fgMut(TerminalPen *s) { return &(*s).fg; }
+;;SETTER
+static inline fn TerminalPen_setFg(TerminalPen *s, u32 v) { (*s).fg = v; }
+;;GETTER
+static inline u16 TerminalPen_style(const TerminalPen *s) { return (*s).style; }
+;;GETTER
+static inline u16 *TerminalPen_styleMut(TerminalPen *s) { return &(*s).style; }
+;;SETTER
+static inline fn TerminalPen_setStyle(TerminalPen *s, u16 v) { (*s).style = v; }
+
+;;GETTER
+static inline TerminalTextAlign TerminalText_align(const TerminalText *s) { return (*s).align; }
+;;GETTER
+static inline TerminalTextAlign *TerminalText_alignMut(TerminalText *s) { return &(*s).align; }
+;;SETTER
+static inline fn TerminalText_setAlign(TerminalText *s, TerminalTextAlign v) { (*s).align = v; }
+;;GETTER
+static inline u32 TerminalText_bracketLeft(const TerminalText *s) { return (*s).bracketLeft; }
+;;GETTER
+static inline u32 *TerminalText_bracketLeftMut(TerminalText *s) { return &(*s).bracketLeft; }
+;;SETTER
+static inline fn TerminalText_setBracketLeft(TerminalText *s, u32 v) { (*s).bracketLeft = v; }
+;;GETTER
+static inline u32 TerminalText_bracketRight(const TerminalText *s) { return (*s).bracketRight; }
+;;GETTER
+static inline u32 *TerminalText_bracketRightMut(TerminalText *s) { return &(*s).bracketRight; }
+;;SETTER
+static inline fn TerminalText_setBracketRight(TerminalText *s, u32 v) { (*s).bracketRight = v; }
+;;GETTER
+static inline const char * TerminalText_glyphs(const TerminalText *s) { return (*s).glyphs; }
+;;GETTER
+static inline const char * *TerminalText_glyphsMut(TerminalText *s) { return &(*s).glyphs; }
+;;SETTER
+static inline fn TerminalText_setGlyphs(TerminalText *s, const char * v) { (*s).glyphs = v; }
+;;GETTER
+static inline bytes TerminalText_length(const TerminalText *s) { return (*s).length; }
+;;GETTER
+static inline bytes *TerminalText_lengthMut(TerminalText *s) { return &(*s).length; }
+;;SETTER
+static inline fn TerminalText_setLength(TerminalText *s, bytes v) { (*s).length = v; }
+;;GETTER
+static inline TerminalPen TerminalText_pen(const TerminalText *s) { return (*s).pen; }
+;;GETTER
+static inline TerminalPen *TerminalText_penMut(TerminalText *s) { return &(*s).pen; }
+;;SETTER
+static inline fn TerminalText_setPen(TerminalText *s, TerminalPen v) { (*s).pen = v; }
+
 static bool validGlyphs(const char *glyphs, bytes length) {
     return glyphs != nullptr || length == 0;
 }
@@ -90,8 +147,8 @@ TerminalText *TerminalText_2(const char *glyphs, bytes length) {
     TerminalText *self = TerminalText_0();
     if (self == nullptr)
         return nullptr;
-    (*self).glyphs = length == 0 ? "" : glyphs;
-    (*self).length = length;
+    TerminalText_setGlyphs(self, length == 0 ? "" : glyphs);
+    TerminalText_setLength(self, length);
     return self;
 }
 
@@ -106,69 +163,69 @@ bool TerminalText_setText(TerminalText *self, const char *glyphs, bytes length) 
         THROW("TerminalText text: null text or invalid glyph span");
         return false;
     }
-    (*self).glyphs = length == 0 ? "" : glyphs;
-    (*self).length = length;
+    TerminalText_setGlyphs(self, length == 0 ? "" : glyphs);
+    TerminalText_setLength(self, length);
     return true;
 }
 
-const char *TerminalText_getText(const TerminalText *self) { return self ? (*self).glyphs : nullptr; }
-bytes TerminalText_getLength(const TerminalText *self) { return self ? (*self).length : 0; }
+const char *TerminalText_getText(const TerminalText *self) { return self ? TerminalText_glyphs(self) : nullptr; }
+bytes TerminalText_getLength(const TerminalText *self) { return self ? TerminalText_length(self) : 0; }
 
 bool TerminalText_setPen(TerminalText *self, TerminalPen pen) {
     if (self == nullptr) {
         THROW("TerminalText pen: null text");
         return false;
     }
-    (*self).pen = pen;
+    TerminalText_setPen(self, pen);
     return true;
 }
 TerminalPen TerminalText_getPen(const TerminalText *self) {
-    return self ? (*self).pen : TerminalPen_0();
+    return self ? TerminalText_pen(self) : TerminalPen_0();
 }
 bool TerminalText_setStyle(TerminalText *self, u8 style) {
     if (self == nullptr) {
         THROW("TerminalText style: null text");
         return false;
     }
-    TerminalPen *pen = &(*self).pen;
-    (*pen).style = style;
+    TerminalPen *pen = TerminalText_penMut(self);
+    TerminalPen_setStyle(pen, style);
     return true;
 }
 u8 TerminalText_getStyle(const TerminalText *self) {
     if (self == nullptr)
         return TERMINAL_STYLE_NONE;
-    const TerminalPen *pen = &(*self).pen;
-    return (*pen).style;
+    const TerminalPen *pen = TerminalText_penMut(self);
+    return TerminalPen_style(pen);
 }
 bool TerminalText_setForegroundColor(TerminalText *self, u32 color) {
     if (self == nullptr) {
         THROW("TerminalText foreground: null text");
         return false;
     }
-    TerminalPen *pen = &(*self).pen;
-    (*pen).fg = color;
+    TerminalPen *pen = TerminalText_penMut(self);
+    TerminalPen_setFg(pen, color);
     return true;
 }
 u32 TerminalText_getForegroundColor(const TerminalText *self) {
     if (self == nullptr)
         return TERMINAL_COLOR_DEFAULT;
-    const TerminalPen *pen = &(*self).pen;
-    return (*pen).fg;
+    const TerminalPen *pen = TerminalText_penMut(self);
+    return TerminalPen_fg(pen);
 }
 bool TerminalText_setBackgroundColor(TerminalText *self, u32 color) {
     if (self == nullptr) {
         THROW("TerminalText background: null text");
         return false;
     }
-    TerminalPen *pen = &(*self).pen;
-    (*pen).bg = color;
+    TerminalPen *pen = TerminalText_penMut(self);
+    TerminalPen_setBg(pen, color);
     return true;
 }
 u32 TerminalText_getBackgroundColor(const TerminalText *self) {
     if (self == nullptr)
         return TERMINAL_COLOR_DEFAULT;
-    const TerminalPen *pen = &(*self).pen;
-    return (*pen).bg;
+    const TerminalPen *pen = TerminalText_penMut(self);
+    return TerminalPen_bg(pen);
 }
 
 bool TerminalText_setBrackets(TerminalText *self, u32 left, u32 right) {
@@ -176,15 +233,15 @@ bool TerminalText_setBrackets(TerminalText *self, u32 left, u32 right) {
         THROW("TerminalText brackets: null text");
         return false;
     }
-    (*self).bracketLeft = left;
-    (*self).bracketRight = right;
+    TerminalText_setBracketLeft(self, left);
+    TerminalText_setBracketRight(self, right);
     return true;
 }
 u32 TerminalText_getBracketLeft(const TerminalText *self) {
-    return self ? (*self).bracketLeft : 0;
+    return self ? TerminalText_bracketLeft(self) : 0;
 }
 u32 TerminalText_getBracketRight(const TerminalText *self) {
-    return self ? (*self).bracketRight : 0;
+    return self ? TerminalText_bracketRight(self) : 0;
 }
 
 bool TerminalText_setAlign(TerminalText *self, TerminalTextAlign align) {
@@ -192,11 +249,11 @@ bool TerminalText_setAlign(TerminalText *self, TerminalTextAlign align) {
         THROW("TerminalText align: null text or unknown alignment");
         return false;
     }
-    (*self).align = align;
+    TerminalText_setAlign(self, align);
     return true;
 }
 TerminalTextAlign TerminalText_getAlign(const TerminalText *self) {
-    return self ? (*self).align : TERMINAL_TEXT_ALIGN_LEFT;
+    return self ? TerminalText_align(self) : TERMINAL_TEXT_ALIGN_LEFT;
 }
 
 // Cells the body occupies, using the canvas's locale-free width rule so a wide
@@ -220,10 +277,10 @@ static bytes bodyCells(const char *glyphs, bytes length) {
 bytes TerminalText_measure(const TerminalText *self) {
     if (self == nullptr)
         return 0;
-    bytes cells = bodyCells((*self).glyphs, (*self).length);
-    if ((*self).bracketLeft != 0)
+    bytes cells = bodyCells(TerminalText_glyphs(self), TerminalText_length(self));
+    if (TerminalText_bracketLeft(self) != 0)
         ++cells;
-    if ((*self).bracketRight != 0)
+    if (TerminalText_bracketRight(self) != 0)
         ++cells;
     return cells;
 }
@@ -235,37 +292,37 @@ fn TerminalText_paint(const TerminalText *self, TerminalCanvas *region, Terminal
     bytes cells = TerminalText_measure(self);
     bytes x = 0;
     if (cells < regionWidth) {
-        if ((*self).align == TERMINAL_TEXT_ALIGN_CENTER)
+        if (TerminalText_align(self) == TERMINAL_TEXT_ALIGN_CENTER)
             x = (regionWidth - cells) / 2;
-        else if ((*self).align == TERMINAL_TEXT_ALIGN_RIGHT)
+        else if (TerminalText_align(self) == TERMINAL_TEXT_ALIGN_RIGHT)
             x = regionWidth - cells;
     }
-    TerminalPen pen = resolvePen(&(*self).pen, parentPen);
-    if ((*self).bracketLeft != 0) {
-        TerminalCanvas_glyph(region, x, 0, (*self).bracketLeft, pen);
+    TerminalPen pen = resolvePen(TerminalText_penMut(self), parentPen);
+    if (TerminalText_bracketLeft(self) != 0) {
+        TerminalCanvas_glyph(region, x, 0, TerminalText_bracketLeft(self), pen);
         ++x;
     }
-    TerminalCanvas_text(region, x, 0, (*self).glyphs, (*self).length, pen);
-    x += bodyCells((*self).glyphs, (*self).length);
-    if ((*self).bracketRight != 0)
-        TerminalCanvas_glyph(region, x, 0, (*self).bracketRight, pen);
+    TerminalCanvas_text(region, x, 0, TerminalText_glyphs(self), TerminalText_length(self), pen);
+    x += bodyCells(TerminalText_glyphs(self), TerminalText_length(self));
+    if (TerminalText_bracketRight(self) != 0)
+        TerminalCanvas_glyph(region, x, 0, TerminalText_bracketRight(self), pen);
 }
 
 TerminalProjection TerminalText_toString(const TerminalText *self) {
     if (self == nullptr)
         return TerminalProjection_format("nullptr");
-    const TerminalPen *pen = &(*self).pen;
+    const TerminalPen *pen = TerminalText_penMut(self);
     return TerminalProjection_format("TerminalText{cells=%zu,brackets=%d,align=%d,style=0x%02X}",
-        TerminalText_measure(self), (*self).bracketLeft != 0 || (*self).bracketRight != 0,
-        (*self).align, (*pen).style);
+        TerminalText_measure(self), TerminalText_bracketLeft(self) != 0 || TerminalText_bracketRight(self) != 0,
+        TerminalText_align(self), TerminalPen_style(pen));
 }
 
 TerminalProjection TerminalText_toStringStruct(const TerminalText *self) {
     if (self == nullptr)
         return TerminalProjection_format("nullptr");
-    const TerminalPen *pen = &(*self).pen;
+    const TerminalPen *pen = TerminalText_penMut(self);
     return TerminalProjection_format(
         "TerminalText{glyphs=<borrowed:%zu bytes>,length=%zu,pen={style=0x%02X,fg=0x%08X,bg=0x%08X},bracketLeft=U+%04X,bracketRight=U+%04X,align=%d}",
-        (*self).length, (*self).length, (*pen).style, (*pen).fg, (*pen).bg,
-        (*self).bracketLeft, (*self).bracketRight, (*self).align);
+        TerminalText_length(self), TerminalText_length(self), TerminalPen_style(pen), TerminalPen_fg(pen), TerminalPen_bg(pen),
+        TerminalText_bracketLeft(self), TerminalText_bracketRight(self), TerminalText_align(self));
 }

@@ -26,6 +26,38 @@
  *   Projections: toString, toStringStruct
  * ======================================================================== */
 
+
+;;GETTER
+static inline bytes TerminalBreadcrumb_maxCells(const TerminalBreadcrumb *s) { return (*s).maxCells; }
+;;GETTER
+static inline bytes *TerminalBreadcrumb_maxCellsMut(TerminalBreadcrumb *s) { return &(*s).maxCells; }
+;;SETTER
+static inline fn TerminalBreadcrumb_setMaxCells(TerminalBreadcrumb *s, bytes v) { (*s).maxCells = v; }
+;;GETTER
+static inline const char * TerminalBreadcrumb_path(const TerminalBreadcrumb *s) { return (*s).path; }
+;;GETTER
+static inline const char * *TerminalBreadcrumb_pathMut(TerminalBreadcrumb *s) { return &(*s).path; }
+;;SETTER
+static inline fn TerminalBreadcrumb_setPath(TerminalBreadcrumb *s, const char * v) { (*s).path = v; }
+;;GETTER
+static inline TerminalPen TerminalBreadcrumb_pen(const TerminalBreadcrumb *s) { return (*s).pen; }
+;;GETTER
+static inline TerminalPen *TerminalBreadcrumb_penMut(TerminalBreadcrumb *s) { return &(*s).pen; }
+;;SETTER
+static inline fn TerminalBreadcrumb_setPen(TerminalBreadcrumb *s, TerminalPen v) { (*s).pen = v; }
+;;GETTER
+static inline const char * TerminalBreadcrumb_root(const TerminalBreadcrumb *s) { return (*s).root; }
+;;GETTER
+static inline const char * *TerminalBreadcrumb_rootMut(TerminalBreadcrumb *s) { return &(*s).root; }
+;;SETTER
+static inline fn TerminalBreadcrumb_setRoot(TerminalBreadcrumb *s, const char * v) { (*s).root = v; }
+;;GETTER
+static inline const char * TerminalBreadcrumb_separator(const TerminalBreadcrumb *s) { return (*s).separator; }
+;;GETTER
+static inline const char * *TerminalBreadcrumb_separatorMut(TerminalBreadcrumb *s) { return &(*s).separator; }
+;;SETTER
+static inline fn TerminalBreadcrumb_setSeparator(TerminalBreadcrumb *s, const char * v) { (*s).separator = v; }
+
 TerminalBreadcrumb TerminalBreadcrumb_0() {
     TerminalBreadcrumb breadcrumbInstance = {0};
     breadcrumbInstance.separator = TERMINAL_BREADCRUMB_SEPARATOR_DEFAULT;
@@ -66,8 +98,8 @@ bool TerminalBreadcrumb_setPath(TerminalBreadcrumb *self, const char *rootDirect
         THROW("TerminalBreadcrumb setPath: null self");
         return false;
     }
-    (*self).root = rootDirectory;
-    (*self).path = targetPath;
+    TerminalBreadcrumb_setRoot(self, rootDirectory);
+    TerminalBreadcrumb_setPath(self, targetPath);
     return true;
 }
 
@@ -76,7 +108,7 @@ bool TerminalBreadcrumb_setRoot(TerminalBreadcrumb *self, const char *rootDirect
         THROW("TerminalBreadcrumb setRoot: null self");
         return false;
     }
-    (*self).root = rootDirectory;
+    TerminalBreadcrumb_setRoot(self, rootDirectory);
     return true;
 }
 
@@ -85,7 +117,7 @@ bool TerminalBreadcrumb_setSeparator(TerminalBreadcrumb *self, const char *custo
         THROW("TerminalBreadcrumb setSeparator: null self");
         return false;
     }
-    (*self).separator = customSeparator != nullptr ? customSeparator : TERMINAL_BREADCRUMB_SEPARATOR_DEFAULT;
+    TerminalBreadcrumb_setSeparator(self, customSeparator != nullptr ? customSeparator : TERMINAL_BREADCRUMB_SEPARATOR_DEFAULT);
     return true;
 }
 
@@ -94,33 +126,33 @@ bool TerminalBreadcrumb_setMaxCells(TerminalBreadcrumb *self, bytes maximumCells
         THROW("TerminalBreadcrumb setMaxCells: null self");
         return false;
     }
-    (*self).maxCells = maximumCells;
+    TerminalBreadcrumb_setMaxCells(self, maximumCells);
     return true;
 }
 
 fn TerminalBreadcrumb_setPen(TerminalBreadcrumb *self, TerminalPen textPen) {
     if (self != nullptr)
-        (*self).pen = textPen;
+        TerminalBreadcrumb_setPen(self, textPen);
 }
 
 const char *TerminalBreadcrumb_getRoot(const TerminalBreadcrumb *self) {
-    return self != nullptr ? (*self).root : nullptr;
+    return self != nullptr ? TerminalBreadcrumb_root(self) : nullptr;
 }
 
 const char *TerminalBreadcrumb_getPath(const TerminalBreadcrumb *self) {
-    return self != nullptr ? (*self).path : nullptr;
+    return self != nullptr ? TerminalBreadcrumb_path(self) : nullptr;
 }
 
 const char *TerminalBreadcrumb_getSeparator(const TerminalBreadcrumb *self) {
-    return self != nullptr ? (*self).separator : nullptr;
+    return self != nullptr ? TerminalBreadcrumb_separator(self) : nullptr;
 }
 
 bytes TerminalBreadcrumb_getMaxCells(const TerminalBreadcrumb *self) {
-    return self != nullptr ? (*self).maxCells : 0u;
+    return self != nullptr ? TerminalBreadcrumb_maxCells(self) : 0u;
 }
 
 TerminalPen TerminalBreadcrumb_getPen(const TerminalBreadcrumb *self) {
-    return self != nullptr ? (*self).pen : TerminalPen_0();
+    return self != nullptr ? TerminalBreadcrumb_pen(self) : TerminalPen_0();
 }
 
 static bytes TerminalBreadcrumb_measureStringCells(const char *byteSpan, bytes byteLength) {
@@ -171,22 +203,22 @@ bytes TerminalBreadcrumb_format(const TerminalBreadcrumb *self, char *destinatio
         return 0u;
 
     destinationBuffer[0] = '\0';
-    if ((*self).path == nullptr || (*self).path[0] == '\0')
+    if (TerminalBreadcrumb_path(self) == nullptr || TerminalBreadcrumb_path(self)[0] == '\0')
         return 0u;
 
-    const char *activeSeparator = (*self).separator != nullptr ? (*self).separator
+    const char *activeSeparator = TerminalBreadcrumb_separator(self) != nullptr ? TerminalBreadcrumb_separator(self)
                                                                : TERMINAL_BREADCRUMB_SEPARATOR_DEFAULT;
-    const char *rootDirectory = (*self).root;
+    const char *rootDirectory = TerminalBreadcrumb_root(self);
     bool isInsideRoot = false;
-    const char *relativeCursor = (*self).path;
+    const char *relativeCursor = TerminalBreadcrumb_path(self);
     const char *rootBaseName = "";
 
     if (rootDirectory != nullptr && rootDirectory[0] != '\0') {
         bytes rootLength = strlen(rootDirectory);
-        if (strncmp((*self).path, rootDirectory, rootLength) == 0
-            && ((*self).path[rootLength] == '/' || (*self).path[rootLength] == '\0')) {
+        if (strncmp(TerminalBreadcrumb_path(self), rootDirectory, rootLength) == 0
+            && (TerminalBreadcrumb_path(self)[rootLength] == '/' || TerminalBreadcrumb_path(self)[rootLength] == '\0')) {
             isInsideRoot = true;
-            relativeCursor = (*self).path[rootLength] == '/' ? (*self).path + rootLength + 1u : "";
+            relativeCursor = TerminalBreadcrumb_path(self)[rootLength] == '/' ? TerminalBreadcrumb_path(self) + rootLength + 1u : "";
         }
         const char *slashPointer = strrchr(rootDirectory, '/');
         rootBaseName = (slashPointer != nullptr && *(slashPointer + 1u) != '\0') ? slashPointer + 1u
@@ -271,10 +303,10 @@ bytes TerminalBreadcrumb_format(const TerminalBreadcrumb *self, char *destinatio
     }
 
     bytes rawByteLength = strlen(scratchBuffer);
-    if ((*self).maxCells > 0u) {
+    if (TerminalBreadcrumb_maxCells(self) > 0u) {
         bytes measuredCells = TerminalBreadcrumb_measureStringCells(scratchBuffer, rawByteLength);
-        if (measuredCells > (*self).maxCells) {
-            bytes keepBudget = (*self).maxCells > 1u ? (*self).maxCells - 1u : 0u;
+        if (measuredCells > TerminalBreadcrumb_maxCells(self)) {
+            bytes keepBudget = TerminalBreadcrumb_maxCells(self) > 1u ? TerminalBreadcrumb_maxCells(self) - 1u : 0u;
             bytes byteCut = TerminalBreadcrumb_bytesForCellBudget(scratchBuffer, rawByteLength, keepBudget);
             if (byteCut + 4u < sizeof scratchBuffer) {
                 memcpy(scratchBuffer + byteCut, "…", 3u);
@@ -307,7 +339,7 @@ fn TerminalBreadcrumb_render(const TerminalBreadcrumb *self, TerminalCanvas *can
     bytes formattedBytes = TerminalBreadcrumb_format(self, renderBuffer, sizeof renderBuffer);
     if (formattedBytes == 0u)
         return;
-    TerminalCanvas_text(canvas, xCoordinate, yCoordinate, renderBuffer, formattedBytes, (*self).pen);
+    TerminalCanvas_text(canvas, xCoordinate, yCoordinate, renderBuffer, formattedBytes, TerminalBreadcrumb_pen(self));
 }
 
 TerminalProjection TerminalBreadcrumb_toString(const TerminalBreadcrumb *self) {
@@ -319,8 +351,8 @@ TerminalProjection TerminalBreadcrumb_toStringStruct(const TerminalBreadcrumb *s
         return TerminalProjection_format("nullptr");
     return TerminalProjection_format(
         "TerminalBreadcrumb{root=\"%s\",path=\"%s\",separator=\"%s\",maxCells=%zu}",
-        (*self).root != nullptr ? (*self).root : "",
-        (*self).path != nullptr ? (*self).path : "",
-        (*self).separator != nullptr ? (*self).separator : "",
-        (*self).maxCells);
+        TerminalBreadcrumb_root(self) != nullptr ? TerminalBreadcrumb_root(self) : "",
+        TerminalBreadcrumb_path(self) != nullptr ? TerminalBreadcrumb_path(self) : "",
+        TerminalBreadcrumb_separator(self) != nullptr ? TerminalBreadcrumb_separator(self) : "",
+        TerminalBreadcrumb_maxCells(self));
 }
