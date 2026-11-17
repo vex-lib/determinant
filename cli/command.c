@@ -34,6 +34,26 @@
  * Null getters return zero/null. Free null is harmless. Projections redact
  * owned strings, avoiding raw control/secret text; truncation always flagged.
  * ======================================================================== */
+
+;;GETTER
+static inline bytes Command_argumentCount(const Command *s) { return (*s).argumentCount; }
+;;GETTER
+static inline bytes *Command_argumentCountMut(Command *s) { return &(*s).argumentCount; }
+;;SETTER
+static inline fn Command_setArgumentCount(Command *s, bytes v) { (*s).argumentCount = v; }
+;;GETTER
+static inline u8 ** Command_arguments(const Command *s) { return (*s).arguments; }
+;;GETTER
+static inline u8 ** *Command_argumentsMut(Command *s) { return &(*s).arguments; }
+;;SETTER
+static inline fn Command_setArguments(Command *s, u8 ** v) { (*s).arguments = v; }
+;;GETTER
+static inline u8 * Command_name(const Command *s) { return (*s).name; }
+;;GETTER
+static inline u8 * *Command_nameMut(Command *s) { return &(*s).name; }
+;;SETTER
+static inline fn Command_setName(Command *s, u8 * v) { (*s).name = v; }
+
 Command *Command_0() {
     u8 *name = String("");
     if (name == nullptr)
@@ -64,26 +84,26 @@ Command *Command_3(u8 *name, u8 **arguments, bytes count) {
     Command *self = Memory_alloc(TYPE_BYTE_ARRAY, bytes);
     if (self == nullptr)
         return nullptr; // R2 owner reports/counts allocation exhaustion.
-    (*self).name = name;
-    (*self).argumentCount = count;
-    (*self).arguments = (u8**) (self + 1);
+    Command_setName(self, name);
+    Command_setArgumentCount(self, count);
+    Command_setArguments(self, (u8**) (self + 1));
     if (count != 0)
-        memcpy((*self).arguments, arguments, count * sizeof(u8*));
+        memcpy(Command_arguments(self), arguments, count * sizeof(u8*));
     return self;
 }
-u8 *Command_name(const Command *self) { return self ? (*self).name : nullptr; }
-bytes Command_argumentCount(const Command *self) { return self ? (*self).argumentCount : 0; }
+u8 *Command_name(const Command *self) { return self ? Command_name(self) : nullptr; }
+bytes Command_argumentCount(const Command *self) { return self ? Command_argumentCount(self) : 0; }
 u8 *Command_argument(const Command *self, bytes index) {
-    if (self == nullptr || index >= (*self).argumentCount)
+    if (self == nullptr || index >= Command_argumentCount(self))
         return nullptr;
-    return (*self).arguments[index];
+    return Command_arguments(self)[index];
 }
 fn Command_free(Command *self) {
     if (self == nullptr)
         return;
-    string_free((*self).name);
-    for (bytes i = 0; i < (*self).argumentCount; ++i)
-        string_free((*self).arguments[i]);
+    string_free(Command_name(self));
+    for (bytes i = 0; i < Command_argumentCount(self); ++i)
+        string_free(Command_arguments(self)[i]);
     Memory_free(self);
 }
 bool Command_toString(const Command *self, char *dest, bytes cap, bool *outTruncated) {
@@ -98,7 +118,7 @@ bool Command_toStringStruct(const Command *self, char *dest, bytes cap, bool *ou
         THROW("Command projection: missing destination");
         return false;
     }
-    i32 n = self ? snprintf(dest, cap, "Command{name=<owned>,argumentCount=%zu,arguments=<owned>}", (*self).argumentCount)
+    i32 n = self ? snprintf(dest, cap, "Command{name=<owned>,argumentCount=%zu,arguments=<owned>}", Command_argumentCount(self))
                  : snprintf(dest, cap, "nullptr");
     bool cut = n < 0 || (bytes) n >= cap;
     if (outTruncated != nullptr)

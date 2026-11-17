@@ -47,6 +47,44 @@
  * an empty string, unlike pending/EOF. Buffer never silently truncates. reserve
  * supports cold growth, reset supports recovery; no permanent initial ceiling.
  * ======================================================================== */
+
+;;GETTER
+static inline char * Scanner_bytes(const Scanner *s) { return (*s).bytes; }
+;;GETTER
+static inline char * *Scanner_bytesMut(Scanner *s) { return &(*s).bytes; }
+;;SETTER
+static inline fn Scanner_setBytes(Scanner *s, char * v) { (*s).bytes = v; }
+;;GETTER
+static inline bytes Scanner_capacity(const Scanner *s) { return (*s).capacity; }
+;;GETTER
+static inline bytes *Scanner_capacityMut(Scanner *s) { return &(*s).capacity; }
+;;SETTER
+static inline fn Scanner_setCapacity(Scanner *s, bytes v) { (*s).capacity = v; }
+;;GETTER
+static inline bool Scanner_ended(const Scanner *s) { return (*s).ended; }
+;;GETTER
+static inline bool *Scanner_endedMut(Scanner *s) { return &(*s).ended; }
+;;SETTER
+static inline fn Scanner_setEnded(Scanner *s, bool v) { (*s).ended = v; }
+;;GETTER
+static inline bytes Scanner_length(const Scanner *s) { return (*s).length; }
+;;GETTER
+static inline bytes *Scanner_lengthMut(Scanner *s) { return &(*s).length; }
+;;SETTER
+static inline fn Scanner_setLength(Scanner *s, bytes v) { (*s).length = v; }
+;;GETTER
+static inline bytes Scanner_position(const Scanner *s) { return (*s).position; }
+;;GETTER
+static inline bytes *Scanner_positionMut(Scanner *s) { return &(*s).position; }
+;;SETTER
+static inline fn Scanner_setPosition(Scanner *s, bytes v) { (*s).position = v; }
+;;GETTER
+static inline bytes Scanner_refusalCount(const Scanner *s) { return (*s).refusalCount; }
+;;GETTER
+static inline bytes *Scanner_refusalCountMut(Scanner *s) { return &(*s).refusalCount; }
+;;SETTER
+static inline fn Scanner_setRefusalCount(Scanner *s, bytes v) { (*s).refusalCount = v; }
+
 Scanner Scanner_0() { return (Scanner) {0}; }
 Scanner Scanner_2(char *data, bytes capacity) {
     if (data == nullptr && capacity != 0) {
@@ -56,15 +94,15 @@ Scanner Scanner_2(char *data, bytes capacity) {
     return (Scanner) {.bytes = data, .capacity = capacity};
 }
 bool Scanner_feed(Scanner *self, const char *data, bytes length, bool ended) {
-    if (self == nullptr || (*self).ended || (data == nullptr && length != 0)) {
+    if (self == nullptr || Scanner_ended(self) || (data == nullptr && length != 0)) {
         THROW("Scanner feed: invalid span or ended");
         return false;
     }
-    if (length > (*self).capacity - (*self).length) {
-        if ((*self).refusalCount == 0)
-            THROW("Scanner exhausted: request %zu bytes, used %zu/%zu", length, (*self).length, (*self).capacity);
-        if ((*self).refusalCount != SIZE_MAX)
-            ++(*self).refusalCount;
+    if (length > Scanner_capacity(self) - Scanner_length(self)) {
+        if (Scanner_refusalCount(self) == 0)
+            THROW("Scanner exhausted: request %zu bytes, used %zu/%zu", length, Scanner_length(self), Scanner_capacity(self));
+        if (Scanner_refusalCount(self) != SIZE_MAX)
+            Scanner_setRefusalCount(self, Scanner_refusalCount(self) + 1u);
         return false;
     }
     for (bytes i = 0; i < length; ++i) {
@@ -75,39 +113,39 @@ bool Scanner_feed(Scanner *self, const char *data, bytes length, bool ended) {
         }
     }
     if (length != 0)
-        memcpy((*self).bytes + (*self).length, data, length);
-    (*self).length += length;
-    (*self).ended = ended;
+        memcpy(Scanner_bytes(self) + Scanner_length(self), data, length);
+    Scanner_setLength(self, Scanner_length(self) + (length));
+    Scanner_setEnded(self, ended);
     return true;
 }
 bool Scanner_reserve(Scanner *self, char *data, bytes capacity) {
-    if (self == nullptr || data == nullptr || capacity < (*self).capacity
-        || (data == (*self).bytes && capacity != (*self).capacity)) {
+    if (self == nullptr || data == nullptr || capacity < Scanner_capacity(self)
+        || (data == Scanner_bytes(self) && capacity != Scanner_capacity(self))) {
         THROW("Scanner reserve: invalid backing");
         return false;
     }
-    bytes pending = (*self).length - (*self).position;
+    bytes pending = Scanner_length(self) - Scanner_position(self);
     if (pending != 0)
-        memmove(data, (*self).bytes + (*self).position, pending);
-    (*self).bytes = data;
-    (*self).capacity = capacity;
-    (*self).length = pending;
-    (*self).position = 0;
+        memmove(data, Scanner_bytes(self) + Scanner_position(self), pending);
+    Scanner_setBytes(self, data);
+    Scanner_setCapacity(self, capacity);
+    Scanner_setLength(self, pending);
+    Scanner_setPosition(self, 0);
     return true;
 }
 bool Scanner_hasNextLine(const Scanner *self) {
-    if (self == nullptr || (*self).position == (*self).length)
+    if (self == nullptr || Scanner_position(self) == Scanner_length(self))
         return false;
-    return (*self).ended || memchr((*self).bytes + (*self).position, '\n', (*self).length - (*self).position) != nullptr;
+    return Scanner_ended(self) || memchr(Scanner_bytes(self) + Scanner_position(self), '\n', Scanner_length(self) - Scanner_position(self)) != nullptr;
 }
 static u8 *take(Scanner *self, bytes start, bytes end, bytes next) {
     if (end - start >= UINT32_MAX) {
         THROW("Scanner take: string length overflow");
         return nullptr;
     }
-    u8 *result = string_allocateBytes((const u8*) (*self).bytes + start, end - start);
+    u8 *result = string_allocateBytes((const u8*) Scanner_bytes(self) + start, end - start);
     if (result != nullptr)
-        (*self).position = next;
+        Scanner_setPosition(self, next);
     return result;
 }
 u8 *Scanner_nextLine(Scanner *self) {
@@ -117,13 +155,13 @@ u8 *Scanner_nextLine(Scanner *self) {
     }
     if (!Scanner_hasNextLine(self))
         return nullptr;
-    bytes start = (*self).position;
+    bytes start = Scanner_position(self);
     bytes end = start;
-    while (end < (*self).length && (*self).bytes[end] != '\n')
+    while (end < Scanner_length(self) && Scanner_bytes(self)[end] != '\n')
         ++end;
-    bytes next = end < (*self).length ? end + 1 : end;
+    bytes next = end < Scanner_length(self) ? end + 1 : end;
     bytes stop = end;
-    if (stop > start && (*self).bytes[stop - 1] == '\r')
+    if (stop > start && Scanner_bytes(self)[stop - 1] == '\r')
         --stop;
     return take(self, start, stop, next);
 }
@@ -133,30 +171,30 @@ u8 *Scanner_nextWord(Scanner *self) {
         THROW("Scanner nextWord: null scanner");
         return nullptr;
     }
-    bytes start = (*self).position;
-    while (start < (*self).length && wordSpace((*self).bytes[start]))
+    bytes start = Scanner_position(self);
+    while (start < Scanner_length(self) && wordSpace(Scanner_bytes(self)[start]))
         ++start;
     bytes end = start;
-    while (end < (*self).length && !wordSpace((*self).bytes[end]))
+    while (end < Scanner_length(self) && !wordSpace(Scanner_bytes(self)[end]))
         ++end;
-    if (start == end || (end == (*self).length && !(*self).ended))
+    if (start == end || (end == Scanner_length(self) && !Scanner_ended(self)))
         return nullptr;
     return take(self, start, end, end);
 }
 fn Scanner_reset(Scanner *self) {
     if (self == nullptr)
         return;
-    (*self).length = 0;
-    (*self).position = 0;
-    (*self).refusalCount = 0;
-    (*self).ended = false;
+    Scanner_setLength(self, 0);
+    Scanner_setPosition(self, 0);
+    Scanner_setRefusalCount(self, 0);
+    Scanner_setEnded(self, false);
 }
-bytes Scanner_getLength(const Scanner *self) { return self ? (*self).length : 0; }
-bytes Scanner_getCapacity(const Scanner *self) { return self ? (*self).capacity : 0; }
-bytes Scanner_getPosition(const Scanner *self) { return self ? (*self).position : 0; }
-bool Scanner_isEnded(const Scanner *self) { return self && (*self).ended; }
-bytes Scanner_exhaustionCount(const Scanner *self) { return self ? (*self).refusalCount : 0; }
-const char *Scanner_getBytes(const Scanner *self) { return self ? (*self).bytes : nullptr; }
+bytes Scanner_getLength(const Scanner *self) { return self ? Scanner_length(self) : 0; }
+bytes Scanner_getCapacity(const Scanner *self) { return self ? Scanner_capacity(self) : 0; }
+bytes Scanner_getPosition(const Scanner *self) { return self ? Scanner_position(self) : 0; }
+bool Scanner_isEnded(const Scanner *self) { return self && Scanner_ended(self); }
+bytes Scanner_exhaustionCount(const Scanner *self) { return self ? Scanner_refusalCount(self) : 0; }
+const char *Scanner_getBytes(const Scanner *self) { return self ? Scanner_bytes(self) : nullptr; }
 bool Scanner_toString(const Scanner *self, char *dest, bytes cap, bool *outTruncated) {
     return Scanner_toStringStruct(self, dest, cap, outTruncated);
 }
@@ -170,7 +208,7 @@ bool Scanner_toStringStruct(const Scanner *self, char *dest, bytes cap, bool *ou
         return false;
     }
     i32 n = self ? snprintf(dest, cap, "Scanner{bytes=<borrowed>,capacity=%zu,length=%zu,position=%zu,refusalCount=%zu,ended=%d}",
-        (*self).capacity, (*self).length, (*self).position, (*self).refusalCount, (*self).ended)
+        Scanner_capacity(self), Scanner_length(self), Scanner_position(self), Scanner_refusalCount(self), Scanner_ended(self))
         : snprintf(dest, cap, "nullptr");
     bool cut = n < 0 || (bytes) n >= cap;
     if (outTruncated != nullptr)

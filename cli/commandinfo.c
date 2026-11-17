@@ -29,6 +29,26 @@
  * CONTRACT: takes ownership of command only on success; null command rejects
  * before transfer. Free null is harmless. Projections redact owned strings.
  * ======================================================================== */
+
+;;GETTER
+static inline Command * CommandInfo_command(const CommandInfo *s) { return (*s).command; }
+;;GETTER
+static inline Command * *CommandInfo_commandMut(CommandInfo *s) { return &(*s).command; }
+;;SETTER
+static inline fn CommandInfo_setCommand(CommandInfo *s, Command * v) { (*s).command = v; }
+;;GETTER
+static inline CommandKind CommandInfo_kind(const CommandInfo *s) { return (*s).kind; }
+;;GETTER
+static inline CommandKind *CommandInfo_kindMut(CommandInfo *s) { return &(*s).kind; }
+;;SETTER
+static inline fn CommandInfo_setKind(CommandInfo *s, CommandKind v) { (*s).kind = v; }
+;;GETTER
+static inline CommandOperation CommandInfo_operation(const CommandInfo *s) { return (*s).operation; }
+;;GETTER
+static inline CommandOperation *CommandInfo_operationMut(CommandInfo *s) { return &(*s).operation; }
+;;SETTER
+static inline fn CommandInfo_setOperation(CommandInfo *s, CommandOperation v) { (*s).operation = v; }
+
 const char *CommandKind_title(CommandKind kind) {
     switch (kind) {
         case COMMAND_CD:
@@ -892,9 +912,9 @@ CommandInfo *CommandInfo_3(CommandKind kind, CommandOperation operation, Command
     CommandInfo *self = Memory_alloc(TYPE_BYTE_ARRAY, sizeof(CommandInfo));
     if (self == nullptr)
         return nullptr;
-    (*self).kind = kind;
-    (*self).operation = operation;
-    (*self).command = command;
+    CommandInfo_setKind(self, kind);
+    CommandInfo_setOperation(self, operation);
+    CommandInfo_setCommand(self, command);
     return self;
 }
 CommandInfo *CommandInfo_fromCommand(Command *command) {
@@ -907,17 +927,17 @@ CommandInfo *CommandInfo_fromCommand(Command *command) {
     CommandOperation operation = classifyOperation(kind, command);
     return CommandInfo_3(kind, operation, command);
 }
-CommandKind CommandInfo_getKind(const CommandInfo *self) { return self ? (*self).kind : COMMAND_UNKNOWN; }
-CommandOperation CommandInfo_getOperation(const CommandInfo *self) { return self ? (*self).operation : COMMAND_OPERATION_UNKNOWN; }
-Command *CommandInfo_getCommand(const CommandInfo *self) { return self ? (*self).command : nullptr; }
-bool CommandInfo_isRecursiveDelete(const CommandInfo *self) { return self && (*self).operation == COMMAND_RM_RECURSIVE_DELETE; }
+CommandKind CommandInfo_getKind(const CommandInfo *self) { return self ? CommandInfo_kind(self) : COMMAND_UNKNOWN; }
+CommandOperation CommandInfo_getOperation(const CommandInfo *self) { return self ? CommandInfo_operation(self) : COMMAND_OPERATION_UNKNOWN; }
+Command *CommandInfo_getCommand(const CommandInfo *self) { return self ? CommandInfo_command(self) : nullptr; }
+bool CommandInfo_isRecursiveDelete(const CommandInfo *self) { return self && CommandInfo_operation(self) == COMMAND_RM_RECURSIVE_DELETE; }
 bool CommandInfo_isDelete(const CommandInfo *self) {
-    return self && ((*self).operation == COMMAND_RM_DELETE_FILE || (*self).operation == COMMAND_RM_RECURSIVE_DELETE || (*self).operation == COMMAND_RMDIR_DELETE_FOLDER);
+    return self && (CommandInfo_operation(self) == COMMAND_RM_DELETE_FILE || CommandInfo_operation(self) == COMMAND_RM_RECURSIVE_DELETE || CommandInfo_operation(self) == COMMAND_RMDIR_DELETE_FOLDER);
 }
 fn CommandInfo_free(CommandInfo *self) {
     if (self == nullptr)
         return;
-    Command_free((*self).command);
+    Command_free(CommandInfo_command(self));
     Memory_free(self);
 }
 bool CommandInfo_toString(const CommandInfo *self, char *dest, bytes cap, bool *outTruncated) {
@@ -932,7 +952,7 @@ bool CommandInfo_toStringStruct(const CommandInfo *self, char *dest, bytes cap, 
         THROW("CommandInfo projection: missing destination");
         return false;
     }
-    i32 n = self ? snprintf(dest, cap, "CommandInfo{kind=%s,command=<owned>}", CommandKind_title((*self).kind))
+    i32 n = self ? snprintf(dest, cap, "CommandInfo{kind=%s,command=<owned>}", CommandKind_title(CommandInfo_kind(self)))
                  : snprintf(dest, cap, "nullptr");
     bool cut = n < 0 || (bytes) n >= cap;
     if (outTruncated != nullptr)

@@ -27,6 +27,20 @@
  * CONTRACT: takes ownership of entries only on success; duplicates and null
  * entries reject before transfer. Free null is harmless.
  * ======================================================================== */
+
+;;GETTER
+static inline bytes CommandChain_count(const CommandChain *s) { return (*s).count; }
+;;GETTER
+static inline bytes *CommandChain_countMut(CommandChain *s) { return &(*s).count; }
+;;SETTER
+static inline fn CommandChain_setCount(CommandChain *s, bytes v) { (*s).count = v; }
+;;GETTER
+static inline CommandInfo ** CommandChain_entries(const CommandChain *s) { return (*s).entries; }
+;;GETTER
+static inline CommandInfo ** *CommandChain_entriesMut(CommandChain *s) { return &(*s).entries; }
+;;SETTER
+static inline fn CommandChain_setEntries(CommandChain *s, CommandInfo ** v) { (*s).entries = v; }
+
 CommandChain *CommandChain_2(CommandInfo **entries, bytes count) {
     if (count != 0 && entries == nullptr) {
         THROW("CommandChain construct: null entries");
@@ -51,23 +65,23 @@ CommandChain *CommandChain_2(CommandInfo **entries, bytes count) {
     CommandChain *self = Memory_alloc(TYPE_BYTE_ARRAY, bytes);
     if (self == nullptr)
         return nullptr;
-    (*self).count = count;
-    (*self).entries = (CommandInfo**) (self + 1);
+    CommandChain_setCount(self, count);
+    CommandChain_setEntries(self, (CommandInfo**) (self + 1));
     if (count != 0)
-        memcpy((*self).entries, entries, count * sizeof(CommandInfo*));
+        memcpy(CommandChain_entries(self), entries, count * sizeof(CommandInfo*));
     return self;
 }
-bytes CommandChain_getCount(const CommandChain *self) { return self ? (*self).count : 0; }
+bytes CommandChain_getCount(const CommandChain *self) { return self ? CommandChain_count(self) : 0; }
 CommandInfo *CommandChain_getEntry(const CommandChain *self, bytes index) {
-    if (self == nullptr || index >= (*self).count)
+    if (self == nullptr || index >= CommandChain_count(self))
         return nullptr;
-    return (*self).entries[index];
+    return CommandChain_entries(self)[index];
 }
 fn CommandChain_free(CommandChain *self) {
     if (self == nullptr)
         return;
-    for (bytes i = 0; i < (*self).count; ++i)
-        CommandInfo_free((*self).entries[i]);
+    for (bytes i = 0; i < CommandChain_count(self); ++i)
+        CommandInfo_free(CommandChain_entries(self)[i]);
     Memory_free(self);
 }
 bool CommandChain_toString(const CommandChain *self, char *dest, bytes cap, bool *outTruncated) {
@@ -82,7 +96,7 @@ bool CommandChain_toStringStruct(const CommandChain *self, char *dest, bytes cap
         THROW("CommandChain projection: missing destination");
         return false;
     }
-    i32 n = self ? snprintf(dest, cap, "CommandChain{count=%zu,entries=<owned>}", (*self).count)
+    i32 n = self ? snprintf(dest, cap, "CommandChain{count=%zu,entries=<owned>}", CommandChain_count(self))
                  : snprintf(dest, cap, "nullptr");
     bool cut = n < 0 || (bytes) n >= cap;
     if (outTruncated != nullptr)

@@ -40,6 +40,44 @@ typedef struct Cat {
     DeterminantOutputFn output;
     any hostContext;
 } Cat;
+
+;;GETTER
+static inline bool Cat_failed(const Cat *s) { return (*s).failed; }
+;;GETTER
+static inline bool *Cat_failedMut(Cat *s) { return &(*s).failed; }
+;;SETTER
+static inline fn Cat_setFailed(Cat *s, bool v) { (*s).failed = v; }
+;;GETTER
+static inline any Cat_hostContext(const Cat *s) { return (*s).hostContext; }
+;;GETTER
+static inline any *Cat_hostContextMut(Cat *s) { return &(*s).hostContext; }
+;;SETTER
+static inline fn Cat_setHostContext(Cat *s, any v) { (*s).hostContext = v; }
+;;GETTER
+static inline i32 Cat_limit(const Cat *s) { return (*s).limit; }
+;;GETTER
+static inline i32 *Cat_limitMut(Cat *s) { return &(*s).limit; }
+;;SETTER
+static inline fn Cat_setLimit(Cat *s, i32 v) { (*s).limit = v; }
+;;GETTER
+static inline DeterminantOutputFn Cat_output(const Cat *s) { return (*s).output; }
+;;GETTER
+static inline DeterminantOutputFn *Cat_outputMut(Cat *s) { return &(*s).output; }
+;;SETTER
+static inline fn Cat_setOutput(Cat *s, DeterminantOutputFn v) { (*s).output = v; }
+;;GETTER
+static inline i64 Cat_shown(const Cat *s) { return (*s).shown; }
+;;GETTER
+static inline i64 *Cat_shownMut(Cat *s) { return &(*s).shown; }
+;;SETTER
+static inline fn Cat_setShown(Cat *s, i64 v) { (*s).shown = v; }
+;;GETTER
+static inline i64 Cat_total(const Cat *s) { return (*s).total; }
+;;GETTER
+static inline i64 *Cat_totalMut(Cat *s) { return &(*s).total; }
+;;SETTER
+static inline fn Cat_setTotal(Cat *s, i64 v) { (*s).total = v; }
+
 static bool admit(const char *path, DeterminantOutputFn output, i64 *outBytes) {
     if (path == nullptr || output == nullptr) {
         THROW("LogCommands admission: null path or sink");
@@ -77,18 +115,18 @@ bool LogCommands_stat(const char *path, DeterminantOutputFn output, any hostCont
 static fn catHandler(any context, i32 kind, i64 ts, i64 v0, i64 v1,
                        i64 v2, i64 v3, i64 v4) {
     Cat *cat = context;
-    ++(*cat).total;
-    if ((*cat).failed || ((*cat).limit >= 0 && (*cat).shown >= (*cat).limit))
+    Cat_setTotal(cat, Cat_total(cat) + 1u);
+    if (Cat_failed(cat) || (Cat_limit(cat) >= 0 && Cat_shown(cat) >= Cat_limit(cat)))
         return;
     char text[256]; // Seven int64/32 values + fixed separators fit by construction.
     i32 n = snprintf(text, sizeof(text), "timestamp=%lld kind=%d values=%lld %lld %lld %lld %lld",
         (i64) ts, kind, (i64) v0, (i64) v1, (i64) v2,
         (i64) v3, (i64) v4);
-    if (n < 0 || (bytes) n >= sizeof(text) || !(*cat).output((*cat).hostContext, text, (bytes) n)) {
-        (*cat).failed = true;
+    if (n < 0 || (bytes) n >= sizeof(text) || !Cat_output(cat)(Cat_hostContext(cat), text, (bytes) n)) {
+        Cat_setFailed(cat, true);
         return;
     }
-    ++(*cat).shown;
+    Cat_setShown(cat, Cat_shown(cat) + 1u);
 }
 bool LogCommands_cat(const char *path, i32 limit, DeterminantOutputFn output, any hostContext) {
     i64 bytes;
