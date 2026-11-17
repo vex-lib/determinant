@@ -30,6 +30,64 @@ typedef struct RunLog {
     bytes reentered;        // nested presents observed as a clean refusal
 } RunLog;
 
+;;GETTER
+static inline bytes RunLog_calls(const RunLog *s) { return (*s).calls; }
+;;GETTER
+static inline bytes *RunLog_callsMut(RunLog *s) { return &(*s).calls; }
+;;SETTER
+static inline fn RunLog_setCalls(RunLog *s, bytes v) { (*s).calls = v; }
+;;GETTER
+static inline bytes RunLog_cells(const RunLog *s) { return (*s).cells; }
+;;GETTER
+static inline bytes *RunLog_cellsMut(RunLog *s) { return &(*s).cells; }
+;;SETTER
+static inline fn RunLog_setCells(RunLog *s, bytes v) { (*s).cells = v; }
+;;GETTER
+static inline bytes RunLog_failFromCall(const RunLog *s) { return (*s).failFromCall; }
+;;GETTER
+static inline bytes *RunLog_failFromCallMut(RunLog *s) { return &(*s).failFromCall; }
+;;SETTER
+static inline fn RunLog_setFailFromCall(RunLog *s, bytes v) { (*s).failFromCall = v; }
+;;GETTER
+static inline TerminalRun RunLog_first(const RunLog *s) { return (*s).first; }
+;;GETTER
+static inline TerminalRun *RunLog_firstMut(RunLog *s) { return &(*s).first; }
+;;SETTER
+static inline fn RunLog_setFirst(RunLog *s, TerminalRun v) { (*s).first = v; }
+;;GETTER
+static inline u32 *RunLog_firstGlyphsMut(RunLog *s) { return (*s).firstGlyphs; }
+;;GETTER
+static inline const u32 *RunLog_firstGlyphs(const RunLog *s) { return (*s).firstGlyphs; }
+;;GETTER
+static inline TerminalRun RunLog_last(const RunLog *s) { return (*s).last; }
+;;GETTER
+static inline TerminalRun *RunLog_lastMut(RunLog *s) { return &(*s).last; }
+;;SETTER
+static inline fn RunLog_setLast(RunLog *s, TerminalRun v) { (*s).last = v; }
+;;GETTER
+static inline u32 *RunLog_lastGlyphsMut(RunLog *s) { return (*s).lastGlyphs; }
+;;GETTER
+static inline const u32 *RunLog_lastGlyphs(const RunLog *s) { return (*s).lastGlyphs; }
+;;GETTER
+static inline bytes RunLog_reentered(const RunLog *s) { return (*s).reentered; }
+;;GETTER
+static inline bytes *RunLog_reenteredMut(RunLog *s) { return &(*s).reentered; }
+;;SETTER
+static inline fn RunLog_setReentered(RunLog *s, bytes v) { (*s).reentered = v; }
+;;GETTER
+static inline bytes RunLog_runs(const RunLog *s) { return (*s).runs; }
+;;GETTER
+static inline bytes *RunLog_runsMut(RunLog *s) { return &(*s).runs; }
+;;SETTER
+static inline fn RunLog_setRuns(RunLog *s, bytes v) { (*s).runs = v; }
+;;GETTER
+static inline TerminalSurface * RunLog_surface(const RunLog *s) { return (*s).surface; }
+;;GETTER
+static inline TerminalSurface * *RunLog_surfaceMut(RunLog *s) { return &(*s).surface; }
+;;SETTER
+static inline fn RunLog_setSurface(RunLog *s, TerminalSurface * v) { (*s).surface = v; }
+
+
 static fn copyGlyphs(u32 *destination, TerminalRun run) {
     if (run.cells == nullptr)
         return;
@@ -48,38 +106,76 @@ typedef struct FrameLog {
     bool swapRefused;
 } FrameLog;
 
+;;GETTER
+static inline bytes FrameLog_begins(const FrameLog *s) { return (*s).begins; }
+;;GETTER
+static inline bytes *FrameLog_beginsMut(FrameLog *s) { return &(*s).begins; }
+;;SETTER
+static inline fn FrameLog_setBegins(FrameLog *s, bytes v) { (*s).begins = v; }
+;;GETTER
+static inline bytes FrameLog_ends(const FrameLog *s) { return (*s).ends; }
+;;GETTER
+static inline bytes *FrameLog_endsMut(FrameLog *s) { return &(*s).ends; }
+;;SETTER
+static inline fn FrameLog_setEnds(FrameLog *s, bytes v) { (*s).ends = v; }
+;;GETTER
+static inline bytes FrameLog_order(const FrameLog *s) { return (*s).order; }
+;;GETTER
+static inline bytes *FrameLog_orderMut(FrameLog *s) { return &(*s).order; }
+;;SETTER
+static inline fn FrameLog_setOrder(FrameLog *s, bytes v) { (*s).order = v; }
+;;GETTER
+static inline bool FrameLog_outOfOrder(const FrameLog *s) { return (*s).outOfOrder; }
+;;GETTER
+static inline bool *FrameLog_outOfOrderMut(FrameLog *s) { return &(*s).outOfOrder; }
+;;SETTER
+static inline fn FrameLog_setOutOfOrder(FrameLog *s, bool v) { (*s).outOfOrder = v; }
+;;GETTER
+static inline TerminalSurface * FrameLog_probe(const FrameLog *s) { return (*s).probe; }
+;;GETTER
+static inline TerminalSurface * *FrameLog_probeMut(FrameLog *s) { return &(*s).probe; }
+;;SETTER
+static inline fn FrameLog_setProbe(FrameLog *s, TerminalSurface * v) { (*s).probe = v; }
+;;GETTER
+static inline bool FrameLog_swapRefused(const FrameLog *s) { return (*s).swapRefused; }
+;;GETTER
+static inline bool *FrameLog_swapRefusedMut(FrameLog *s) { return &(*s).swapRefused; }
+;;SETTER
+static inline fn FrameLog_setSwapRefused(FrameLog *s, bool v) { (*s).swapRefused = v; }
+
+
 static fn frameBracket(any frameContext, TerminalPresentPhase phase) {
     FrameLog *frames = frameContext;
     if (phase == TERMINAL_PRESENT_BEGIN) {
-        if ((*frames).order != 0)
-            (*frames).outOfOrder = true;
-        (*frames).order = 1;
-        ++(*frames).begins;
+        if (FrameLog_order(frames) != 0)
+            FrameLog_setOutOfOrder(frames, true);
+        FrameLog_setOrder(frames, 1);
+        FrameLog_setBegins(frames, FrameLog_begins(frames) + 1u);
         // Swapping the bracket while a transaction is open must be refused: the host
         // must not change who is being told mid-frame.
-        if ((*frames).probe != nullptr)
-            (*frames).swapRefused = !TerminalSurface_setFrame((*frames).probe, frameBracket, nullptr);
+        if (FrameLog_probe(frames) != nullptr)
+            FrameLog_setSwapRefused(frames, !TerminalSurface_setFrame(FrameLog_probe(frames), frameBracket, nullptr));
     } else {
-        if ((*frames).order != 1)
-            (*frames).outOfOrder = true;
-        (*frames).order = 2;
-        ++(*frames).ends;
+        if (FrameLog_order(frames) != 1)
+            FrameLog_setOutOfOrder(frames, true);
+        FrameLog_setOrder(frames, 2);
+        FrameLog_setEnds(frames, FrameLog_ends(frames) + 1u);
     }
 }
 
 static bool sink(any hostContext, TerminalRun run) {
     RunLog *log = hostContext;
-    ++(*log).calls;
-    if ((*log).failFromCall != 0 && (*log).calls >= (*log).failFromCall)
+    RunLog_setCalls(log, RunLog_calls(log) + 1u);
+    if (RunLog_failFromCall(log) != 0 && RunLog_calls(log) >= RunLog_failFromCall(log))
         return false;
-    if ((*log).runs == 0) {
-        (*log).first = run;
-        copyGlyphs((*log).firstGlyphs, run);
+    if (RunLog_runs(log) == 0) {
+        RunLog_setFirst(log, run);
+        copyGlyphs(RunLog_firstGlyphsMut(log), run);
     }
-    (*log).last = run;
-    copyGlyphs((*log).lastGlyphs, run);
-    ++(*log).runs;
-    (*log).cells += run.length;
+    RunLog_setLast(log, run);
+    copyGlyphs(RunLog_lastGlyphsMut(log), run);
+    RunLog_setRuns(log, RunLog_runs(log) + 1u);
+    RunLog_setCells(log, RunLog_cells(log) + (run.length));
     return true;
 }
 
@@ -87,23 +183,23 @@ static bool sink(any hostContext, TerminalRun run) {
 // present must refuse as reentrant and the outer run must still land.
 static bool reentrantSink(any hostContext, TerminalRun run) {
     RunLog *log = hostContext;
-    ++(*log).calls;
-    TerminalPresentResult nested = TerminalSurface_present((*log).surface);
+    RunLog_setCalls(log, RunLog_calls(log) + 1u);
+    TerminalPresentResult nested = TerminalSurface_present(RunLog_surface(log));
     if (!nested.ok && !nested.changed && nested.runs == 0)
-        ++(*log).reentered;
+        RunLog_setReentered(log, RunLog_reentered(log) + 1u);
     (discard) run;
-    ++(*log).runs;
+    RunLog_setRuns(log, RunLog_runs(log) + 1u);
     return true;
 }
 
 // A sink that probes the cold doors from inside the hot path.
 static bool busyProbeSink(any hostContext, TerminalRun run) {
     RunLog *log = hostContext;
-    ++(*log).calls;
-    assert(!TerminalSurface_reset((*log).surface));
-    assert(!TerminalSurface_setGapTolerance((*log).surface, 2));
+    RunLog_setCalls(log, RunLog_calls(log) + 1u);
+    assert(!TerminalSurface_reset(RunLog_surface(log)));
+    assert(!TerminalSurface_setGapTolerance(RunLog_surface(log), 2));
     (discard) run;
-    ++(*log).runs;
+    RunLog_setRuns(log, RunLog_runs(log) + 1u);
     return true;
 }
 
