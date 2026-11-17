@@ -63,6 +63,97 @@
  * refused loudly by the cold projections only; feed(null) is a quiet false.
  * ======================================================================== */
 
+
+;;GETTER
+static inline TerminalPointerButton TerminalPointerEvent_button(const TerminalPointerEvent *s) { return (*s).button; }
+;;GETTER
+static inline TerminalPointerButton *TerminalPointerEvent_buttonMut(TerminalPointerEvent *s) { return &(*s).button; }
+;;SETTER
+static inline fn TerminalPointerEvent_setButton(TerminalPointerEvent *s, TerminalPointerButton v) { (*s).button = v; }
+;;GETTER
+static inline bool TerminalPointerEvent_ctrl(const TerminalPointerEvent *s) { return (*s).ctrl; }
+;;GETTER
+static inline bool *TerminalPointerEvent_ctrlMut(TerminalPointerEvent *s) { return &(*s).ctrl; }
+;;SETTER
+static inline fn TerminalPointerEvent_setCtrl(TerminalPointerEvent *s, bool v) { (*s).ctrl = v; }
+;;GETTER
+static inline TerminalPointerKind TerminalPointerEvent_kind(const TerminalPointerEvent *s) { return (*s).kind; }
+;;GETTER
+static inline TerminalPointerKind *TerminalPointerEvent_kindMut(TerminalPointerEvent *s) { return &(*s).kind; }
+;;SETTER
+static inline fn TerminalPointerEvent_setKind(TerminalPointerEvent *s, TerminalPointerKind v) { (*s).kind = v; }
+;;GETTER
+static inline bool TerminalPointerEvent_meta(const TerminalPointerEvent *s) { return (*s).meta; }
+;;GETTER
+static inline bool *TerminalPointerEvent_metaMut(TerminalPointerEvent *s) { return &(*s).meta; }
+;;SETTER
+static inline fn TerminalPointerEvent_setMeta(TerminalPointerEvent *s, bool v) { (*s).meta = v; }
+;;GETTER
+static inline bool TerminalPointerEvent_shift(const TerminalPointerEvent *s) { return (*s).shift; }
+;;GETTER
+static inline bool *TerminalPointerEvent_shiftMut(TerminalPointerEvent *s) { return &(*s).shift; }
+;;SETTER
+static inline fn TerminalPointerEvent_setShift(TerminalPointerEvent *s, bool v) { (*s).shift = v; }
+;;GETTER
+static inline bytes TerminalPointerEvent_x(const TerminalPointerEvent *s) { return (*s).x; }
+;;GETTER
+static inline bytes *TerminalPointerEvent_xMut(TerminalPointerEvent *s) { return &(*s).x; }
+;;SETTER
+static inline fn TerminalPointerEvent_setX(TerminalPointerEvent *s, bytes v) { (*s).x = v; }
+;;GETTER
+static inline bytes TerminalPointerEvent_y(const TerminalPointerEvent *s) { return (*s).y; }
+;;GETTER
+static inline bytes *TerminalPointerEvent_yMut(TerminalPointerEvent *s) { return &(*s).y; }
+;;SETTER
+static inline fn TerminalPointerEvent_setY(TerminalPointerEvent *s, bytes v) { (*s).y = v; }
+
+;;GETTER
+static inline bytes TerminalInput_digits(const TerminalInput *s) { return (*s).digits; }
+;;GETTER
+static inline bytes *TerminalInput_digitsMut(TerminalInput *s) { return &(*s).digits; }
+;;SETTER
+static inline fn TerminalInput_setDigits(TerminalInput *s, bytes v) { (*s).digits = v; }
+;;GETTER
+static inline TerminalPointerEvent TerminalInput_event(const TerminalInput *s) { return (*s).event; }
+;;GETTER
+static inline TerminalPointerEvent *TerminalInput_eventMut(TerminalInput *s) { return &(*s).event; }
+;;SETTER
+static inline fn TerminalInput_setEvent(TerminalInput *s, TerminalPointerEvent v) { (*s).event = v; }
+;;GETTER
+static inline bytes TerminalInput_field(const TerminalInput *s) { return (*s).field; }
+;;GETTER
+static inline bytes *TerminalInput_fieldMut(TerminalInput *s) { return &(*s).field; }
+;;SETTER
+static inline fn TerminalInput_setField(TerminalInput *s, bytes v) { (*s).field = v; }
+;;GETTER
+static inline bytes TerminalInput_malformed(const TerminalInput *s) { return (*s).malformed; }
+;;GETTER
+static inline bytes *TerminalInput_malformedMut(TerminalInput *s) { return &(*s).malformed; }
+;;SETTER
+static inline fn TerminalInput_setMalformed(TerminalInput *s, bytes v) { (*s).malformed = v; }
+;;GETTER
+static inline bytes TerminalInput_rawCount(const TerminalInput *s) { return (*s).rawCount; }
+;;GETTER
+static inline bytes *TerminalInput_rawCountMut(TerminalInput *s) { return &(*s).rawCount; }
+;;SETTER
+static inline fn TerminalInput_setRawCount(TerminalInput *s, bytes v) { (*s).rawCount = v; }
+;;GETTER
+static inline bool TerminalInput_ready(const TerminalInput *s) { return (*s).ready; }
+;;GETTER
+static inline bool *TerminalInput_readyMut(TerminalInput *s) { return &(*s).ready; }
+;;SETTER
+static inline fn TerminalInput_setReady(TerminalInput *s, bool v) { (*s).ready = v; }
+;;GETTER
+static inline TerminalInputState TerminalInput_state(const TerminalInput *s) { return (*s).state; }
+;;GETTER
+static inline TerminalInputState *TerminalInput_stateMut(TerminalInput *s) { return &(*s).state; }
+;;SETTER
+static inline fn TerminalInput_setState(TerminalInput *s, TerminalInputState v) { (*s).state = v; }
+;;GETTER
+static inline bytes *TerminalInput_valuesMut(TerminalInput *s) { return (*s).values; }
+;;GETTER
+static inline const bytes *TerminalInput_values(const TerminalInput *s) { return (*s).values; }
+
 static TerminalPointerButton buttonFor(bytes low) {
     switch (low & 3u) {
         case 0: return TERMINAL_BUTTON_LEFT;
@@ -73,21 +164,21 @@ static TerminalPointerButton buttonFor(bytes low) {
 }
 
 static fn noteMalformed(TerminalInput *self) {
-    if ((*self).malformed != SIZE_MAX)
-        ++(*self).malformed;
-    (*self).state = TERMINAL_INPUT_IDLE;
-    (*self).rawCount = 0;
-    (*self).field = 0;
-    (*self).digits = 0;
+    if (TerminalInput_malformed(self) != SIZE_MAX)
+        TerminalInput_setMalformed(self, TerminalInput_malformed(self) + 1u);
+    TerminalInput_setState(self, TERMINAL_INPUT_IDLE);
+    TerminalInput_setRawCount(self, 0);
+    TerminalInput_setField(self, 0);
+    TerminalInput_setDigits(self, 0);
 }
 
 static fn beginSgr(TerminalInput *self) {
-    (*self).state = TERMINAL_INPUT_SGR_BUTTON;
-    (*self).field = 0;
-    (*self).digits = 0;
-    (*self).values[0] = 0;
-    (*self).values[1] = 0;
-    (*self).values[2] = 0;
+    TerminalInput_setState(self, TERMINAL_INPUT_SGR_BUTTON);
+    TerminalInput_setField(self, 0);
+    TerminalInput_setDigits(self, 0);
+    TerminalInput_valuesMut(self)[0] = 0;
+    TerminalInput_valuesMut(self)[1] = 0;
+    TerminalInput_valuesMut(self)[2] = 0;
 }
 
 // Shared decode for both encodings. `motion` exists only in SGR, and `release` is
@@ -128,12 +219,12 @@ static fn complete(TerminalInput *self, bytes raw, bytes x, bytes y,
     }
     event.x = x - 1;
     event.y = y - 1;
-    (*self).event = event;
-    (*self).ready = true;
-    (*self).state = TERMINAL_INPUT_IDLE;
-    (*self).rawCount = 0;
-    (*self).field = 0;
-    (*self).digits = 0;
+    TerminalInput_setEvent(self, event);
+    TerminalInput_setReady(self, true);
+    TerminalInput_setState(self, TERMINAL_INPUT_IDLE);
+    TerminalInput_setRawCount(self, 0);
+    TerminalInput_setField(self, 0);
+    TerminalInput_setDigits(self, 0);
 }
 
 TerminalInput TerminalInput_0() { return (TerminalInput) {0}; }
@@ -142,22 +233,22 @@ TerminalInput TerminalInput_0() { return (TerminalInput) {0}; }
 bool TerminalInput_feed(TerminalInput *self, i32 byte) {
     if (self == nullptr || byte < 0 || byte > 255)
         return false;
-    (*self).ready = false;
+    TerminalInput_setReady(self, false);
     u8 incoming = (u8) byte;
-    switch ((*self).state) {
+    switch (TerminalInput_state(self)) {
         case TERMINAL_INPUT_IDLE:
             if (incoming == 0x1Bu)
-                (*self).state = TERMINAL_INPUT_ESCAPE;
+                TerminalInput_setState(self, TERMINAL_INPUT_ESCAPE);
             break;
         case TERMINAL_INPUT_ESCAPE:
-            (*self).state = incoming == '[' ? TERMINAL_INPUT_CSI : TERMINAL_INPUT_IDLE;
+            TerminalInput_setState(self, incoming == '[' ? TERMINAL_INPUT_CSI : TERMINAL_INPUT_IDLE);
             break;
         case TERMINAL_INPUT_CSI:
             if (incoming == '<')
                 beginSgr(self);
             else if (incoming == 'M') {
-                (*self).state = TERMINAL_INPUT_X10;
-                (*self).rawCount = 0;
+                TerminalInput_setState(self, TERMINAL_INPUT_X10);
+                TerminalInput_setRawCount(self, 0);
             } else
                 noteMalformed(self);
             break;
@@ -165,9 +256,9 @@ bool TerminalInput_feed(TerminalInput *self, i32 byte) {
             if (incoming < 32u)
                 noteMalformed(self);
             else {
-                (*self).values[(*self).rawCount] = (bytes) incoming - 32u;
-                if (++(*self).rawCount == TERMINAL_INPUT_X10_BYTES)
-                    complete(self, (*self).values[0], (*self).values[1], (*self).values[2],
+                TerminalInput_valuesMut(self)[TerminalInput_rawCount(self)] = (bytes) incoming - 32u;
+                if (++(*TerminalInput_rawCountMut(self)) == TERMINAL_INPUT_X10_BYTES)
+                    complete(self, TerminalInput_valuesMut(self)[0], TerminalInput_valuesMut(self)[1], TerminalInput_valuesMut(self)[2],
                              false, false);
             }
             break;
@@ -175,20 +266,20 @@ bool TerminalInput_feed(TerminalInput *self, i32 byte) {
         case TERMINAL_INPUT_SGR_X:
         case TERMINAL_INPUT_SGR_Y:
             if (incoming >= '0' && incoming <= '9') {
-                if ((*self).digits >= TERMINAL_INPUT_DIGITS_MAX) {
+                if (TerminalInput_digits(self) >= TERMINAL_INPUT_DIGITS_MAX) {
                     noteMalformed(self);
                     break;
                 }
-                (*self).values[(*self).field] =
-                    (*self).values[(*self).field] * 10u + (bytes) (incoming - '0');
-                ++(*self).digits;
-            } else if (incoming == ';' && (*self).field < 2 && (*self).digits > 0) {
-                ++(*self).field;
-                (*self).digits = 0;
-                (*self).state = (*self).field == 1 ? TERMINAL_INPUT_SGR_X : TERMINAL_INPUT_SGR_Y;
-            } else if ((incoming == 'M' || incoming == 'm') && (*self).field == 2
-                       && (*self).digits > 0) {
-                complete(self, (*self).values[0], (*self).values[1], (*self).values[2],
+                TerminalInput_valuesMut(self)[TerminalInput_field(self)] =
+                    TerminalInput_valuesMut(self)[TerminalInput_field(self)] * 10u + (bytes) (incoming - '0');
+                TerminalInput_setDigits(self, TerminalInput_digits(self) + 1u);
+            } else if (incoming == ';' && TerminalInput_field(self) < 2 && TerminalInput_digits(self) > 0) {
+                TerminalInput_setField(self, TerminalInput_field(self) + 1u);
+                TerminalInput_setDigits(self, 0);
+                TerminalInput_setState(self, TerminalInput_field(self) == 1 ? TERMINAL_INPUT_SGR_X : TERMINAL_INPUT_SGR_Y);
+            } else if ((incoming == 'M' || incoming == 'm') && TerminalInput_field(self) == 2
+                       && TerminalInput_digits(self) > 0) {
+                complete(self, TerminalInput_valuesMut(self)[0], TerminalInput_valuesMut(self)[1], TerminalInput_valuesMut(self)[2],
                          incoming == 'm', true);
             } else
                 noteMalformed(self);
@@ -197,35 +288,35 @@ bool TerminalInput_feed(TerminalInput *self, i32 byte) {
             noteMalformed(self);
             break;
     }
-    return (*self).ready;
+    return TerminalInput_ready(self);
 }
 
 TerminalPointerEvent TerminalInput_getEvent(const TerminalInput *self) {
-    return self != nullptr ? (*self).event : (TerminalPointerEvent) {0};
+    return self != nullptr ? TerminalInput_event(self) : (TerminalPointerEvent) {0};
 }
 TerminalPointerKind TerminalInput_getKind(const TerminalInput *self) {
     if (self == nullptr) return TERMINAL_POINTER_NONE;
-    TerminalPointerEvent event = (*self).event;
+    TerminalPointerEvent event = TerminalInput_event(self);
     return event.kind;
 }
 TerminalPointerButton TerminalInput_getButton(const TerminalInput *self) {
     if (self == nullptr) return TERMINAL_BUTTON_NONE;
-    TerminalPointerEvent event = (*self).event;
+    TerminalPointerEvent event = TerminalInput_event(self);
     return event.button;
 }
-bool TerminalInput_isReady(const TerminalInput *self) { return self != nullptr && (*self).ready; }
+bool TerminalInput_isReady(const TerminalInput *self) { return self != nullptr && TerminalInput_ready(self); }
 bool TerminalInput_isPending(const TerminalInput *self) {
-    return self != nullptr && (*self).state != TERMINAL_INPUT_IDLE;
+    return self != nullptr && TerminalInput_state(self) != TERMINAL_INPUT_IDLE;
 }
 TerminalInputState TerminalInput_getState(const TerminalInput *self) {
-    return self != nullptr ? (*self).state : TERMINAL_INPUT_IDLE;
+    return self != nullptr ? TerminalInput_state(self) : TERMINAL_INPUT_IDLE;
 }
 bytes TerminalInput_malformedCount(const TerminalInput *self) {
-    return self != nullptr ? (*self).malformed : 0;
+    return self != nullptr ? TerminalInput_malformed(self) : 0;
 }
 fn TerminalInput_clearMalformed(TerminalInput *self) {
     if (self != nullptr)
-        (*self).malformed = 0;
+        TerminalInput_setMalformed(self, 0);
 }
 
 fn TerminalInput_reset(TerminalInput *self) {
@@ -233,9 +324,9 @@ fn TerminalInput_reset(TerminalInput *self) {
         THROW("TerminalInput reset: null input");
         return;
     }
-    bytes malformed = (*self).malformed;
+    bytes malformed = TerminalInput_malformed(self);
     *self = TerminalInput_0();
-    (*self).malformed = malformed;   // reset reopens the decode, not the evidence
+    TerminalInput_setMalformed(self, malformed);   // reset reopens the decode, not the evidence
 }
 
 static const char *kindName(TerminalPointerKind kind) {
@@ -255,21 +346,21 @@ static const char *kindName(TerminalPointerKind kind) {
 TerminalProjection TerminalInput_toString(const TerminalInput *self) {
     if (self == nullptr)
         return TerminalProjection_format("nullptr");
-    const TerminalPointerEvent *event = &(*self).event;
+    const TerminalPointerEvent *event = TerminalInput_eventMut(self);
     return TerminalProjection_format("TerminalInput{%s,button=%d,%zu,%zu,mods=%s%s%s,malformed=%zu}",
-        kindName((*event).kind), (*event).button, (*event).x, (*event).y,
-        (*event).shift ? "s" : "", (*event).meta ? "m" : "", (*event).ctrl ? "c" : "",
-        (*self).malformed);
+        kindName(TerminalPointerEvent_kind(event)), TerminalPointerEvent_button(event), TerminalPointerEvent_x(event), TerminalPointerEvent_y(event),
+        TerminalPointerEvent_shift(event) ? "s" : "", TerminalPointerEvent_meta(event) ? "m" : "", TerminalPointerEvent_ctrl(event) ? "c" : "",
+        TerminalInput_malformed(self));
 }
 
 TerminalProjection TerminalInput_toStringStruct(const TerminalInput *self) {
     if (self == nullptr)
         return TerminalProjection_format("nullptr");
-    const TerminalPointerEvent *event = &(*self).event;
+    const TerminalPointerEvent *event = TerminalInput_eventMut(self);
     return TerminalProjection_format(
         "TerminalInput{state=%d,rawCount=%zu,field=%zu,digits=%zu,values={%zu,%zu,%zu},malformed=%zu,event={kind=%s,button=%d,x=%zu,y=%zu,shift=%d,meta=%d,ctrl=%d},ready=%d}",
-        (*self).state, (*self).rawCount, (*self).field, (*self).digits,
-        (*self).values[0], (*self).values[1], (*self).values[2], (*self).malformed,
-        kindName((*event).kind), (*event).button, (*event).x, (*event).y,
-        (*event).shift, (*event).meta, (*event).ctrl, (*self).ready);
+        TerminalInput_state(self), TerminalInput_rawCount(self), TerminalInput_field(self), TerminalInput_digits(self),
+        TerminalInput_valuesMut(self)[0], TerminalInput_valuesMut(self)[1], TerminalInput_valuesMut(self)[2], TerminalInput_malformed(self),
+        kindName(TerminalPointerEvent_kind(event)), TerminalPointerEvent_button(event), TerminalPointerEvent_x(event), TerminalPointerEvent_y(event),
+        TerminalPointerEvent_shift(event), TerminalPointerEvent_meta(event), TerminalPointerEvent_ctrl(event), TerminalInput_ready(self));
 }
