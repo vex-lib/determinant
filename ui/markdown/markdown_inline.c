@@ -26,6 +26,44 @@
  * buffer reports incomplete so the caller can fall back without losing bytes.
  * ============================================================================ */
 
+
+;;GETTER
+static inline bytes MarkdownSpan_length(const MarkdownSpan *s) { return (*s).length; }
+;;GETTER
+static inline bytes *MarkdownSpan_lengthMut(MarkdownSpan *s) { return &(*s).length; }
+;;SETTER
+static inline fn MarkdownSpan_setLength(MarkdownSpan *s, bytes v) { (*s).length = v; }
+;;GETTER
+static inline const char * MarkdownSpan_link(const MarkdownSpan *s) { return (*s).link; }
+;;GETTER
+static inline const char * *MarkdownSpan_linkMut(MarkdownSpan *s) { return &(*s).link; }
+;;SETTER
+static inline fn MarkdownSpan_setLink(MarkdownSpan *s, const char * v) { (*s).link = v; }
+;;GETTER
+static inline bytes MarkdownSpan_linkLength(const MarkdownSpan *s) { return (*s).linkLength; }
+;;GETTER
+static inline bytes *MarkdownSpan_linkLengthMut(MarkdownSpan *s) { return &(*s).linkLength; }
+;;SETTER
+static inline fn MarkdownSpan_setLinkLength(MarkdownSpan *s, bytes v) { (*s).linkLength = v; }
+;;GETTER
+static inline TerminalMarkdownRole MarkdownSpan_role(const MarkdownSpan *s) { return (*s).role; }
+;;GETTER
+static inline TerminalMarkdownRole *MarkdownSpan_roleMut(MarkdownSpan *s) { return &(*s).role; }
+;;SETTER
+static inline fn MarkdownSpan_setRole(MarkdownSpan *s, TerminalMarkdownRole v) { (*s).role = v; }
+;;GETTER
+static inline u16 MarkdownSpan_style(const MarkdownSpan *s) { return (*s).style; }
+;;GETTER
+static inline u16 *MarkdownSpan_styleMut(MarkdownSpan *s) { return &(*s).style; }
+;;SETTER
+static inline fn MarkdownSpan_setStyle(MarkdownSpan *s, u16 v) { (*s).style = v; }
+;;GETTER
+static inline const char * MarkdownSpan_text(const MarkdownSpan *s) { return (*s).text; }
+;;GETTER
+static inline const char * *MarkdownSpan_textMut(MarkdownSpan *s) { return &(*s).text; }
+;;SETTER
+static inline fn MarkdownSpan_setText(MarkdownSpan *s, const char * v) { (*s).text = v; }
+
 #define MARKDOWN_INLINE_DEPTH 8u
 #define MARKDOWN_IMAGE_GLYPH "▧ "
 
@@ -36,23 +74,49 @@ typedef struct SpanSink {
     bool complete;
 } SpanSink;
 
+;;GETTER
+static inline bytes SpanSink_capacity(const SpanSink *s) { return (*s).capacity; }
+;;GETTER
+static inline bytes *SpanSink_capacityMut(SpanSink *s) { return &(*s).capacity; }
+;;SETTER
+static inline fn SpanSink_setCapacity(SpanSink *s, bytes v) { (*s).capacity = v; }
+;;GETTER
+static inline bool SpanSink_complete(const SpanSink *s) { return (*s).complete; }
+;;GETTER
+static inline bool *SpanSink_completeMut(SpanSink *s) { return &(*s).complete; }
+;;SETTER
+static inline fn SpanSink_setComplete(SpanSink *s, bool v) { (*s).complete = v; }
+;;GETTER
+static inline bytes SpanSink_count(const SpanSink *s) { return (*s).count; }
+;;GETTER
+static inline bytes *SpanSink_countMut(SpanSink *s) { return &(*s).count; }
+;;SETTER
+static inline fn SpanSink_setCount(SpanSink *s, bytes v) { (*s).count = v; }
+;;GETTER
+static inline MarkdownSpan * SpanSink_spans(const SpanSink *s) { return (*s).spans; }
+;;GETTER
+static inline MarkdownSpan * *SpanSink_spansMut(SpanSink *s) { return &(*s).spans; }
+;;SETTER
+static inline fn SpanSink_setSpans(SpanSink *s, MarkdownSpan * v) { (*s).spans = v; }
+
+
 static fn emitSpan(SpanSink *sink, const char *text, bytes length,
                      TerminalMarkdownRole role, u16 style,
                      const char *link, bytes linkLength) {
     if (length == 0)
         return;
-    if ((*sink).count >= (*sink).capacity) {
-        (*sink).complete = false;
+    if (SpanSink_count(sink) >= SpanSink_capacity(sink)) {
+        SpanSink_setComplete(sink, false);
         return;
     }
-    MarkdownSpan *span = &(*sink).spans[(*sink).count];
-    (*span).text = text;
-    (*span).length = length;
-    (*span).role = role;
-    (*span).style = style;
-    (*span).link = link;
-    (*span).linkLength = linkLength;
-    ++(*sink).count;
+    MarkdownSpan *span = &SpanSink_spansMut(sink)[SpanSink_count(sink)];
+    MarkdownSpan_setText(span, text);
+    MarkdownSpan_setLength(span, length);
+    MarkdownSpan_setRole(span, role);
+    MarkdownSpan_setStyle(span, style);
+    MarkdownSpan_setLink(span, link);
+    MarkdownSpan_setLinkLength(span, linkLength);
+    SpanSink_setCount(sink, SpanSink_count(sink) + 1u);
 }
 
 static fn parseInto(SpanSink *sink, const char *text, bytes length,

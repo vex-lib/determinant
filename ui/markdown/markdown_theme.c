@@ -28,6 +28,76 @@
  * returned pen never carries a span's emphasis flags — the caller ORs those.
  * ============================================================================ */
 
+
+;;GETTER
+static inline TerminalPen TerminalMarkdownTheme_body(const TerminalMarkdownTheme *s) { return (*s).body; }
+;;GETTER
+static inline TerminalPen *TerminalMarkdownTheme_bodyMut(TerminalMarkdownTheme *s) { return &(*s).body; }
+;;SETTER
+static inline fn TerminalMarkdownTheme_setBody(TerminalMarkdownTheme *s, TerminalPen v) { (*s).body = v; }
+;;GETTER
+static inline TerminalPen *TerminalMarkdownTheme_calloutMut(TerminalMarkdownTheme *s) { return (*s).callout; }
+;;GETTER
+static inline const TerminalPen *TerminalMarkdownTheme_callout(const TerminalMarkdownTheme *s) { return (*s).callout; }
+;;GETTER
+static inline TerminalPen TerminalMarkdownTheme_code(const TerminalMarkdownTheme *s) { return (*s).code; }
+;;GETTER
+static inline TerminalPen *TerminalMarkdownTheme_codeMut(TerminalMarkdownTheme *s) { return &(*s).code; }
+;;SETTER
+static inline fn TerminalMarkdownTheme_setCode(TerminalMarkdownTheme *s, TerminalPen v) { (*s).code = v; }
+;;GETTER
+static inline TerminalPen TerminalMarkdownTheme_fence(const TerminalMarkdownTheme *s) { return (*s).fence; }
+;;GETTER
+static inline TerminalPen *TerminalMarkdownTheme_fenceMut(TerminalMarkdownTheme *s) { return &(*s).fence; }
+;;SETTER
+static inline fn TerminalMarkdownTheme_setFence(TerminalMarkdownTheme *s, TerminalPen v) { (*s).fence = v; }
+;;GETTER
+static inline TerminalPen *TerminalMarkdownTheme_headingMut(TerminalMarkdownTheme *s) { return (*s).heading; }
+;;GETTER
+static inline const TerminalPen *TerminalMarkdownTheme_heading(const TerminalMarkdownTheme *s) { return (*s).heading; }
+;;GETTER
+static inline TerminalPen TerminalMarkdownTheme_link(const TerminalMarkdownTheme *s) { return (*s).link; }
+;;GETTER
+static inline TerminalPen *TerminalMarkdownTheme_linkMut(TerminalMarkdownTheme *s) { return &(*s).link; }
+;;SETTER
+static inline fn TerminalMarkdownTheme_setLink(TerminalMarkdownTheme *s, TerminalPen v) { (*s).link = v; }
+;;GETTER
+static inline TerminalPen TerminalMarkdownTheme_linkHover(const TerminalMarkdownTheme *s) { return (*s).linkHover; }
+;;GETTER
+static inline TerminalPen *TerminalMarkdownTheme_linkHoverMut(TerminalMarkdownTheme *s) { return &(*s).linkHover; }
+;;SETTER
+static inline fn TerminalMarkdownTheme_setLinkHover(TerminalMarkdownTheme *s, TerminalPen v) { (*s).linkHover = v; }
+;;GETTER
+static inline TerminalPen TerminalMarkdownTheme_marker(const TerminalMarkdownTheme *s) { return (*s).marker; }
+;;GETTER
+static inline TerminalPen *TerminalMarkdownTheme_markerMut(TerminalMarkdownTheme *s) { return &(*s).marker; }
+;;SETTER
+static inline fn TerminalMarkdownTheme_setMarker(TerminalMarkdownTheme *s, TerminalPen v) { (*s).marker = v; }
+;;GETTER
+static inline TerminalPen TerminalMarkdownTheme_quote(const TerminalMarkdownTheme *s) { return (*s).quote; }
+;;GETTER
+static inline TerminalPen *TerminalMarkdownTheme_quoteMut(TerminalMarkdownTheme *s) { return &(*s).quote; }
+;;SETTER
+static inline fn TerminalMarkdownTheme_setQuote(TerminalMarkdownTheme *s, TerminalPen v) { (*s).quote = v; }
+;;GETTER
+static inline TerminalPen TerminalMarkdownTheme_rule(const TerminalMarkdownTheme *s) { return (*s).rule; }
+;;GETTER
+static inline TerminalPen *TerminalMarkdownTheme_ruleMut(TerminalMarkdownTheme *s) { return &(*s).rule; }
+;;SETTER
+static inline fn TerminalMarkdownTheme_setRule(TerminalMarkdownTheme *s, TerminalPen v) { (*s).rule = v; }
+;;GETTER
+static inline TerminalPen TerminalMarkdownTheme_tableBorder(const TerminalMarkdownTheme *s) { return (*s).tableBorder; }
+;;GETTER
+static inline TerminalPen *TerminalMarkdownTheme_tableBorderMut(TerminalMarkdownTheme *s) { return &(*s).tableBorder; }
+;;SETTER
+static inline fn TerminalMarkdownTheme_setTableBorder(TerminalMarkdownTheme *s, TerminalPen v) { (*s).tableBorder = v; }
+;;GETTER
+static inline TerminalPen TerminalMarkdownTheme_tableHeader(const TerminalMarkdownTheme *s) { return (*s).tableHeader; }
+;;GETTER
+static inline TerminalPen *TerminalMarkdownTheme_tableHeaderMut(TerminalMarkdownTheme *s) { return &(*s).tableHeader; }
+;;SETTER
+static inline fn TerminalMarkdownTheme_setTableHeader(TerminalMarkdownTheme *s, TerminalPen v) { (*s).tableHeader = v; }
+
 static u8 headingIndex(u8 level) {
     if (level == 0)
         return 0;
@@ -82,29 +152,29 @@ TerminalPen TerminalMarkdownTheme_pen(const TerminalMarkdownTheme *self,
         return TerminalPen_0();
     switch (role) {
         case TERMINAL_MARKDOWN_HEADING:
-            return (*self).heading[headingIndex(variant)];
+            return TerminalMarkdownTheme_headingMut(self)[headingIndex(variant)];
         case TERMINAL_MARKDOWN_CODE:
-            return (*self).code;
+            return TerminalMarkdownTheme_code(self);
         case TERMINAL_MARKDOWN_LINK:
-            return hovered ? (*self).linkHover : (*self).link;
+            return hovered ? TerminalMarkdownTheme_linkHover(self) : TerminalMarkdownTheme_link(self);
         case TERMINAL_MARKDOWN_QUOTE:
-            return (*self).quote;
+            return TerminalMarkdownTheme_quote(self);
         case TERMINAL_MARKDOWN_RULE:
-            return (*self).rule;
+            return TerminalMarkdownTheme_rule(self);
         case TERMINAL_MARKDOWN_MARKER:
-            return (*self).marker;
+            return TerminalMarkdownTheme_marker(self);
         case TERMINAL_MARKDOWN_FENCE:
-            return (*self).fence;
+            return TerminalMarkdownTheme_fence(self);
         case TERMINAL_MARKDOWN_CALLOUT: {
             bytes index = TerminalMarkdownCallout_penIndex((TerminalMarkdownCalloutKind) variant);
-            return index < TERMINAL_MARKDOWN_CALLOUT_KIND_COUNT ? (*self).callout[index] : (*self).body;
+            return index < TERMINAL_MARKDOWN_CALLOUT_KIND_COUNT ? TerminalMarkdownTheme_calloutMut(self)[index] : TerminalMarkdownTheme_body(self);
         }
         case TERMINAL_MARKDOWN_TABLE_HEADER:
-            return (*self).tableHeader;
+            return TerminalMarkdownTheme_tableHeader(self);
         case TERMINAL_MARKDOWN_TABLE_BORDER:
-            return (*self).tableBorder;
+            return TerminalMarkdownTheme_tableBorder(self);
         default:
-            return (*self).body;
+            return TerminalMarkdownTheme_body(self);
     }
 }
 
@@ -126,7 +196,7 @@ TerminalMarkdownStyle TerminalMarkdownTheme_style(const TerminalMarkdownTheme *s
     if (self == nullptr)
         return (TerminalMarkdownStyle) {0};
     return (TerminalMarkdownStyle) {
-        (*self).body, (*self).heading[0], (*self).code, (*self).link,
-        (*self).quote, (*self).rule, (*self).marker, (*self).fence
+        TerminalMarkdownTheme_body(self), TerminalMarkdownTheme_headingMut(self)[0], TerminalMarkdownTheme_code(self), TerminalMarkdownTheme_link(self),
+        TerminalMarkdownTheme_quote(self), TerminalMarkdownTheme_rule(self), TerminalMarkdownTheme_marker(self), TerminalMarkdownTheme_fence(self)
     };
 }

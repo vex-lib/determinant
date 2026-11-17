@@ -30,6 +30,26 @@
  * does not carry them; copy is atomic and never allocates.
  * ============================================================================ */
 
+
+;;GETTER
+static inline bytes TerminalMarkdownCodeBlock_firstRow(const TerminalMarkdownCodeBlock *s) { return (*s).firstRow; }
+;;GETTER
+static inline bytes *TerminalMarkdownCodeBlock_firstRowMut(TerminalMarkdownCodeBlock *s) { return &(*s).firstRow; }
+;;SETTER
+static inline fn TerminalMarkdownCodeBlock_setFirstRow(TerminalMarkdownCodeBlock *s, bytes v) { (*s).firstRow = v; }
+;;GETTER
+static inline bytes TerminalMarkdownCodeBlock_rowCount(const TerminalMarkdownCodeBlock *s) { return (*s).rowCount; }
+;;GETTER
+static inline bytes *TerminalMarkdownCodeBlock_rowCountMut(TerminalMarkdownCodeBlock *s) { return &(*s).rowCount; }
+;;SETTER
+static inline fn TerminalMarkdownCodeBlock_setRowCount(TerminalMarkdownCodeBlock *s, bytes v) { (*s).rowCount = v; }
+;;GETTER
+static inline bytes TerminalMarkdownCodeBlock_sourceLineCount(const TerminalMarkdownCodeBlock *s) { return (*s).sourceLineCount; }
+;;GETTER
+static inline bytes *TerminalMarkdownCodeBlock_sourceLineCountMut(TerminalMarkdownCodeBlock *s) { return &(*s).sourceLineCount; }
+;;SETTER
+static inline fn TerminalMarkdownCodeBlock_setSourceLineCount(TerminalMarkdownCodeBlock *s, bytes v) { (*s).sourceLineCount = v; }
+
 #define CODE_BLOCK_POOL_DEFAULT 8u
 #define CODE_BLOCK_POOL_LIMIT 100000u
 
@@ -40,27 +60,53 @@ struct TerminalMarkdownCodeBlockPool {
     bytes refusals;
 };
 
+;;GETTER
+static inline TerminalMarkdownCodeBlock * TerminalMarkdownCodeBlockPool_blocks(const TerminalMarkdownCodeBlockPool *s) { return (*s).blocks; }
+;;GETTER
+static inline TerminalMarkdownCodeBlock * *TerminalMarkdownCodeBlockPool_blocksMut(TerminalMarkdownCodeBlockPool *s) { return &(*s).blocks; }
+;;SETTER
+static inline fn TerminalMarkdownCodeBlockPool_setBlocks(TerminalMarkdownCodeBlockPool *s, TerminalMarkdownCodeBlock * v) { (*s).blocks = v; }
+;;GETTER
+static inline bytes TerminalMarkdownCodeBlockPool_capacity(const TerminalMarkdownCodeBlockPool *s) { return (*s).capacity; }
+;;GETTER
+static inline bytes *TerminalMarkdownCodeBlockPool_capacityMut(TerminalMarkdownCodeBlockPool *s) { return &(*s).capacity; }
+;;SETTER
+static inline fn TerminalMarkdownCodeBlockPool_setCapacity(TerminalMarkdownCodeBlockPool *s, bytes v) { (*s).capacity = v; }
+;;GETTER
+static inline bytes TerminalMarkdownCodeBlockPool_count(const TerminalMarkdownCodeBlockPool *s) { return (*s).count; }
+;;GETTER
+static inline bytes *TerminalMarkdownCodeBlockPool_countMut(TerminalMarkdownCodeBlockPool *s) { return &(*s).count; }
+;;SETTER
+static inline fn TerminalMarkdownCodeBlockPool_setCount(TerminalMarkdownCodeBlockPool *s, bytes v) { (*s).count = v; }
+;;GETTER
+static inline bytes TerminalMarkdownCodeBlockPool_refusals(const TerminalMarkdownCodeBlockPool *s) { return (*s).refusals; }
+;;GETTER
+static inline bytes *TerminalMarkdownCodeBlockPool_refusalsMut(TerminalMarkdownCodeBlockPool *s) { return &(*s).refusals; }
+;;SETTER
+static inline fn TerminalMarkdownCodeBlockPool_setRefusals(TerminalMarkdownCodeBlockPool *s, bytes v) { (*s).refusals = v; }
+
+
 static bool grow(TerminalMarkdownCodeBlockPool *self) {
-    bytes next = (*self).capacity == 0 ? CODE_BLOCK_POOL_DEFAULT : (*self).capacity * 2u;
-    if (next < (*self).capacity || next > CODE_BLOCK_POOL_LIMIT
+    bytes next = TerminalMarkdownCodeBlockPool_capacity(self) == 0 ? CODE_BLOCK_POOL_DEFAULT : TerminalMarkdownCodeBlockPool_capacity(self) * 2u;
+    if (next < TerminalMarkdownCodeBlockPool_capacity(self) || next > CODE_BLOCK_POOL_LIMIT
         || next > SIZE_MAX / sizeof(TerminalMarkdownCodeBlock)) {
-        ++(*self).refusals;
+        TerminalMarkdownCodeBlockPool_setRefusals(self, TerminalMarkdownCodeBlockPool_refusals(self) + 1u);
         THROW("TerminalMarkdownCodeBlockPool: capacity overflow (%zu)", next);
         return false;
     }
     TerminalMarkdownCodeBlock *grown =
         Memory_alloc(TYPE_BYTE_ARRAY, next * sizeof(TerminalMarkdownCodeBlock));
     if (grown == nullptr) {
-        ++(*self).refusals;
+        TerminalMarkdownCodeBlockPool_setRefusals(self, TerminalMarkdownCodeBlockPool_refusals(self) + 1u);
         THROW("TerminalMarkdownCodeBlockPool: allocation refused (%zu slots)", next);
         return false;
     }
-    if ((*self).capacity != 0)
-        memcpy(grown, (*self).blocks,
-               (*self).capacity * sizeof(TerminalMarkdownCodeBlock));
-    Memory_free((*self).blocks);
-    (*self).blocks = grown;
-    (*self).capacity = next;
+    if (TerminalMarkdownCodeBlockPool_capacity(self) != 0)
+        memcpy(grown, TerminalMarkdownCodeBlockPool_blocks(self),
+               TerminalMarkdownCodeBlockPool_capacity(self) * sizeof(TerminalMarkdownCodeBlock));
+    Memory_free(TerminalMarkdownCodeBlockPool_blocks(self));
+    TerminalMarkdownCodeBlockPool_setBlocks(self, grown);
+    TerminalMarkdownCodeBlockPool_setCapacity(self, next);
     return true;
 }
 
@@ -76,13 +122,13 @@ TerminalMarkdownCodeBlockPool *TerminalMarkdownCodeBlockPool_0() {
 fn TerminalMarkdownCodeBlockPool_free(TerminalMarkdownCodeBlockPool *self) {
     if (self == nullptr)
         return;
-    Memory_free((*self).blocks);
+    Memory_free(TerminalMarkdownCodeBlockPool_blocks(self));
     Memory_free(self);
 }
 
 fn TerminalMarkdownCodeBlockPool_reset(TerminalMarkdownCodeBlockPool *self) {
     if (self != nullptr)
-        (*self).count = 0;
+        TerminalMarkdownCodeBlockPool_setCount(self, 0);
 }
 
 bool TerminalMarkdownCodeBlockPool_add(TerminalMarkdownCodeBlockPool *self,
@@ -93,21 +139,21 @@ bool TerminalMarkdownCodeBlockPool_add(TerminalMarkdownCodeBlockPool *self,
         return false;
     if (rowCount == 0)
         return true;
-    if ((*self).count == (*self).capacity && !grow(self))
+    if (TerminalMarkdownCodeBlockPool_count(self) == TerminalMarkdownCodeBlockPool_capacity(self) && !grow(self))
         return false;
-    (*self).blocks[(*self).count] = (TerminalMarkdownCodeBlock) {
+    TerminalMarkdownCodeBlockPool_blocks(self)[TerminalMarkdownCodeBlockPool_count(self)] = (TerminalMarkdownCodeBlock) {
         true, firstRow, rowCount, firstSourceLine, sourceLineCount, quoteDepth
     };
-    ++(*self).count;
+    TerminalMarkdownCodeBlockPool_setCount(self, TerminalMarkdownCodeBlockPool_count(self) + 1u);
     return true;
 }
 
 bytes TerminalMarkdownCodeBlockPool_count(const TerminalMarkdownCodeBlockPool *self) {
-    return self != nullptr ? (*self).count : 0u;
+    return self != nullptr ? TerminalMarkdownCodeBlockPool_count(self) : 0u;
 }
 
 bytes TerminalMarkdownCodeBlockPool_exhaustionCount(const TerminalMarkdownCodeBlockPool *self) {
-    return self != nullptr ? (*self).refusals : 0u;
+    return self != nullptr ? TerminalMarkdownCodeBlockPool_refusals(self) : 0u;
 }
 
 bool TerminalMarkdownCodeBlockPool_indexAt(const TerminalMarkdownCodeBlockPool *self,
@@ -115,15 +161,15 @@ bool TerminalMarkdownCodeBlockPool_indexAt(const TerminalMarkdownCodeBlockPool *
     if (self == nullptr)
         return false;
     bytes low = 0;
-    bytes high = (*self).count;
+    bytes high = TerminalMarkdownCodeBlockPool_count(self);
     while (low < high) {
         bytes mid = low + (high - low) / 2u;
-        const TerminalMarkdownCodeBlock *block = &(*self).blocks[mid];
-        if (row < (*block).firstRow) {
+        const TerminalMarkdownCodeBlock *block = &TerminalMarkdownCodeBlockPool_blocksMut(self)[mid];
+        if (row < TerminalMarkdownCodeBlock_firstRow(block)) {
             high = mid;
             continue;
         }
-        if (row - (*block).firstRow >= (*block).rowCount) {
+        if (row - TerminalMarkdownCodeBlock_firstRow(block) >= TerminalMarkdownCodeBlock_rowCount(block)) {
             low = mid + 1u;
             continue;
         }
@@ -137,9 +183,9 @@ bool TerminalMarkdownCodeBlockPool_indexAt(const TerminalMarkdownCodeBlockPool *
 TerminalMarkdownCodeBlock TerminalMarkdownCodeBlockPool_at(const TerminalMarkdownCodeBlockPool *self,
                                                            bytes index) {
     TerminalMarkdownCodeBlock none = {0};
-    if (self == nullptr || index >= (*self).count)
+    if (self == nullptr || index >= TerminalMarkdownCodeBlockPool_count(self))
         return none;
-    return (*self).blocks[index];
+    return TerminalMarkdownCodeBlockPool_blocks(self)[index];
 }
 
 // Byte offset just past `depth` `>` gutters, or SIZE_MAX when the line does not
@@ -197,9 +243,9 @@ TerminalMarkdownCodeLine TerminalMarkdownCodeBlockPool_line(const TerminalMarkdo
                                                             const char *const *lines,
                                                             bytes lineCount, bytes index,
                                                             bytes line) {
-    if (self == nullptr || index >= (*self).count)
+    if (self == nullptr || index >= TerminalMarkdownCodeBlockPool_count(self))
         return (TerminalMarkdownCodeLine) {0};
-    return TerminalMarkdownCodeBlock_lineOf(lines, lineCount, (*self).blocks[index], line);
+    return TerminalMarkdownCodeBlock_lineOf(lines, lineCount, TerminalMarkdownCodeBlockPool_blocks(self)[index], line);
 }
 
 bool TerminalMarkdownCodeBlockPool_copy(const TerminalMarkdownCodeBlockPool *self,
@@ -208,17 +254,17 @@ bool TerminalMarkdownCodeBlockPool_copy(const TerminalMarkdownCodeBlockPool *sel
                                         bytes *written) {
     if (written != nullptr)
         *written = 0;
-    if (self == nullptr || dest == nullptr || capacity == 0 || index >= (*self).count)
+    if (self == nullptr || dest == nullptr || capacity == 0 || index >= TerminalMarkdownCodeBlockPool_count(self))
         return false;
-    const TerminalMarkdownCodeBlock *block = &(*self).blocks[index];
-    if ((*block).sourceLineCount == 0) {
+    const TerminalMarkdownCodeBlock *block = &TerminalMarkdownCodeBlockPool_blocksMut(self)[index];
+    if (TerminalMarkdownCodeBlock_sourceLineCount(block) == 0) {
         if (capacity < 1u)
             return false;
         dest[0] = '\0';
         return true;
     }
     bytes total = 0;
-    for (bytes line = 0; line < (*block).sourceLineCount; ++line) {
+    for (bytes line = 0; line < TerminalMarkdownCodeBlock_sourceLineCount(block); ++line) {
         const char *text = nullptr;
         bytes length = 0;
         if (!contentLine(lines, lineCount, *block, line, &text, &length))
@@ -230,7 +276,7 @@ bool TerminalMarkdownCodeBlockPool_copy(const TerminalMarkdownCodeBlockPool *sel
     if (total > capacity)       // total includes the last newline, which the
         return false;           // terminator below replaces
     bytes at = 0;
-    for (bytes line = 0; line < (*block).sourceLineCount; ++line) {
+    for (bytes line = 0; line < TerminalMarkdownCodeBlock_sourceLineCount(block); ++line) {
         const char *text = nullptr;
         bytes length = 0;
         if (!contentLine(lines, lineCount, *block, line, &text, &length))
@@ -238,7 +284,7 @@ bool TerminalMarkdownCodeBlockPool_copy(const TerminalMarkdownCodeBlockPool *sel
         if (length != 0)
             memcpy(dest + at, text, length);
         at += length;
-        if (line + 1u < (*block).sourceLineCount)
+        if (line + 1u < TerminalMarkdownCodeBlock_sourceLineCount(block))
             dest[at++] = '\n';
     }
     dest[at] = '\0';
@@ -250,7 +296,7 @@ bool TerminalMarkdownCodeBlockPool_copy(const TerminalMarkdownCodeBlockPool *sel
 TerminalProjection TerminalMarkdownCodeBlockPool_toString(const TerminalMarkdownCodeBlockPool *self) {
     if (self == nullptr)
         return TerminalProjection_format("nullptr");
-    return TerminalProjection_format("TerminalMarkdownCodeBlockPool{blocks=%zu}", (*self).count);
+    return TerminalProjection_format("TerminalMarkdownCodeBlockPool{blocks=%zu}", TerminalMarkdownCodeBlockPool_count(self));
 }
 
 TerminalProjection TerminalMarkdownCodeBlockPool_toStringStruct(const TerminalMarkdownCodeBlockPool *self) {
@@ -258,5 +304,5 @@ TerminalProjection TerminalMarkdownCodeBlockPool_toStringStruct(const TerminalMa
         return TerminalProjection_format("nullptr");
     return TerminalProjection_format(
         "TerminalMarkdownCodeBlockPool{blocks=<owned:%zu>,count=%zu,capacity=%zu,refusals=%zu}",
-        (*self).capacity, (*self).count, (*self).capacity, (*self).refusals);
+        TerminalMarkdownCodeBlockPool_capacity(self), TerminalMarkdownCodeBlockPool_count(self), TerminalMarkdownCodeBlockPool_capacity(self), TerminalMarkdownCodeBlockPool_refusals(self));
 }
