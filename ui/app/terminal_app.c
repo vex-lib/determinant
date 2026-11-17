@@ -37,6 +37,116 @@
  * bytes frameCount                       rendered frame count
  * ======================================================================== */
 
+
+;;GETTER
+static inline u32 * TerminalApp_backBg(const TerminalApp *s) { return (*s).backBg; }
+;;GETTER
+static inline u32 * *TerminalApp_backBgMut(TerminalApp *s) { return &(*s).backBg; }
+;;SETTER
+static inline fn TerminalApp_setBackBg(TerminalApp *s, u32 * v) { (*s).backBg = v; }
+;;GETTER
+static inline u32 * TerminalApp_backCells(const TerminalApp *s) { return (*s).backCells; }
+;;GETTER
+static inline u32 * *TerminalApp_backCellsMut(TerminalApp *s) { return &(*s).backCells; }
+;;SETTER
+static inline fn TerminalApp_setBackCells(TerminalApp *s, u32 * v) { (*s).backCells = v; }
+;;GETTER
+static inline u32 * TerminalApp_backFg(const TerminalApp *s) { return (*s).backFg; }
+;;GETTER
+static inline u32 * *TerminalApp_backFgMut(TerminalApp *s) { return &(*s).backFg; }
+;;SETTER
+static inline fn TerminalApp_setBackFg(TerminalApp *s, u32 * v) { (*s).backFg = v; }
+;;GETTER
+static inline u16 * TerminalApp_backStyles(const TerminalApp *s) { return (*s).backStyles; }
+;;GETTER
+static inline u16 * *TerminalApp_backStylesMut(TerminalApp *s) { return &(*s).backStyles; }
+;;SETTER
+static inline fn TerminalApp_setBackStyles(TerminalApp *s, u16 * v) { (*s).backStyles = v; }
+;;GETTER
+static inline bytes TerminalApp_capacity(const TerminalApp *s) { return (*s).capacity; }
+;;GETTER
+static inline bytes *TerminalApp_capacityMut(TerminalApp *s) { return &(*s).capacity; }
+;;SETTER
+static inline fn TerminalApp_setCapacity(TerminalApp *s, bytes v) { (*s).capacity = v; }
+;;GETTER
+static inline TerminalCompositor * TerminalApp_compositor(const TerminalApp *s) { return (*s).compositor; }
+;;GETTER
+static inline TerminalCompositor * *TerminalApp_compositorMut(TerminalApp *s) { return &(*s).compositor; }
+;;SETTER
+static inline fn TerminalApp_setCompositor(TerminalApp *s, TerminalCompositor * v) { (*s).compositor = v; }
+;;GETTER
+static inline bytes TerminalApp_frameCount(const TerminalApp *s) { return (*s).frameCount; }
+;;GETTER
+static inline bytes *TerminalApp_frameCountMut(TerminalApp *s) { return &(*s).frameCount; }
+;;SETTER
+static inline fn TerminalApp_setFrameCount(TerminalApp *s, bytes v) { (*s).frameCount = v; }
+;;GETTER
+static inline u32 * TerminalApp_frontBg(const TerminalApp *s) { return (*s).frontBg; }
+;;GETTER
+static inline u32 * *TerminalApp_frontBgMut(TerminalApp *s) { return &(*s).frontBg; }
+;;SETTER
+static inline fn TerminalApp_setFrontBg(TerminalApp *s, u32 * v) { (*s).frontBg = v; }
+;;GETTER
+static inline u32 * TerminalApp_frontCells(const TerminalApp *s) { return (*s).frontCells; }
+;;GETTER
+static inline u32 * *TerminalApp_frontCellsMut(TerminalApp *s) { return &(*s).frontCells; }
+;;SETTER
+static inline fn TerminalApp_setFrontCells(TerminalApp *s, u32 * v) { (*s).frontCells = v; }
+;;GETTER
+static inline u32 * TerminalApp_frontFg(const TerminalApp *s) { return (*s).frontFg; }
+;;GETTER
+static inline u32 * *TerminalApp_frontFgMut(TerminalApp *s) { return &(*s).frontFg; }
+;;SETTER
+static inline fn TerminalApp_setFrontFg(TerminalApp *s, u32 * v) { (*s).frontFg = v; }
+;;GETTER
+static inline u16 * TerminalApp_frontStyles(const TerminalApp *s) { return (*s).frontStyles; }
+;;GETTER
+static inline u16 * *TerminalApp_frontStylesMut(TerminalApp *s) { return &(*s).frontStyles; }
+;;SETTER
+static inline fn TerminalApp_setFrontStyles(TerminalApp *s, u16 * v) { (*s).frontStyles = v; }
+;;GETTER
+static inline bool TerminalApp_headless(const TerminalApp *s) { return (*s).headless; }
+;;GETTER
+static inline bool *TerminalApp_headlessMut(TerminalApp *s) { return &(*s).headless; }
+;;SETTER
+static inline fn TerminalApp_setHeadless(TerminalApp *s, bool v) { (*s).headless = v; }
+;;GETTER
+static inline bytes TerminalApp_height(const TerminalApp *s) { return (*s).height; }
+;;GETTER
+static inline bytes *TerminalApp_heightMut(TerminalApp *s) { return &(*s).height; }
+;;SETTER
+static inline fn TerminalApp_setHeight(TerminalApp *s, bytes v) { (*s).height = v; }
+;;GETTER
+static inline TerminalInput TerminalApp_input(const TerminalApp *s) { return (*s).input; }
+;;GETTER
+static inline TerminalInput *TerminalApp_inputMut(TerminalApp *s) { return &(*s).input; }
+;;SETTER
+static inline fn TerminalApp_setInput(TerminalApp *s, TerminalInput v) { (*s).input = v; }
+;;GETTER
+static inline TerminalPanel * TerminalApp_root(const TerminalApp *s) { return (*s).root; }
+;;GETTER
+static inline TerminalPanel * *TerminalApp_rootMut(TerminalApp *s) { return &(*s).root; }
+;;SETTER
+static inline fn TerminalApp_setRoot(TerminalApp *s, TerminalPanel * v) { (*s).root = v; }
+;;GETTER
+static inline bool TerminalApp_running(const TerminalApp *s) { return (*s).running; }
+;;GETTER
+static inline bool *TerminalApp_runningMut(TerminalApp *s) { return &(*s).running; }
+;;SETTER
+static inline fn TerminalApp_setRunning(TerminalApp *s, bool v) { (*s).running = v; }
+;;GETTER
+static inline TerminalSurface * TerminalApp_surface(const TerminalApp *s) { return (*s).surface; }
+;;GETTER
+static inline TerminalSurface * *TerminalApp_surfaceMut(TerminalApp *s) { return &(*s).surface; }
+;;SETTER
+static inline fn TerminalApp_setSurface(TerminalApp *s, TerminalSurface * v) { (*s).surface = v; }
+;;GETTER
+static inline bytes TerminalApp_width(const TerminalApp *s) { return (*s).width; }
+;;GETTER
+static inline bytes *TerminalApp_widthMut(TerminalApp *s) { return &(*s).width; }
+;;SETTER
+static inline fn TerminalApp_setWidth(TerminalApp *s, bytes v) { (*s).width = v; }
+
 static volatile sig_atomic_t gSignalQuit = 0;
 
 static fn onSignal(i32 sig) {
@@ -47,84 +157,84 @@ static fn onSignal(i32 sig) {
 static fn freePlanes(TerminalApp *self) {
     if (self == nullptr)
         return;
-    if ((*self).backCells != nullptr)
-        Memory_free((*self).backCells);
-    if ((*self).backStyles != nullptr)
-        Memory_free((*self).backStyles);
-    if ((*self).backFg != nullptr)
-        Memory_free((*self).backFg);
-    if ((*self).backBg != nullptr)
-        Memory_free((*self).backBg);
-    if ((*self).frontCells != nullptr)
-        Memory_free((*self).frontCells);
-    if ((*self).frontStyles != nullptr)
-        Memory_free((*self).frontStyles);
-    if ((*self).frontFg != nullptr)
-        Memory_free((*self).frontFg);
-    if ((*self).frontBg != nullptr)
-        Memory_free((*self).frontBg);
-    (*self).backCells = nullptr;
-    (*self).backStyles = nullptr;
-    (*self).backFg = nullptr;
-    (*self).backBg = nullptr;
-    (*self).frontCells = nullptr;
-    (*self).frontStyles = nullptr;
-    (*self).frontFg = nullptr;
-    (*self).frontBg = nullptr;
-    (*self).capacity = 0u;
+    if (TerminalApp_backCells(self) != nullptr)
+        Memory_free(TerminalApp_backCells(self));
+    if (TerminalApp_backStyles(self) != nullptr)
+        Memory_free(TerminalApp_backStyles(self));
+    if (TerminalApp_backFg(self) != nullptr)
+        Memory_free(TerminalApp_backFg(self));
+    if (TerminalApp_backBg(self) != nullptr)
+        Memory_free(TerminalApp_backBg(self));
+    if (TerminalApp_frontCells(self) != nullptr)
+        Memory_free(TerminalApp_frontCells(self));
+    if (TerminalApp_frontStyles(self) != nullptr)
+        Memory_free(TerminalApp_frontStyles(self));
+    if (TerminalApp_frontFg(self) != nullptr)
+        Memory_free(TerminalApp_frontFg(self));
+    if (TerminalApp_frontBg(self) != nullptr)
+        Memory_free(TerminalApp_frontBg(self));
+    TerminalApp_setBackCells(self, nullptr);
+    TerminalApp_setBackStyles(self, nullptr);
+    TerminalApp_setBackFg(self, nullptr);
+    TerminalApp_setBackBg(self, nullptr);
+    TerminalApp_setFrontCells(self, nullptr);
+    TerminalApp_setFrontStyles(self, nullptr);
+    TerminalApp_setFrontFg(self, nullptr);
+    TerminalApp_setFrontBg(self, nullptr);
+    TerminalApp_setCapacity(self, 0u);
 }
 
 static bool allocatePlanes(TerminalApp *self, bytes count) {
     freePlanes(self);
-    (*self).backCells = (u32*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u32));
-    (*self).backStyles = (u16*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u16));
-    (*self).backFg = (u32*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u32));
-    (*self).backBg = (u32*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u32));
+    TerminalApp_setBackCells(self, (u32*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u32)));
+    TerminalApp_setBackStyles(self, (u16*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u16)));
+    TerminalApp_setBackFg(self, (u32*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u32)));
+    TerminalApp_setBackBg(self, (u32*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u32)));
 
-    (*self).frontCells = (u32*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u32));
-    (*self).frontStyles = (u16*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u16));
-    (*self).frontFg = (u32*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u32));
-    (*self).frontBg = (u32*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u32));
+    TerminalApp_setFrontCells(self, (u32*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u32)));
+    TerminalApp_setFrontStyles(self, (u16*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u16)));
+    TerminalApp_setFrontFg(self, (u32*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u32)));
+    TerminalApp_setFrontBg(self, (u32*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u32)));
 
-    if ((*self).backCells == nullptr || (*self).backStyles == nullptr
-        || (*self).backFg == nullptr || (*self).backBg == nullptr
-        || (*self).frontCells == nullptr || (*self).frontStyles == nullptr
-        || (*self).frontFg == nullptr || (*self).frontBg == nullptr) {
+    if (TerminalApp_backCells(self) == nullptr || TerminalApp_backStyles(self) == nullptr
+        || TerminalApp_backFg(self) == nullptr || TerminalApp_backBg(self) == nullptr
+        || TerminalApp_frontCells(self) == nullptr || TerminalApp_frontStyles(self) == nullptr
+        || TerminalApp_frontFg(self) == nullptr || TerminalApp_frontBg(self) == nullptr) {
         freePlanes(self);
         return false;
     }
 
-    (*self).capacity = count;
+    TerminalApp_setCapacity(self, count);
     for (bytes i = 0u; i < count; ++i) {
-        (*self).backCells[i] = ' ';
-        (*self).backStyles[i] = 0u;
-        (*self).backFg[i] = TERMINAL_COLOR_DEFAULT;
-        (*self).backBg[i] = TERMINAL_COLOR_DEFAULT;
+        TerminalApp_backCells(self)[i] = ' ';
+        TerminalApp_backStyles(self)[i] = 0u;
+        TerminalApp_backFg(self)[i] = TERMINAL_COLOR_DEFAULT;
+        TerminalApp_backBg(self)[i] = TERMINAL_COLOR_DEFAULT;
 
-        (*self).frontCells[i] = 0xFFFFFFFFu;
-        (*self).frontStyles[i] = 0xFFFFu;
-        (*self).frontFg[i] = 0xFFFFFFFFu;
-        (*self).frontBg[i] = 0xFFFFFFFFu;
+        TerminalApp_frontCells(self)[i] = 0xFFFFFFFFu;
+        TerminalApp_frontStyles(self)[i] = 0xFFFFu;
+        TerminalApp_frontFg(self)[i] = 0xFFFFFFFFu;
+        TerminalApp_frontBg(self)[i] = 0xFFFFFFFFu;
     }
     return true;
 }
 
 static fn rebindSurface(TerminalApp *self) {
-    if (self == nullptr || (*self).surface == nullptr || (*self).compositor == nullptr
-        || (*self).capacity == 0u)
+    if (self == nullptr || TerminalApp_surface(self) == nullptr || TerminalApp_compositor(self) == nullptr
+        || TerminalApp_capacity(self) == 0u)
         return;
 
-    TerminalCanvas back = TerminalCanvas_6((*self).backCells, (*self).backStyles,
-                                          (*self).backFg, (*self).backBg,
-                                          (*self).width, (*self).height);
-    TerminalCanvas front = TerminalCanvas_6((*self).frontCells, (*self).frontStyles,
-                                           (*self).frontFg, (*self).frontBg,
-                                           (*self).width, (*self).height);
+    TerminalCanvas back = TerminalCanvas_6(TerminalApp_backCells(self), TerminalApp_backStyles(self),
+                                          TerminalApp_backFg(self), TerminalApp_backBg(self),
+                                          TerminalApp_width(self), TerminalApp_height(self));
+    TerminalCanvas front = TerminalCanvas_6(TerminalApp_frontCells(self), TerminalApp_frontStyles(self),
+                                           TerminalApp_frontFg(self), TerminalApp_frontBg(self),
+                                           TerminalApp_width(self), TerminalApp_height(self));
 
-    TerminalSurface_bind((*self).surface, &back, &front,
-                         TerminalCompositor_blitRun, (*self).compositor);
-    TerminalSurface_setFrame((*self).surface,
-                            TerminalCompositor_phase, (*self).compositor);
+    TerminalSurface_bind(TerminalApp_surface(self), &back, &front,
+                         TerminalCompositor_blitRun, TerminalApp_compositor(self));
+    TerminalSurface_setFrame(TerminalApp_surface(self),
+                            TerminalCompositor_phase, TerminalApp_compositor(self));
 }
 
 TerminalApp *TerminalApp_0() {
@@ -185,52 +295,52 @@ fn TerminalApp_free(TerminalApp *self) {
     if (self == nullptr)
         return;
     freePlanes(self);
-    if ((*self).compositor != nullptr)
-        TerminalCompositor_free((*self).compositor);
-    if ((*self).surface != nullptr)
-        Memory_free((*self).surface);
+    if (TerminalApp_compositor(self) != nullptr)
+        TerminalCompositor_free(TerminalApp_compositor(self));
+    if (TerminalApp_surface(self) != nullptr)
+        Memory_free(TerminalApp_surface(self));
     Memory_free(self);
 }
 
 bool TerminalApp_setRoot(TerminalApp *self, TerminalPanel *root) {
     if (self == nullptr)
         return false;
-    (*self).root = root;
+    TerminalApp_setRoot(self, root);
     return true;
 }
 
 TerminalPanel *TerminalApp_getRoot(const TerminalApp *self) {
-    return self != nullptr ? (*self).root : nullptr;
+    return self != nullptr ? TerminalApp_root(self) : nullptr;
 }
 
 bool TerminalApp_setCompositor(TerminalApp *self, TerminalCompositor *compositor) {
     if (self == nullptr || compositor == nullptr)
         return false;
-    if ((*self).compositor != nullptr)
-        TerminalCompositor_free((*self).compositor);
-    (*self).compositor = compositor;
+    if (TerminalApp_compositor(self) != nullptr)
+        TerminalCompositor_free(TerminalApp_compositor(self));
+    TerminalApp_setCompositor(self, compositor);
     rebindSurface(self);
     return true;
 }
 
 TerminalCompositor *TerminalApp_getCompositor(const TerminalApp *self) {
-    return self != nullptr ? (*self).compositor : nullptr;
+    return self != nullptr ? TerminalApp_compositor(self) : nullptr;
 }
 
 bool TerminalApp_resize(TerminalApp *self, bytes width, bytes height) {
     if (self == nullptr || width == 0u || height == 0u)
         return false;
-    if ((*self).width == width && (*self).height == height && (*self).capacity >= width * height)
+    if (TerminalApp_width(self) == width && TerminalApp_height(self) == height && TerminalApp_capacity(self) >= width * height)
         return true;
 
-    (*self).width = width;
-    (*self).height = height;
+    TerminalApp_setWidth(self, width);
+    TerminalApp_setHeight(self, height);
     if (!allocatePlanes(self, width * height))
         return false;
 
-    if ((*self).compositor != nullptr) {
-        TerminalCompositor_setPresentWidth((*self).compositor, width);
-        TerminalCompositor_forget((*self).compositor);
+    if (TerminalApp_compositor(self) != nullptr) {
+        TerminalCompositor_setPresentWidth(TerminalApp_compositor(self), width);
+        TerminalCompositor_forget(TerminalApp_compositor(self));
     }
 
     rebindSurface(self);
@@ -238,27 +348,27 @@ bool TerminalApp_resize(TerminalApp *self, bytes width, bytes height) {
 }
 
 bytes TerminalApp_getWidth(const TerminalApp *self) {
-    return self != nullptr ? (*self).width : 0u;
+    return self != nullptr ? TerminalApp_width(self) : 0u;
 }
 
 bytes TerminalApp_getHeight(const TerminalApp *self) {
-    return self != nullptr ? (*self).height : 0u;
+    return self != nullptr ? TerminalApp_height(self) : 0u;
 }
 
 bool TerminalApp_step(TerminalApp *self) {
-    if (self == nullptr || (*self).root == nullptr || (*self).capacity == 0u)
+    if (self == nullptr || TerminalApp_root(self) == nullptr || TerminalApp_capacity(self) == 0u)
         return false;
 
-    TerminalCanvas back = TerminalCanvas_6((*self).backCells, (*self).backStyles,
-                                          (*self).backFg, (*self).backBg,
-                                          (*self).width, (*self).height);
+    TerminalCanvas back = TerminalCanvas_6(TerminalApp_backCells(self), TerminalApp_backStyles(self),
+                                          TerminalApp_backFg(self), TerminalApp_backBg(self),
+                                          TerminalApp_width(self), TerminalApp_height(self));
 
     TerminalPen emptyPen = TerminalPen_0();
     TerminalCanvas_fill(&back, ' ', emptyPen);
 
-    TerminalPanel_paint((*self).root, &back);
-    TerminalSurface_present((*self).surface);
-    (*self).frameCount++;
+    TerminalPanel_paint(TerminalApp_root(self), &back);
+    TerminalSurface_present(TerminalApp_surface(self));
+    TerminalApp_setFrameCount(self, TerminalApp_frameCount(self) + 1u);
     return true;
 }
 
@@ -266,39 +376,39 @@ bool TerminalApp_feedInput(TerminalApp *self, const char *data, bytes length) {
     if (self == nullptr || data == nullptr || length == 0u)
         return false;
     for (bytes i = 0u; i < length; ++i)
-        TerminalInput_feed(&(*self).input, (u8) data[i]);
+        TerminalInput_feed(TerminalApp_inputMut(self), (u8) data[i]);
     return true;
 }
 
 fn TerminalApp_stop(TerminalApp *self) {
     if (self == nullptr)
         return;
-    (*self).running = false;
+    TerminalApp_setRunning(self, false);
 }
 
 bool TerminalApp_isRunning(const TerminalApp *self) {
-    return self != nullptr && (*self).running;
+    return self != nullptr && TerminalApp_running(self);
 }
 
 bool TerminalApp_setHeadless(TerminalApp *self, bool headless) {
     if (self == nullptr)
         return false;
-    (*self).headless = headless;
+    TerminalApp_setHeadless(self, headless);
     return true;
 }
 
 bool TerminalApp_isHeadless(const TerminalApp *self) {
-    return self != nullptr && (*self).headless;
+    return self != nullptr && TerminalApp_headless(self);
 }
 
 i32 TerminalApp_run(TerminalApp *self) {
-    if (self == nullptr || (*self).root == nullptr)
+    if (self == nullptr || TerminalApp_root(self) == nullptr)
         return 1;
 
-    if ((*self).headless) {
-        (*self).running = true;
+    if (TerminalApp_headless(self)) {
+        TerminalApp_setRunning(self, true);
         TerminalApp_step(self);
-        (*self).running = false;
+        TerminalApp_setRunning(self, false);
         return 0;
     }
 
@@ -323,13 +433,13 @@ i32 TerminalApp_run(TerminalApp *self) {
     sigaction(SIGINT, &sa, &oldInt);
     sigaction(SIGTERM, &sa, &oldTerm);
 
-    if ((*self).compositor != nullptr)
-        TerminalCompositor_enter((*self).compositor);
+    if (TerminalApp_compositor(self) != nullptr)
+        TerminalCompositor_enter(TerminalApp_compositor(self));
 
-    (*self).running = true;
+    TerminalApp_setRunning(self, true);
     gSignalQuit = 0;
 
-    while ((*self).running && !gSignalQuit) {
+    while (TerminalApp_running(self) && !gSignalQuit) {
         struct winsize ws;
         if (ioctl(STDIN_FILENO, TIOCGWINSZ, &ws) == 0 && ws.ws_col > 0 && ws.ws_row > 0)
             TerminalApp_resize(self, (bytes) ws.ws_col, (bytes) ws.ws_row);
@@ -342,14 +452,14 @@ i32 TerminalApp_run(TerminalApp *self) {
             // Check for Ctrl-C (byte 3)
             for (ssize_t i = 0; i < bytesRead; ++i) {
                 if (inputBuf[i] == 3)
-                    (*self).running = false;
+                    TerminalApp_setRunning(self, false);
             }
             TerminalApp_feedInput(self, inputBuf, (bytes) bytesRead);
         }
     }
 
-    if ((*self).compositor != nullptr)
-        TerminalCompositor_leave((*self).compositor);
+    if (TerminalApp_compositor(self) != nullptr)
+        TerminalCompositor_leave(TerminalApp_compositor(self));
 
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &original);
     sigaction(SIGINT, &oldInt, nullptr);
@@ -362,7 +472,7 @@ TerminalProjection TerminalApp_toString(const TerminalApp *self) {
     if (self == nullptr)
         return TerminalProjection_format("nullptr");
     return TerminalProjection_format("TerminalApp{size=%zux%zu,running=%d,headless=%d,frames=%zu}",
-        (*self).width, (*self).height, (*self).running, (*self).headless, (*self).frameCount);
+        TerminalApp_width(self), TerminalApp_height(self), TerminalApp_running(self), TerminalApp_headless(self), TerminalApp_frameCount(self));
 }
 
 TerminalProjection TerminalApp_toStringStruct(const TerminalApp *self) {
@@ -370,6 +480,6 @@ TerminalProjection TerminalApp_toStringStruct(const TerminalApp *self) {
         return TerminalProjection_format("nullptr");
     return TerminalProjection_format(
         "TerminalApp{width=%zu,height=%zu,capacity=%zu,root=%p,running=%d,headless=%d,frames=%zu}",
-        (*self).width, (*self).height, (*self).capacity, (const_any) (*self).root,
-        (*self).running, (*self).headless, (*self).frameCount);
+        TerminalApp_width(self), TerminalApp_height(self), TerminalApp_capacity(self), (const_any) TerminalApp_root(self),
+        TerminalApp_running(self), TerminalApp_headless(self), TerminalApp_frameCount(self));
 }
