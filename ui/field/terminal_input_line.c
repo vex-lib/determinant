@@ -29,6 +29,44 @@
  * clips and never allocates or logs.
  * ======================================================================== */
 
+
+;;GETTER
+static inline char * TerminalInputLine_buffer(const TerminalInputLine *s) { return (*s).buffer; }
+;;GETTER
+static inline char * *TerminalInputLine_bufferMut(TerminalInputLine *s) { return &(*s).buffer; }
+;;SETTER
+static inline fn TerminalInputLine_setBuffer(TerminalInputLine *s, char * v) { (*s).buffer = v; }
+;;GETTER
+static inline bytes TerminalInputLine_capacity(const TerminalInputLine *s) { return (*s).capacity; }
+;;GETTER
+static inline bytes *TerminalInputLine_capacityMut(TerminalInputLine *s) { return &(*s).capacity; }
+;;SETTER
+static inline fn TerminalInputLine_setCapacity(TerminalInputLine *s, bytes v) { (*s).capacity = v; }
+;;GETTER
+static inline bytes TerminalInputLine_length(const TerminalInputLine *s) { return (*s).length; }
+;;GETTER
+static inline bytes *TerminalInputLine_lengthMut(TerminalInputLine *s) { return &(*s).length; }
+;;SETTER
+static inline fn TerminalInputLine_setLength(TerminalInputLine *s, bytes v) { (*s).length = v; }
+;;GETTER
+static inline const char * TerminalInputLine_prefix(const TerminalInputLine *s) { return (*s).prefix; }
+;;GETTER
+static inline const char * *TerminalInputLine_prefixMut(TerminalInputLine *s) { return &(*s).prefix; }
+;;SETTER
+static inline fn TerminalInputLine_setPrefix(TerminalInputLine *s, const char * v) { (*s).prefix = v; }
+;;GETTER
+static inline TerminalPen TerminalInputLine_prefixPen(const TerminalInputLine *s) { return (*s).prefixPen; }
+;;GETTER
+static inline TerminalPen *TerminalInputLine_prefixPenMut(TerminalInputLine *s) { return &(*s).prefixPen; }
+;;SETTER
+static inline fn TerminalInputLine_setPrefixPen(TerminalInputLine *s, TerminalPen v) { (*s).prefixPen = v; }
+;;GETTER
+static inline TerminalPen TerminalInputLine_textPen(const TerminalInputLine *s) { return (*s).textPen; }
+;;GETTER
+static inline TerminalPen *TerminalInputLine_textPenMut(TerminalInputLine *s) { return &(*s).textPen; }
+;;SETTER
+static inline fn TerminalInputLine_setTextPen(TerminalInputLine *s, TerminalPen v) { (*s).textPen = v; }
+
 TerminalInputLine TerminalInputLine_0() {
     TerminalInputLine line = {0};
     line.prefix = TERMINAL_INPUT_PREFIX_DEFAULT;
@@ -52,56 +90,56 @@ bool TerminalInputLine_bind(TerminalInputLine *self, char *buffer, bytes capacit
         THROW("TerminalInputLine bind: null or too small");
         return false;
     }
-    (*self).buffer = buffer;
-    (*self).capacity = capacity;
-    (*self).length = 0;
+    TerminalInputLine_setBuffer(self, buffer);
+    TerminalInputLine_setCapacity(self, capacity);
+    TerminalInputLine_setLength(self, 0);
     buffer[0] = '\0';
     return true;
 }
-const char *TerminalInputLine_getBuffer(const TerminalInputLine *self) { return self ? (*self).buffer : nullptr; }
-bytes TerminalInputLine_getCapacity(const TerminalInputLine *self) { return self ? (*self).capacity : 0; }
-bytes TerminalInputLine_length(const TerminalInputLine *self) { return self ? (*self).length : 0; }
-bool TerminalInputLine_isBound(const TerminalInputLine *self) { return self && (*self).buffer != nullptr; }
+const char *TerminalInputLine_getBuffer(const TerminalInputLine *self) { return self ? TerminalInputLine_buffer(self) : nullptr; }
+bytes TerminalInputLine_getCapacity(const TerminalInputLine *self) { return self ? TerminalInputLine_capacity(self) : 0; }
+bytes TerminalInputLine_length(const TerminalInputLine *self) { return self ? TerminalInputLine_length(self) : 0; }
+bool TerminalInputLine_isBound(const TerminalInputLine *self) { return self && TerminalInputLine_buffer(self) != nullptr; }
 bool TerminalInputLine_setPrefix(TerminalInputLine *self, const char *prefix) {
     if (self == nullptr || prefix == nullptr) { THROW("TerminalInputLine prefix: null"); return false; }
-    (*self).prefix = prefix;
+    TerminalInputLine_setPrefix(self, prefix);
     return true;
 }
 const char *TerminalInputLine_getPrefix(const TerminalInputLine *self) {
-    return (self && (*self).prefix) ? (*self).prefix : TERMINAL_INPUT_PREFIX_DEFAULT;
+    return (self && TerminalInputLine_prefix(self)) ? TerminalInputLine_prefix(self) : TERMINAL_INPUT_PREFIX_DEFAULT;
 }
 fn TerminalInputLine_setPens(TerminalInputLine *self, TerminalPen prefixPen, TerminalPen textPen) {
-    if (self != nullptr) { (*self).prefixPen = prefixPen; (*self).textPen = textPen; }
+    if (self != nullptr) { (*TerminalInputLine_prefixPenMut(self)) = prefixPen; (*TerminalInputLine_textPenMut(self)) = textPen; }
 }
 TerminalInputLinePens TerminalInputLine_getPens(const TerminalInputLine *self) {
-    return self ? (TerminalInputLinePens) { (*self).prefixPen, (*self).textPen }
+    return self ? (TerminalInputLinePens) { TerminalInputLine_prefixPen(self), TerminalInputLine_textPen(self) }
                 : (TerminalInputLinePens) { TerminalPen_0(), TerminalPen_0() };
 }
 
 bool TerminalInputLine_add(TerminalInputLine *self, i32 character) {
-    if (self == nullptr || (*self).buffer == nullptr || character < 32 || character >= 127) {
+    if (self == nullptr || TerminalInputLine_buffer(self) == nullptr || character < 32 || character >= 127) {
         THROW("TerminalInputLine add: unbound or non-printable");
         return false;
     }
-    if ((*self).length + 1 >= (*self).capacity) {
+    if (TerminalInputLine_length(self) + 1 >= TerminalInputLine_capacity(self)) {
         THROW("TerminalInputLine add: capacity refused");
         return false;
     }
-    (*self).buffer[(*self).length++] = (char) character;
-    (*self).buffer[(*self).length] = '\0';
+    TerminalInputLine_buffer(self)[(*TerminalInputLine_lengthMut(self))++] = (char) character;
+    TerminalInputLine_buffer(self)[TerminalInputLine_length(self)] = '\0';
     return true;
 }
 bool TerminalInputLine_backspace(TerminalInputLine *self) {
-    if (self == nullptr || (*self).buffer == nullptr || (*self).length == 0)
+    if (self == nullptr || TerminalInputLine_buffer(self) == nullptr || TerminalInputLine_length(self) == 0)
         return false;
-    (*self).buffer[--(*self).length] = '\0';
+    TerminalInputLine_buffer(self)[--(*TerminalInputLine_lengthMut(self))] = '\0';
     return true;
 }
 fn TerminalInputLine_clear(TerminalInputLine *self) {
-    if (self == nullptr || (*self).buffer == nullptr)
+    if (self == nullptr || TerminalInputLine_buffer(self) == nullptr)
         return;
-    (*self).length = 0;
-    (*self).buffer[0] = '\0';
+    TerminalInputLine_setLength(self, 0);
+    TerminalInputLine_buffer(self)[0] = '\0';
 }
 
 fn TerminalInputLine_render(const TerminalInputLine *self, TerminalCanvas *canvas) {
@@ -109,9 +147,9 @@ fn TerminalInputLine_render(const TerminalInputLine *self, TerminalCanvas *canva
         return;
     const char *prefix = TerminalInputLine_getPrefix(self);
     bytes prefixLen = strlen(prefix);
-    TerminalCanvas_text(canvas, 0, 0, prefix, prefixLen, (*self).prefixPen);
-    if ((*self).buffer != nullptr)
-        TerminalCanvas_text(canvas, prefixLen, 0, (*self).buffer, (*self).length, (*self).textPen);
+    TerminalCanvas_text(canvas, 0, 0, prefix, prefixLen, TerminalInputLine_prefixPen(self));
+    if (TerminalInputLine_buffer(self) != nullptr)
+        TerminalCanvas_text(canvas, prefixLen, 0, TerminalInputLine_buffer(self), TerminalInputLine_length(self), TerminalInputLine_textPen(self));
 }
 
 TerminalProjection TerminalInputLine_toString(const TerminalInputLine *self) {
@@ -122,6 +160,6 @@ TerminalProjection TerminalInputLine_toStringStruct(const TerminalInputLine *sel
     if (self == nullptr)
         return TerminalProjection_format("nullptr");
     return TerminalProjection_format("TerminalInputLine{bound=%d,length=%zu,capacity=%zu,prefix=\"%s\"}",
-                                     (*self).buffer != nullptr, (*self).length, (*self).capacity,
+                                     TerminalInputLine_buffer(self) != nullptr, TerminalInputLine_length(self), TerminalInputLine_capacity(self),
                                      TerminalInputLine_getPrefix(self));
 }
