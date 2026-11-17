@@ -69,31 +69,124 @@
  * may grow/resize backing with active users excluded; initial capacity is not a
  * total ceiling. Zero terminal is paused; bind installs dimensions, not exports.
  * ======================================================================== */
+
+;;GETTER
+static inline u32 TerminalModule_abi(const TerminalModule *s) { return (*s).abi; }
+;;GETTER
+static inline u32 *TerminalModule_abiMut(TerminalModule *s) { return &(*s).abi; }
+;;SETTER
+static inline fn TerminalModule_setAbi(TerminalModule *s, u32 v) { (*s).abi = v; }
+;;GETTER
+static inline TerminalCommandFn TerminalModule_command(const TerminalModule *s) { return (*s).command; }
+;;GETTER
+static inline TerminalCommandFn *TerminalModule_commandMut(TerminalModule *s) { return &(*s).command; }
+;;SETTER
+static inline fn TerminalModule_setCommand(TerminalModule *s, TerminalCommandFn v) { (*s).command = v; }
+;;GETTER
+static inline TerminalViewFn TerminalModule_view(const TerminalModule *s) { return (*s).view; }
+;;GETTER
+static inline TerminalViewFn *TerminalModule_viewMut(TerminalModule *s) { return &(*s).view; }
+;;SETTER
+static inline fn TerminalModule_setView(TerminalModule *s, TerminalViewFn v) { (*s).view = v; }
+
+;;GETTER
+static inline bool Terminal_active(const Terminal *s) { return (*s).active; }
+;;GETTER
+static inline bool *Terminal_activeMut(Terminal *s) { return &(*s).active; }
+;;SETTER
+static inline fn Terminal_setActive(Terminal *s, bool v) { (*s).active = v; }
+;;GETTER
+static inline bytes Terminal_capacity(const Terminal *s) { return (*s).capacity; }
+;;GETTER
+static inline bytes *Terminal_capacityMut(Terminal *s) { return &(*s).capacity; }
+;;SETTER
+static inline fn Terminal_setCapacity(Terminal *s, bytes v) { (*s).capacity = v; }
+;;GETTER
+static inline char * Terminal_cells(const Terminal *s) { return (*s).cells; }
+;;GETTER
+static inline char * *Terminal_cellsMut(Terminal *s) { return &(*s).cells; }
+;;SETTER
+static inline fn Terminal_setCells(Terminal *s, char * v) { (*s).cells = v; }
+;;GETTER
+static inline u64 Terminal_generation(const Terminal *s) { return (*s).generation; }
+;;GETTER
+static inline u64 *Terminal_generationMut(Terminal *s) { return &(*s).generation; }
+;;SETTER
+static inline fn Terminal_setGeneration(Terminal *s, u64 v) { (*s).generation = v; }
+;;GETTER
+static inline bytes Terminal_height(const Terminal *s) { return (*s).height; }
+;;GETTER
+static inline bytes *Terminal_heightMut(Terminal *s) { return &(*s).height; }
+;;SETTER
+static inline fn Terminal_setHeight(Terminal *s, bytes v) { (*s).height = v; }
+;;GETTER
+static inline any Terminal_hostContext(const Terminal *s) { return (*s).hostContext; }
+;;GETTER
+static inline any *Terminal_hostContextMut(Terminal *s) { return &(*s).hostContext; }
+;;SETTER
+static inline fn Terminal_setHostContext(Terminal *s, any v) { (*s).hostContext = v; }
+;;GETTER
+static inline TerminalModule Terminal_module(const Terminal *s) { return (*s).module; }
+;;GETTER
+static inline TerminalModule *Terminal_moduleMut(Terminal *s) { return &(*s).module; }
+;;SETTER
+static inline fn Terminal_setModule(Terminal *s, TerminalModule v) { (*s).module = v; }
+;;GETTER
+static inline DeterminantOutputFn Terminal_output(const Terminal *s) { return (*s).output; }
+;;GETTER
+static inline DeterminantOutputFn *Terminal_outputMut(Terminal *s) { return &(*s).output; }
+;;SETTER
+static inline fn Terminal_setOutput(Terminal *s, DeterminantOutputFn v) { (*s).output = v; }
+;;GETTER
+static inline bool Terminal_paused(const Terminal *s) { return (*s).paused; }
+;;GETTER
+static inline bool *Terminal_pausedMut(Terminal *s) { return &(*s).paused; }
+;;SETTER
+static inline fn Terminal_setPaused(Terminal *s, bool v) { (*s).paused = v; }
+;;GETTER
+static inline bytes Terminal_refusalCount(const Terminal *s) { return (*s).refusalCount; }
+;;GETTER
+static inline bytes *Terminal_refusalCountMut(Terminal *s) { return &(*s).refusalCount; }
+;;SETTER
+static inline fn Terminal_setRefusalCount(Terminal *s, bytes v) { (*s).refusalCount = v; }
+;;GETTER
+static inline any Terminal_residentState(const Terminal *s) { return (*s).residentState; }
+;;GETTER
+static inline any *Terminal_residentStateMut(Terminal *s) { return &(*s).residentState; }
+;;SETTER
+static inline fn Terminal_setResidentState(Terminal *s, any v) { (*s).residentState = v; }
+;;GETTER
+static inline bytes Terminal_width(const Terminal *s) { return (*s).width; }
+;;GETTER
+static inline bytes *Terminal_widthMut(Terminal *s) { return &(*s).width; }
+;;SETTER
+static inline fn Terminal_setWidth(Terminal *s, bytes v) { (*s).width = v; }
+
 ;;INTENTION("per the Conflict Triage Law: geometry, backing, callback generation and admission change through lifecycle, not setters forging ownership")
 Terminal Terminal_0() { return (Terminal) {.paused = true}; }
 bool Terminal_bind(Terminal *self, char *cells, bytes capacity, bytes width, bytes height,
                    DeterminantOutputFn output, any hostContext) {
-    if (self == nullptr || (*self).active || !(*self).paused || cells == nullptr || output == nullptr
+    if (self == nullptr || Terminal_active(self) || !Terminal_paused(self) || cells == nullptr || output == nullptr
         || width == 0 || height == 0 || height > SIZE_MAX / width || width * height > capacity) {
         THROW("Terminal bind: invalid geometry/backing/sink or busy");
         return false;
     }
-    (*self).cells = cells;
-    (*self).capacity = capacity;
-    (*self).width = width;
-    (*self).height = height;
-    (*self).output = output;
-    (*self).hostContext = hostContext;
+    Terminal_setCells(self, cells);
+    Terminal_setCapacity(self, capacity);
+    Terminal_setWidth(self, width);
+    Terminal_setHeight(self, height);
+    Terminal_setOutput(self, output);
+    Terminal_setHostContext(self, hostContext);
     memset(cells, ' ', width * height);
     return true;
 }
 bool Terminal_setOutput(Terminal *self, DeterminantOutputFn output, any hostContext) {
-    if (self == nullptr || (*self).active || output == nullptr) {
+    if (self == nullptr || Terminal_active(self) || output == nullptr) {
         THROW("Terminal setOutput: invalid sink or busy");
         return false;
     }
-    (*self).output = output;
-    (*self).hostContext = hostContext;
+    Terminal_setOutput(self, output);
+    Terminal_setHostContext(self, hostContext);
     return true;
 }
 bool Terminal_pause(Terminal *self) {
@@ -101,44 +194,44 @@ bool Terminal_pause(Terminal *self) {
         THROW("Terminal pause: null terminal");
         return false;
     }
-    (*self).paused = true;
-    return !(*self).active; // stop new admission even while callback must finish
+    Terminal_setPaused(self, true);
+    return !Terminal_active(self); // stop new admission even while callback must finish
 }
 bool Terminal_resume(Terminal *self) {
-    TerminalModule *module = self ? &(*self).module : nullptr;
-    if (self == nullptr || (*self).active || (*self).cells == nullptr || (*module).view == nullptr) {
+    TerminalModule *module = self ? Terminal_moduleMut(self) : nullptr;
+    if (self == nullptr || Terminal_active(self) || Terminal_cells(self) == nullptr || TerminalModule_view(module) == nullptr) {
         THROW("Terminal resume: unbound or busy");
         return false;
     }
-    (*self).paused = false;
+    Terminal_setPaused(self, false);
     return true;
 }
 bool Terminal_swap(Terminal *self, TerminalModule module, any residentState) {
-    if (self == nullptr || (*self).active || !(*self).paused || module.abi != TERMINAL_MODULE_ABI
-        || module.view == nullptr || module.command == nullptr || (*self).generation == UINT64_MAX) {
+    if (self == nullptr || Terminal_active(self) || !Terminal_paused(self) || module.abi != TERMINAL_MODULE_ABI
+        || module.view == nullptr || module.command == nullptr || Terminal_generation(self) == UINT64_MAX) {
         THROW("Terminal swap: incompatible exports, generation overflow or busy");
         return false;
     }
-    (*self).module = module;
-    (*self).residentState = residentState;
-    ++(*self).generation;
+    Terminal_setModule(self, module);
+    Terminal_setResidentState(self, residentState);
+    Terminal_setGeneration(self, Terminal_generation(self) + 1u);
     return true;
 }
 bool Terminal_render(Terminal *self) {
-    if (self == nullptr || (*self).paused || (*self).active) {
+    if (self == nullptr || Terminal_paused(self) || Terminal_active(self)) {
         THROW("Terminal render: null, paused or busy");
         return false;
     }
-    TerminalModule *module = &(*self).module;
-    (*self).active = true;
-    bool ok = (*module).view((*self).residentState, self);
-    (*self).active = false;
+    TerminalModule *module = Terminal_moduleMut(self);
+    Terminal_setActive(self, true);
+    bool ok = TerminalModule_view(module)(Terminal_residentState(self), self);
+    Terminal_setActive(self, false);
     if (!ok)
         THROW("Terminal render: view rejected");
     return ok;
 }
 bool Terminal_command(Terminal *self, const char *text, bytes length) {
-    if (self == nullptr || (*self).paused || (*self).active || (text == nullptr && length != 0)) {
+    if (self == nullptr || Terminal_paused(self) || Terminal_active(self) || (text == nullptr && length != 0)) {
         THROW("Terminal command: invalid span, paused or busy");
         return false;
     }
@@ -147,24 +240,24 @@ bool Terminal_command(Terminal *self, const char *text, bytes length) {
             THROW("Terminal command: invalid ASCII byte at %zu", i);
             return false;
         }
-    TerminalModule *module = &(*self).module;
-    (*self).active = true;
-    bool ok = (*module).command((*self).residentState, text, length);
-    (*self).active = false;
+    TerminalModule *module = Terminal_moduleMut(self);
+    Terminal_setActive(self, true);
+    bool ok = TerminalModule_command(module)(Terminal_residentState(self), text, length);
+    Terminal_setActive(self, false);
     if (!ok)
         THROW("Terminal command: callback rejected");
     return ok;
 }
 bool Terminal_text(Terminal *self, bytes x, bytes y, const char *text, bytes length) {
-    if (self == nullptr || (*self).cells == nullptr || (text == nullptr && length != 0)) {
+    if (self == nullptr || Terminal_cells(self) == nullptr || (text == nullptr && length != 0)) {
         THROW("Terminal text: invalid backing/span");
         return false;
     }
-    if (y >= (*self).height || x > (*self).width || length > (*self).width - x) {
-        if ((*self).refusalCount == 0)
-            THROW("Terminal exhausted: request %zu cells at %zu,%zu, bound %zux%zu", length, x, y, (*self).width, (*self).height);
-        if ((*self).refusalCount != SIZE_MAX)
-            ++(*self).refusalCount;
+    if (y >= Terminal_height(self) || x > Terminal_width(self) || length > Terminal_width(self) - x) {
+        if (Terminal_refusalCount(self) == 0)
+            THROW("Terminal exhausted: request %zu cells at %zu,%zu, bound %zux%zu", length, x, y, Terminal_width(self), Terminal_height(self));
+        if (Terminal_refusalCount(self) != SIZE_MAX)
+            Terminal_setRefusalCount(self, Terminal_refusalCount(self) + 1u);
         return false;
     }
     for (bytes i = 0; i < length; ++i)
@@ -173,37 +266,37 @@ bool Terminal_text(Terminal *self, bytes x, bytes y, const char *text, bytes len
             return false;
         }
     if (length != 0)
-        memcpy((*self).cells + y * (*self).width + x, text, length);
+        memcpy(Terminal_cells(self) + y * Terminal_width(self) + x, text, length);
     return true;
 }
 bool Terminal_clear(Terminal *self) {
-    if (self == nullptr || (*self).cells == nullptr)
+    if (self == nullptr || Terminal_cells(self) == nullptr)
         return false;
-    memset((*self).cells, ' ', (*self).width * (*self).height);
+    memset(Terminal_cells(self), ' ', Terminal_width(self) * Terminal_height(self));
     return true;
 }
 bool Terminal_present(Terminal *self) {
-    if (self == nullptr || (*self).cells == nullptr || (*self).active)
+    if (self == nullptr || Terminal_cells(self) == nullptr || Terminal_active(self))
         return false;
-    (*self).active = true;
-    bool ok = (*self).output((*self).hostContext, (*self).cells, (*self).width * (*self).height);
-    (*self).active = false;
+    Terminal_setActive(self, true);
+    bool ok = Terminal_output(self)(Terminal_hostContext(self), Terminal_cells(self), Terminal_width(self) * Terminal_height(self));
+    Terminal_setActive(self, false);
     return ok;
 }
-DeterminantOutputFn Terminal_getOutput(const Terminal *self) { return self ? (*self).output : nullptr; }
-any Terminal_getHostContext(const Terminal *self) { return self ? (*self).hostContext : nullptr; }
-bytes Terminal_getWidth(const Terminal *self) { return self ? (*self).width : 0; }
-bytes Terminal_getHeight(const Terminal *self) { return self ? (*self).height : 0; }
-bytes Terminal_getCapacity(const Terminal *self) { return self ? (*self).capacity : 0; }
-u64 Terminal_getGeneration(const Terminal *self) { return self ? (*self).generation : 0; }
-bytes Terminal_exhaustionCount(const Terminal *self) { return self ? (*self).refusalCount : 0; }
-bool Terminal_isPaused(const Terminal *self) { return self && (*self).paused; }
-bool Terminal_isActive(const Terminal *self) { return self && (*self).active; }
-const char *Terminal_getCells(const Terminal *self) { return self ? (*self).cells : nullptr; }
-any Terminal_getResidentState(const Terminal *self) { return self ? (*self).residentState : nullptr; }
-TerminalModule Terminal_getModule(const Terminal *self) { return self ? (*self).module : (TerminalModule) {0}; }
+DeterminantOutputFn Terminal_getOutput(const Terminal *self) { return self ? Terminal_output(self) : nullptr; }
+any Terminal_getHostContext(const Terminal *self) { return self ? Terminal_hostContext(self) : nullptr; }
+bytes Terminal_getWidth(const Terminal *self) { return self ? Terminal_width(self) : 0; }
+bytes Terminal_getHeight(const Terminal *self) { return self ? Terminal_height(self) : 0; }
+bytes Terminal_getCapacity(const Terminal *self) { return self ? Terminal_capacity(self) : 0; }
+u64 Terminal_getGeneration(const Terminal *self) { return self ? Terminal_generation(self) : 0; }
+bytes Terminal_exhaustionCount(const Terminal *self) { return self ? Terminal_refusalCount(self) : 0; }
+bool Terminal_isPaused(const Terminal *self) { return self && Terminal_paused(self); }
+bool Terminal_isActive(const Terminal *self) { return self && Terminal_active(self); }
+const char *Terminal_getCells(const Terminal *self) { return self ? Terminal_cells(self) : nullptr; }
+any Terminal_getResidentState(const Terminal *self) { return self ? Terminal_residentState(self) : nullptr; }
+TerminalModule Terminal_getModule(const Terminal *self) { return self ? Terminal_module(self) : (TerminalModule) {0}; }
 bool Terminal_free(Terminal *self) {
-    if (self == nullptr || (*self).active) {
+    if (self == nullptr || Terminal_active(self)) {
         THROW("Terminal free: null or busy");
         return false;
     }
@@ -216,8 +309,8 @@ TerminalProjection Terminal_toString(const Terminal *self) {
 TerminalProjection Terminal_toStringStruct(const Terminal *self) {
     if (self == nullptr)
         return TerminalProjection_format("nullptr");
-    TerminalModule const *module = self ? &(*self).module : nullptr;
+    TerminalModule const *module = self ? Terminal_moduleMut(self) : nullptr;
     return TerminalProjection_format("Terminal{cells=<borrowed>,capacity=%zu,width=%zu,height=%zu,output=%s,hostContext=<opaque>,residentState=<opaque>,module={abi=%u},generation=%llu,refusalCount=%zu,paused=%d,active=%d}",
-        (*self).capacity, (*self).width, (*self).height, (*self).output ? "bound" : "none", (*module).abi,
-        (u64) (*self).generation, (*self).refusalCount, (*self).paused, (*self).active);
+        Terminal_capacity(self), Terminal_width(self), Terminal_height(self), Terminal_output(self) ? "bound" : "none", TerminalModule_abi(module),
+        (u64) Terminal_generation(self), Terminal_refusalCount(self), Terminal_paused(self), Terminal_active(self));
 }
