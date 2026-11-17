@@ -29,6 +29,38 @@
  * is rejected; apply/draw no-op on null targets; no allocation, no logging.
  * ======================================================================== */
 
+
+;;GETTER
+static inline u32 TerminalAppearance_colorAccent(const TerminalAppearance *s) { return (*s).colorAccent; }
+;;GETTER
+static inline u32 *TerminalAppearance_colorAccentMut(TerminalAppearance *s) { return &(*s).colorAccent; }
+;;SETTER
+static inline fn TerminalAppearance_setColorAccent(TerminalAppearance *s, u32 v) { (*s).colorAccent = v; }
+;;GETTER
+static inline u32 TerminalAppearance_colorError(const TerminalAppearance *s) { return (*s).colorError; }
+;;GETTER
+static inline u32 *TerminalAppearance_colorErrorMut(TerminalAppearance *s) { return &(*s).colorError; }
+;;SETTER
+static inline fn TerminalAppearance_setColorError(TerminalAppearance *s, u32 v) { (*s).colorError = v; }
+;;GETTER
+static inline u32 TerminalAppearance_colorMuted(const TerminalAppearance *s) { return (*s).colorMuted; }
+;;GETTER
+static inline u32 *TerminalAppearance_colorMutedMut(TerminalAppearance *s) { return &(*s).colorMuted; }
+;;SETTER
+static inline fn TerminalAppearance_setColorMuted(TerminalAppearance *s, u32 v) { (*s).colorMuted = v; }
+;;GETTER
+static inline u32 TerminalAppearance_colorText(const TerminalAppearance *s) { return (*s).colorText; }
+;;GETTER
+static inline u32 *TerminalAppearance_colorTextMut(TerminalAppearance *s) { return &(*s).colorText; }
+;;SETTER
+static inline fn TerminalAppearance_setColorText(TerminalAppearance *s, u32 v) { (*s).colorText = v; }
+;;GETTER
+static inline TerminalRule TerminalAppearance_rule(const TerminalAppearance *s) { return (*s).rule; }
+;;GETTER
+static inline TerminalRule *TerminalAppearance_ruleMut(TerminalAppearance *s) { return &(*s).rule; }
+;;SETTER
+static inline fn TerminalAppearance_setRule(TerminalAppearance *s, TerminalRule v) { (*s).rule = v; }
+
 // Box-drawing and dash codepoints used by the presets.
 #define CP_LIGHT_H  0x2500u   // ─
 #define CP_LIGHT_V  0x2502u   // │
@@ -109,38 +141,38 @@ TerminalAppearance TerminalAppearance_named(const char *name) {
 
 bool TerminalAppearance_setRule(TerminalAppearance *self, TerminalRule rule) {
     if (self == nullptr) { THROW("TerminalAppearance rule: null self"); return false; }
-    (*self).rule = rule;
+    TerminalAppearance_setRule(self, rule);
     return true;
 }
 TerminalRule TerminalAppearance_getRule(const TerminalAppearance *self) {
-    return self ? (*self).rule : TerminalRule_0();
+    return self ? TerminalAppearance_rule(self) : TerminalRule_0();
 }
 bool TerminalAppearance_setColors(TerminalAppearance *self, u32 accent, u32 muted,
                                   u32 text, u32 error) {
     if (self == nullptr) { THROW("TerminalAppearance colors: null self"); return false; }
-    (*self).colorAccent = accent;
-    (*self).colorMuted = muted;
-    (*self).colorText = text;
-    (*self).colorError = error;
+    TerminalAppearance_setColorAccent(self, accent);
+    TerminalAppearance_setColorMuted(self, muted);
+    TerminalAppearance_setColorText(self, text);
+    TerminalAppearance_setColorError(self, error);
     return true;
 }
 TerminalAppearanceColors TerminalAppearance_getColors(const TerminalAppearance *self) {
     if (!self)
         return (TerminalAppearanceColors) { TERMINAL_COLOR_DEFAULT, TERMINAL_COLOR_DEFAULT, TERMINAL_COLOR_DEFAULT, TERMINAL_COLOR_DEFAULT };
-    return (TerminalAppearanceColors) { (*self).colorAccent, (*self).colorMuted, (*self).colorText, (*self).colorError };
+    return (TerminalAppearanceColors) { TerminalAppearance_colorAccent(self), TerminalAppearance_colorMuted(self), TerminalAppearance_colorText(self), TerminalAppearance_colorError(self) };
 }
 
 fn TerminalAppearance_applyTo(const TerminalAppearance *self, TerminalFrame *frame) {
     if (self == nullptr || frame == nullptr)
         return;
-    (discard) TerminalFrame_setRule(frame, (*self).rule);
+    (discard) TerminalFrame_setRule(frame, TerminalAppearance_rule(self));
 }
 
 fn TerminalAppearance_drawRule(const TerminalAppearance *self, TerminalCanvas *canvas,
                                  bytes ly, TerminalPen pen) {
     if (self == nullptr || !TerminalCanvas_isValid(canvas))
         return;
-    TerminalRule_draw(&(*self).rule, canvas, ly, pen);
+    TerminalRule_draw(TerminalAppearance_ruleMut(self), canvas, ly, pen);
 }
 
 TerminalProjection TerminalAppearance_toString(const TerminalAppearance *self) {
@@ -150,9 +182,9 @@ TerminalProjection TerminalAppearance_toString(const TerminalAppearance *self) {
 TerminalProjection TerminalAppearance_toStringStruct(const TerminalAppearance *self) {
     if (self == nullptr)
         return TerminalProjection_format("nullptr");
-    TerminalRule rule = (*self).rule;
+    TerminalRule rule = TerminalAppearance_rule(self);
     return TerminalProjection_format(
         "TerminalAppearance{h=U+%04X,v=U+%04X,junction=U+%04X,stripe=U+%04X,every=%zu,accent=0x%08X}",
         rule.horizontal, rule.vertical, rule.junction,
-        rule.stripe, rule.stripeEvery, (*self).colorAccent);
+        rule.stripe, rule.stripeEvery, TerminalAppearance_colorAccent(self));
 }
