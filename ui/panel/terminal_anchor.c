@@ -48,6 +48,44 @@
  * nothing; getters answer safe defaults. No allocation, no logging on any path.
  * ======================================================================== */
 
+
+;;GETTER
+static inline bytes TerminalAnchor_extent(const TerminalAnchor *s) { return (*s).extent; }
+;;GETTER
+static inline bytes *TerminalAnchor_extentMut(TerminalAnchor *s) { return &(*s).extent; }
+;;SETTER
+static inline fn TerminalAnchor_setExtent(TerminalAnchor *s, bytes v) { (*s).extent = v; }
+;;GETTER
+static inline bytes TerminalAnchor_height(const TerminalAnchor *s) { return (*s).height; }
+;;GETTER
+static inline bytes *TerminalAnchor_heightMut(TerminalAnchor *s) { return &(*s).height; }
+;;SETTER
+static inline fn TerminalAnchor_setHeight(TerminalAnchor *s, bytes v) { (*s).height = v; }
+;;GETTER
+static inline bytes TerminalAnchor_insetX(const TerminalAnchor *s) { return (*s).insetX; }
+;;GETTER
+static inline bytes *TerminalAnchor_insetXMut(TerminalAnchor *s) { return &(*s).insetX; }
+;;SETTER
+static inline fn TerminalAnchor_setInsetX(TerminalAnchor *s, bytes v) { (*s).insetX = v; }
+;;GETTER
+static inline bytes TerminalAnchor_insetY(const TerminalAnchor *s) { return (*s).insetY; }
+;;GETTER
+static inline bytes *TerminalAnchor_insetYMut(TerminalAnchor *s) { return &(*s).insetY; }
+;;SETTER
+static inline fn TerminalAnchor_setInsetY(TerminalAnchor *s, bytes v) { (*s).insetY = v; }
+;;GETTER
+static inline TerminalAnchorKind TerminalAnchor_kind(const TerminalAnchor *s) { return (*s).kind; }
+;;GETTER
+static inline TerminalAnchorKind *TerminalAnchor_kindMut(TerminalAnchor *s) { return &(*s).kind; }
+;;SETTER
+static inline fn TerminalAnchor_setKind(TerminalAnchor *s, TerminalAnchorKind v) { (*s).kind = v; }
+;;GETTER
+static inline bytes TerminalAnchor_width(const TerminalAnchor *s) { return (*s).width; }
+;;GETTER
+static inline bytes *TerminalAnchor_widthMut(TerminalAnchor *s) { return &(*s).width; }
+;;SETTER
+static inline fn TerminalAnchor_setWidth(TerminalAnchor *s, bytes v) { (*s).width = v; }
+
 static bytes minSize(bytes a, bytes b) { return a < b ? a : b; }
 
 static bool validKind(TerminalAnchorKind kind) {
@@ -134,7 +172,7 @@ TerminalAnchor TerminalAnchor_3(TerminalAnchorKind kind, bytes width, bytes heig
 bool TerminalAnchor_isBand(const TerminalAnchor *self) {
     if (self == nullptr)
         return false;
-    switch ((*self).kind) {
+    switch (TerminalAnchor_kind(self)) {
         case TERMINAL_ANCHOR_BAND_TOP:
         case TERMINAL_ANCHOR_BAND_BOTTOM:
         case TERMINAL_ANCHOR_BAND_LEFT:
@@ -148,26 +186,26 @@ bool TerminalAnchor_isBand(const TerminalAnchor *self) {
 bool TerminalAnchor_reserves(const TerminalAnchor *self) { return TerminalAnchor_isBand(self); }
 
 TerminalAnchorKind TerminalAnchor_getKind(const TerminalAnchor *self) {
-    return self ? (*self).kind : TERMINAL_ANCHOR_FILL;
+    return self ? TerminalAnchor_kind(self) : TERMINAL_ANCHOR_FILL;
 }
 bytes TerminalAnchor_getExtent(const TerminalAnchor *self) {
-    return self ? (*self).extent : TERMINAL_ANCHOR_AUTO;
+    return self ? TerminalAnchor_extent(self) : TERMINAL_ANCHOR_AUTO;
 }
 bytes TerminalAnchor_getWidth(const TerminalAnchor *self) {
-    return self ? (*self).width : TERMINAL_ANCHOR_AUTO;
+    return self ? TerminalAnchor_width(self) : TERMINAL_ANCHOR_AUTO;
 }
 bytes TerminalAnchor_getHeight(const TerminalAnchor *self) {
-    return self ? (*self).height : TERMINAL_ANCHOR_AUTO;
+    return self ? TerminalAnchor_height(self) : TERMINAL_ANCHOR_AUTO;
 }
-bytes TerminalAnchor_getInsetX(const TerminalAnchor *self) { return self ? (*self).insetX : 0; }
-bytes TerminalAnchor_getInsetY(const TerminalAnchor *self) { return self ? (*self).insetY : 0; }
+bytes TerminalAnchor_getInsetX(const TerminalAnchor *self) { return self ? TerminalAnchor_insetX(self) : 0; }
+bytes TerminalAnchor_getInsetY(const TerminalAnchor *self) { return self ? TerminalAnchor_insetY(self) : 0; }
 
 bool TerminalAnchor_setKind(TerminalAnchor *self, TerminalAnchorKind kind) {
     if (self == nullptr || !validKind(kind)) {
         THROW("TerminalAnchor kind: null anchor or unknown kind");
         return false;
     }
-    (*self).kind = kind;
+    TerminalAnchor_setKind(self, kind);
     return true;
 }
 
@@ -176,7 +214,7 @@ bool TerminalAnchor_setExtent(TerminalAnchor *self, bytes extent) {
         THROW("TerminalAnchor extent: null anchor");
         return false;
     }
-    (*self).extent = extent;
+    TerminalAnchor_setExtent(self, extent);
     return true;
 }
 
@@ -185,8 +223,8 @@ bool TerminalAnchor_setSize(TerminalAnchor *self, bytes width, bytes height) {
         THROW("TerminalAnchor size: null anchor");
         return false;
     }
-    (*self).width = width;
-    (*self).height = height;
+    TerminalAnchor_setWidth(self, width);
+    TerminalAnchor_setHeight(self, height);
     return true;
 }
 
@@ -195,8 +233,8 @@ bool TerminalAnchor_setInset(TerminalAnchor *self, bytes insetX, bytes insetY) {
         THROW("TerminalAnchor inset: null anchor");
         return false;
     }
-    (*self).insetX = insetX;
-    (*self).insetY = insetY;
+    TerminalAnchor_setInsetX(self, insetX);
+    TerminalAnchor_setInsetY(self, insetY);
     return true;
 }
 
@@ -205,29 +243,29 @@ TerminalAnchorPlacement TerminalAnchor_place(const TerminalAnchor *self, Termina
     if (self == nullptr)
         return out;
     TerminalRect region = cursor;
-    switch ((*self).kind) {
+    switch (TerminalAnchor_kind(self)) {
         case TERMINAL_ANCHOR_BAND_TOP: {
-            bytes take = bandExtent((*self).extent, cursor.height);
+            bytes take = bandExtent(TerminalAnchor_extent(self), cursor.height);
             region = (TerminalRect) { cursor.x, cursor.y, cursor.width, take };
             out.cursor.y = cursor.y + take;
             out.cursor.height = cursor.height - take;
             break;
         }
         case TERMINAL_ANCHOR_BAND_BOTTOM: {
-            bytes take = bandExtent((*self).extent, cursor.height);
+            bytes take = bandExtent(TerminalAnchor_extent(self), cursor.height);
             region = (TerminalRect) { cursor.x, cursor.y + (cursor.height - take), cursor.width, take };
             out.cursor.height = cursor.height - take;
             break;
         }
         case TERMINAL_ANCHOR_BAND_LEFT: {
-            bytes take = bandExtent((*self).extent, cursor.width);
+            bytes take = bandExtent(TerminalAnchor_extent(self), cursor.width);
             region = (TerminalRect) { cursor.x, cursor.y, take, cursor.height };
             out.cursor.x = cursor.x + take;
             out.cursor.width = cursor.width - take;
             break;
         }
         case TERMINAL_ANCHOR_BAND_RIGHT: {
-            bytes take = bandExtent((*self).extent, cursor.width);
+            bytes take = bandExtent(TerminalAnchor_extent(self), cursor.width);
             region = (TerminalRect) { cursor.x + (cursor.width - take), cursor.y, take, cursor.height };
             out.cursor.width = cursor.width - take;
             break;
@@ -235,17 +273,17 @@ TerminalAnchorPlacement TerminalAnchor_place(const TerminalAnchor *self, Termina
         case TERMINAL_ANCHOR_FILL:
             break;
         default: {
-            bytes width = (*self).width == TERMINAL_ANCHOR_AUTO
-                ? cursor.width : minSize((*self).width, cursor.width);
-            bytes height = (*self).height == TERMINAL_ANCHOR_AUTO
-                ? cursor.height : minSize((*self).height, cursor.height);
-            region = (TerminalRect) { pinStartX((*self).kind, cursor.x, cursor.width - width),
-                                      pinStartY((*self).kind, cursor.y, cursor.height - height),
+            bytes width = TerminalAnchor_width(self) == TERMINAL_ANCHOR_AUTO
+                ? cursor.width : minSize(TerminalAnchor_width(self), cursor.width);
+            bytes height = TerminalAnchor_height(self) == TERMINAL_ANCHOR_AUTO
+                ? cursor.height : minSize(TerminalAnchor_height(self), cursor.height);
+            region = (TerminalRect) { pinStartX(TerminalAnchor_kind(self), cursor.x, cursor.width - width),
+                                      pinStartY(TerminalAnchor_kind(self), cursor.y, cursor.height - height),
                                       width, height };
             break;
         }
     }
-    out.region = applyInset(region, (*self).insetX, (*self).insetY);
+    out.region = applyInset(region, TerminalAnchor_insetX(self), TerminalAnchor_insetY(self));
     return out;
 }
 
@@ -273,7 +311,7 @@ TerminalProjection TerminalAnchor_toString(const TerminalAnchor *self) {
     if (self == nullptr)
         return TerminalProjection_format("nullptr");
     return TerminalProjection_format("TerminalAnchor{%s,reserves=%d,extent=%zu}",
-        kindName((*self).kind), TerminalAnchor_reserves(self), (*self).extent);
+        kindName(TerminalAnchor_kind(self)), TerminalAnchor_reserves(self), TerminalAnchor_extent(self));
 }
 
 TerminalProjection TerminalAnchor_toStringStruct(const TerminalAnchor *self) {
@@ -281,6 +319,6 @@ TerminalProjection TerminalAnchor_toStringStruct(const TerminalAnchor *self) {
         return TerminalProjection_format("nullptr");
     return TerminalProjection_format(
         "TerminalAnchor{kind=%s,extent=%zu,width=%zu,height=%zu,insetX=%zu,insetY=%zu}",
-        kindName((*self).kind), (*self).extent, (*self).width, (*self).height,
-        (*self).insetX, (*self).insetY);
+        kindName(TerminalAnchor_kind(self)), TerminalAnchor_extent(self), TerminalAnchor_width(self), TerminalAnchor_height(self),
+        TerminalAnchor_insetX(self), TerminalAnchor_insetY(self));
 }
