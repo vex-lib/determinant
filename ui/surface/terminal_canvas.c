@@ -48,65 +48,25 @@
 
 
 ;;GETTER
-static inline u32 * TerminalCanvas_bg(const TerminalCanvas *s) { return (*s).bg; }
+static inline u32 *TerminalCanvas_bg(const TerminalCanvas *s) { return (*s).bg; }
 ;;GETTER
-static inline u32 * *TerminalCanvas_bgMut(TerminalCanvas *s) { return &(*s).bg; }
-;;SETTER
-static inline fn TerminalCanvas_setBg(TerminalCanvas *s, u32 * v) { (*s).bg = v; }
+static inline u32 *TerminalCanvas_cells(const TerminalCanvas *s) { return (*s).cells; }
 ;;GETTER
-static inline u32 * TerminalCanvas_cells(const TerminalCanvas *s) { return (*s).cells; }
-;;GETTER
-static inline u32 * *TerminalCanvas_cellsMut(TerminalCanvas *s) { return &(*s).cells; }
-;;SETTER
-static inline fn TerminalCanvas_setCells(TerminalCanvas *s, u32 * v) { (*s).cells = v; }
-;;GETTER
-static inline u32 * TerminalCanvas_fg(const TerminalCanvas *s) { return (*s).fg; }
-;;GETTER
-static inline u32 * *TerminalCanvas_fgMut(TerminalCanvas *s) { return &(*s).fg; }
-;;SETTER
-static inline fn TerminalCanvas_setFg(TerminalCanvas *s, u32 * v) { (*s).fg = v; }
+static inline u32 *TerminalCanvas_fg(const TerminalCanvas *s) { return (*s).fg; }
 ;;GETTER
 static inline bytes TerminalCanvas_gridHeight(const TerminalCanvas *s) { return (*s).gridHeight; }
 ;;GETTER
-static inline bytes *TerminalCanvas_gridHeightMut(TerminalCanvas *s) { return &(*s).gridHeight; }
-;;SETTER
-static inline fn TerminalCanvas_setGridHeight(TerminalCanvas *s, bytes v) { (*s).gridHeight = v; }
-;;GETTER
 static inline bytes TerminalCanvas_gridWidth(const TerminalCanvas *s) { return (*s).gridWidth; }
-;;GETTER
-static inline bytes *TerminalCanvas_gridWidthMut(TerminalCanvas *s) { return &(*s).gridWidth; }
-;;SETTER
-static inline fn TerminalCanvas_setGridWidth(TerminalCanvas *s, bytes v) { (*s).gridWidth = v; }
 ;;GETTER
 static inline bytes TerminalCanvas_height(const TerminalCanvas *s) { return (*s).height; }
 ;;GETTER
-static inline bytes *TerminalCanvas_heightMut(TerminalCanvas *s) { return &(*s).height; }
-;;SETTER
-static inline fn TerminalCanvas_setHeight(TerminalCanvas *s, bytes v) { (*s).height = v; }
-;;GETTER
-static inline u16 * TerminalCanvas_styles(const TerminalCanvas *s) { return (*s).styles; }
-;;GETTER
-static inline u16 * *TerminalCanvas_stylesMut(TerminalCanvas *s) { return &(*s).styles; }
-;;SETTER
-static inline fn TerminalCanvas_setStyles(TerminalCanvas *s, u16 * v) { (*s).styles = v; }
+static inline u16 *TerminalCanvas_styles(const TerminalCanvas *s) { return (*s).styles; }
 ;;GETTER
 static inline bytes TerminalCanvas_width(const TerminalCanvas *s) { return (*s).width; }
 ;;GETTER
-static inline bytes *TerminalCanvas_widthMut(TerminalCanvas *s) { return &(*s).width; }
-;;SETTER
-static inline fn TerminalCanvas_setWidth(TerminalCanvas *s, bytes v) { (*s).width = v; }
-;;GETTER
 static inline bytes TerminalCanvas_x(const TerminalCanvas *s) { return (*s).x; }
 ;;GETTER
-static inline bytes *TerminalCanvas_xMut(TerminalCanvas *s) { return &(*s).x; }
-;;SETTER
-static inline fn TerminalCanvas_setX(TerminalCanvas *s, bytes v) { (*s).x = v; }
-;;GETTER
 static inline bytes TerminalCanvas_y(const TerminalCanvas *s) { return (*s).y; }
-;;GETTER
-static inline bytes *TerminalCanvas_yMut(TerminalCanvas *s) { return &(*s).y; }
-;;SETTER
-static inline fn TerminalCanvas_setY(TerminalCanvas *s, bytes v) { (*s).y = v; }
 
 TerminalPen TerminalPen_0() {
     return (TerminalPen) { TERMINAL_STYLE_NONE, TERMINAL_COLOR_DEFAULT, TERMINAL_COLOR_DEFAULT };
@@ -370,9 +330,8 @@ bool TerminalCanvas_hasColorPlane(const TerminalCanvas *self) { return self && T
 
 TerminalCanvasTextRow TerminalCanvas_copyRow(const TerminalCanvas *self, bytes ly) {
     TerminalCanvasTextRow row = {0};
-    if (!TerminalCanvas_isValid(self) || ly >= TerminalCanvas_height(self)) {
+    if (!TerminalCanvas_isValid(self) || ly >= TerminalCanvas_height(self))
         return row;
-    }
     for (bytes lx = 0; lx < TerminalCanvas_width(self); ++lx) {
         u32 cp = TerminalCanvas_glyphAt(self, lx, ly);
         if (cp == 0)                    // wide-glyph continuation cell
