@@ -4,6 +4,7 @@
 #include "nio/mem.h"
 #include "oop/oop.h"
 #include <string.h>
+#include "core/determinant_memory.h"
 
 ;;DEFINITION
 /** The scrollable, collapsible tree, and the reason it is separate from anything that
@@ -246,7 +247,7 @@ static bool growNodes(TerminalTreeView *self) {
         refuseNode(self, "node capacity overflow");
         return false;
     }
-    TerminalTreeNode *grown = Memory_alloc(TYPE_BYTE_ARRAY, next * sizeof(TerminalTreeNode));
+    TerminalTreeNode *grown = Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), next * sizeof(TerminalTreeNode));
     if (grown == nullptr) {
         refuseNode(self, "node array allocation refused");
         return false;
@@ -267,7 +268,7 @@ static bool growRows(TerminalTreeView *self) {
         refuseRow(self, "row capacity overflow");
         return false;
     }
-    u32 *grown = Memory_alloc(TYPE_BYTE_ARRAY, next * sizeof(u32));
+    u32 *grown = Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), next * sizeof(u32));
     if (grown == nullptr) {
         refuseRow(self, "row array allocation refused");
         return false;
@@ -321,7 +322,7 @@ static fn rebuild(TerminalTreeView *self) {
 }
 
 TerminalTreeView *TerminalTreeView_0() {
-    TerminalTreeView *self = Memory_alloc(TYPE_BYTE_ARRAY, sizeof(TerminalTreeView));
+    TerminalTreeView *self = Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), sizeof(TerminalTreeView));
     if (self == nullptr)
         return nullptr;
     *self = (TerminalTreeView) {
