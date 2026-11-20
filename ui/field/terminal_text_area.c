@@ -4,6 +4,7 @@
 #include "oop/oop.h"
 #include <string.h>
 #include <stdio.h>
+#include "core/determinant_memory.h"
 
 ;;DEFINITION
 /** Multiline text editing area. Holds a text buffer, tracks 2D cursor and viewport
@@ -30,65 +31,45 @@
 
 ;;GETTER
 static inline char * TerminalTextArea_buffer(const TerminalTextArea *s) { return (*s).buffer; }
-;;GETTER
-static inline char * *TerminalTextArea_bufferMut(TerminalTextArea *s) { return &(*s).buffer; }
 ;;SETTER
 static inline fn TerminalTextArea_setBuffer(TerminalTextArea *s, char * v) { (*s).buffer = v; }
 ;;GETTER
 static inline bytes TerminalTextArea_capacity(const TerminalTextArea *s) { return (*s).capacity; }
-;;GETTER
-static inline bytes *TerminalTextArea_capacityMut(TerminalTextArea *s) { return &(*s).capacity; }
 ;;SETTER
 static inline fn TerminalTextArea_setCapacity(TerminalTextArea *s, bytes v) { (*s).capacity = v; }
 ;;GETTER
 static inline bytes TerminalTextArea_cursorByte(const TerminalTextArea *s) { return (*s).cursorByte; }
-;;GETTER
-static inline bytes *TerminalTextArea_cursorByteMut(TerminalTextArea *s) { return &(*s).cursorByte; }
 ;;SETTER
-static inline fn TerminalTextArea_setCursorByte(TerminalTextArea *s, bytes v) { (*s).cursorByte = v; }
+static inline fn TerminalTextArea_setCursorByteRaw(TerminalTextArea *s, bytes v) { (*s).cursorByte = v; }
 ;;GETTER
 static inline TerminalPen TerminalTextArea_cursorPen(const TerminalTextArea *s) { return (*s).cursorPen; }
 ;;GETTER
-static inline TerminalPen *TerminalTextArea_cursorPenMut(TerminalTextArea *s) { return &(*s).cursorPen; }
-;;SETTER
-static inline fn TerminalTextArea_setCursorPen(TerminalTextArea *s, TerminalPen v) { (*s).cursorPen = v; }
-;;GETTER
 static inline bytes TerminalTextArea_length(const TerminalTextArea *s) { return (*s).length; }
-;;GETTER
-static inline bytes *TerminalTextArea_lengthMut(TerminalTextArea *s) { return &(*s).length; }
 ;;SETTER
 static inline fn TerminalTextArea_setLength(TerminalTextArea *s, bytes v) { (*s).length = v; }
 ;;GETTER
 static inline TerminalPen TerminalTextArea_pen(const TerminalTextArea *s) { return (*s).pen; }
-;;GETTER
-static inline TerminalPen *TerminalTextArea_penMut(TerminalTextArea *s) { return &(*s).pen; }
 ;;SETTER
-static inline fn TerminalTextArea_setPen(TerminalTextArea *s, TerminalPen v) { (*s).pen = v; }
+static inline fn TerminalTextArea_setPenRaw(TerminalTextArea *s, TerminalPen v) { (*s).pen = v; }
 ;;GETTER
 static inline bytes TerminalTextArea_scrollCol(const TerminalTextArea *s) { return (*s).scrollCol; }
-;;GETTER
-static inline bytes *TerminalTextArea_scrollColMut(TerminalTextArea *s) { return &(*s).scrollCol; }
 ;;SETTER
 static inline fn TerminalTextArea_setScrollCol(TerminalTextArea *s, bytes v) { (*s).scrollCol = v; }
 ;;GETTER
 static inline bytes TerminalTextArea_scrollRow(const TerminalTextArea *s) { return (*s).scrollRow; }
-;;GETTER
-static inline bytes *TerminalTextArea_scrollRowMut(TerminalTextArea *s) { return &(*s).scrollRow; }
 ;;SETTER
 static inline fn TerminalTextArea_setScrollRow(TerminalTextArea *s, bytes v) { (*s).scrollRow = v; }
 ;;GETTER
 static inline bool TerminalTextArea_wrap(const TerminalTextArea *s) { return (*s).wrap; }
-;;GETTER
-static inline bool *TerminalTextArea_wrapMut(TerminalTextArea *s) { return &(*s).wrap; }
 ;;SETTER
-static inline fn TerminalTextArea_setWrap(TerminalTextArea *s, bool v) { (*s).wrap = v; }
+static inline fn TerminalTextArea_setWrapRaw(TerminalTextArea *s, bool v) { (*s).wrap = v; }
 
 TerminalTextArea *TerminalTextArea_0() {
     return TerminalTextArea_2(nullptr, 0u);
 }
 
 TerminalTextArea *TerminalTextArea_2(char *buffer, bytes capacity) {
-    TerminalTextArea *self = (TerminalTextArea*) Memory_alloc(TYPE_BYTE_ARRAY, sizeof(TerminalTextArea));
+    TerminalTextArea *self = (TerminalTextArea*) Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), sizeof(TerminalTextArea));
     if (self == nullptr)
         return nullptr;
     *self = (TerminalTextArea) {
@@ -107,7 +88,7 @@ TerminalTextArea *TerminalTextArea_2(char *buffer, bytes capacity) {
         if (slen >= capacity)
             slen = capacity - 1u;
         TerminalTextArea_setLength(self, slen);
-        TerminalTextArea_setCursorByte(self, slen);
+        TerminalTextArea_setCursorByteRaw(self, slen);
         buffer[slen] = '\0';
     }
     return self;
@@ -128,7 +109,7 @@ bool TerminalTextArea_bind(TerminalTextArea *self, char *buffer, bytes capacity)
     if (slen >= capacity)
         slen = capacity - 1u;
     TerminalTextArea_setLength(self, slen);
-    TerminalTextArea_setCursorByte(self, slen);
+    TerminalTextArea_setCursorByteRaw(self, slen);
     buffer[slen] = '\0';
     return true;
 }
@@ -159,7 +140,7 @@ bool TerminalTextArea_insertChar(TerminalTextArea *self, i32 character) {
 
     buf[at] = (char) character;
     TerminalTextArea_setLength(self, TerminalTextArea_length(self) + 1u);
-    TerminalTextArea_setCursorByte(self, TerminalTextArea_cursorByte(self) + 1u);
+    TerminalTextArea_setCursorByteRaw(self, TerminalTextArea_cursorByte(self) + 1u);
     buf[TerminalTextArea_length(self)] = '\0';
     return true;
 }
@@ -178,7 +159,7 @@ bool TerminalTextArea_insertText(TerminalTextArea *self, const char *text, bytes
 
     memcpy(buf + at, text, length);
     TerminalTextArea_setLength(self, TerminalTextArea_length(self) + (length));
-    TerminalTextArea_setCursorByte(self, TerminalTextArea_cursorByte(self) + (length));
+    TerminalTextArea_setCursorByteRaw(self, TerminalTextArea_cursorByte(self) + (length));
     buf[TerminalTextArea_length(self)] = '\0';
     return true;
 }
@@ -194,7 +175,7 @@ bool TerminalTextArea_backspace(TerminalTextArea *self) {
         memmove(buf + at - 1u, buf + at, moveCount);
 
     TerminalTextArea_setLength(self, TerminalTextArea_length(self) - 1u);
-    TerminalTextArea_setCursorByte(self, TerminalTextArea_cursorByte(self) - 1u);
+    TerminalTextArea_setCursorByteRaw(self, TerminalTextArea_cursorByte(self) - 1u);
     buf[TerminalTextArea_length(self)] = '\0';
     return true;
 }
@@ -220,7 +201,7 @@ fn TerminalTextArea_clear(TerminalTextArea *self) {
     if (TerminalTextArea_buffer(self) != nullptr && TerminalTextArea_capacity(self) > 0u)
         TerminalTextArea_buffer(self)[0] = '\0';
     TerminalTextArea_setLength(self, 0u);
-    TerminalTextArea_setCursorByte(self, 0u);
+    TerminalTextArea_setCursorByteRaw(self, 0u);
     TerminalTextArea_setScrollRow(self, 0u);
     TerminalTextArea_setScrollCol(self, 0u);
 }
@@ -231,10 +212,10 @@ fn TerminalTextArea_moveCursor(TerminalTextArea *self, i32 deltaRow, i32 deltaCo
 
     if (deltaCol < 0) {
         if (TerminalTextArea_cursorByte(self) > 0u)
-            TerminalTextArea_setCursorByte(self, TerminalTextArea_cursorByte(self) - 1u);
+            TerminalTextArea_setCursorByteRaw(self, TerminalTextArea_cursorByte(self) - 1u);
     } else if (deltaCol > 0) {
         if (TerminalTextArea_cursorByte(self) < TerminalTextArea_length(self))
-            TerminalTextArea_setCursorByte(self, TerminalTextArea_cursorByte(self) + 1u);
+            TerminalTextArea_setCursorByteRaw(self, TerminalTextArea_cursorByte(self) + 1u);
     }
 
     if (deltaRow < 0) {
@@ -245,14 +226,14 @@ fn TerminalTextArea_moveCursor(TerminalTextArea *self, i32 deltaRow, i32 deltaCo
             at--;
             while (at > 0u && TerminalTextArea_buffer(self)[at - 1u] != '\n')
                 at--;
-            TerminalTextArea_setCursorByte(self, at);
+            TerminalTextArea_setCursorByteRaw(self, at);
         }
     } else if (deltaRow > 0) {
         bytes at = TerminalTextArea_cursorByte(self);
         while (at < TerminalTextArea_length(self) && TerminalTextArea_buffer(self)[at] != '\n')
             at++;
         if (at < TerminalTextArea_length(self))
-            TerminalTextArea_setCursorByte(self, at + 1u);
+            TerminalTextArea_setCursorByteRaw(self, at + 1u);
     }
 }
 
@@ -265,14 +246,14 @@ bool TerminalTextArea_setCursorByte(TerminalTextArea *self, bytes byteOffset) {
         return false;
     if (byteOffset > TerminalTextArea_length(self))
         byteOffset = TerminalTextArea_length(self);
-    TerminalTextArea_setCursorByte(self, byteOffset);
+    TerminalTextArea_setCursorByteRaw(self, byteOffset);
     return true;
 }
 
 bool TerminalTextArea_setWrap(TerminalTextArea *self, bool wrap) {
     if (self == nullptr)
         return false;
-    TerminalTextArea_setWrap(self, wrap);
+    TerminalTextArea_setWrapRaw(self, wrap);
     return true;
 }
 
@@ -283,7 +264,7 @@ bool TerminalTextArea_getWrap(const TerminalTextArea *self) {
 bool TerminalTextArea_setPen(TerminalTextArea *self, TerminalPen pen) {
     if (self == nullptr)
         return false;
-    TerminalTextArea_setPen(self, pen);
+    TerminalTextArea_setPenRaw(self, pen);
     return true;
 }
 
