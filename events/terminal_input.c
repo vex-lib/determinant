@@ -67,68 +67,34 @@
 ;;GETTER
 static inline TerminalPointerButton TerminalPointerEvent_button(const TerminalPointerEvent *s) { return (*s).button; }
 ;;GETTER
-static inline TerminalPointerButton *TerminalPointerEvent_buttonMut(TerminalPointerEvent *s) { return &(*s).button; }
-;;SETTER
-static inline fn TerminalPointerEvent_setButton(TerminalPointerEvent *s, TerminalPointerButton v) { (*s).button = v; }
-;;GETTER
 static inline bool TerminalPointerEvent_ctrl(const TerminalPointerEvent *s) { return (*s).ctrl; }
-;;GETTER
-static inline bool *TerminalPointerEvent_ctrlMut(TerminalPointerEvent *s) { return &(*s).ctrl; }
-;;SETTER
-static inline fn TerminalPointerEvent_setCtrl(TerminalPointerEvent *s, bool v) { (*s).ctrl = v; }
 ;;GETTER
 static inline TerminalPointerKind TerminalPointerEvent_kind(const TerminalPointerEvent *s) { return (*s).kind; }
 ;;GETTER
-static inline TerminalPointerKind *TerminalPointerEvent_kindMut(TerminalPointerEvent *s) { return &(*s).kind; }
-;;SETTER
-static inline fn TerminalPointerEvent_setKind(TerminalPointerEvent *s, TerminalPointerKind v) { (*s).kind = v; }
-;;GETTER
 static inline bool TerminalPointerEvent_meta(const TerminalPointerEvent *s) { return (*s).meta; }
-;;GETTER
-static inline bool *TerminalPointerEvent_metaMut(TerminalPointerEvent *s) { return &(*s).meta; }
-;;SETTER
-static inline fn TerminalPointerEvent_setMeta(TerminalPointerEvent *s, bool v) { (*s).meta = v; }
 ;;GETTER
 static inline bool TerminalPointerEvent_shift(const TerminalPointerEvent *s) { return (*s).shift; }
 ;;GETTER
-static inline bool *TerminalPointerEvent_shiftMut(TerminalPointerEvent *s) { return &(*s).shift; }
-;;SETTER
-static inline fn TerminalPointerEvent_setShift(TerminalPointerEvent *s, bool v) { (*s).shift = v; }
-;;GETTER
 static inline bytes TerminalPointerEvent_x(const TerminalPointerEvent *s) { return (*s).x; }
 ;;GETTER
-static inline bytes *TerminalPointerEvent_xMut(TerminalPointerEvent *s) { return &(*s).x; }
-;;SETTER
-static inline fn TerminalPointerEvent_setX(TerminalPointerEvent *s, bytes v) { (*s).x = v; }
-;;GETTER
 static inline bytes TerminalPointerEvent_y(const TerminalPointerEvent *s) { return (*s).y; }
-;;GETTER
-static inline bytes *TerminalPointerEvent_yMut(TerminalPointerEvent *s) { return &(*s).y; }
-;;SETTER
-static inline fn TerminalPointerEvent_setY(TerminalPointerEvent *s, bytes v) { (*s).y = v; }
 
 ;;GETTER
 static inline bytes TerminalInput_digits(const TerminalInput *s) { return (*s).digits; }
-;;GETTER
-static inline bytes *TerminalInput_digitsMut(TerminalInput *s) { return &(*s).digits; }
 ;;SETTER
 static inline fn TerminalInput_setDigits(TerminalInput *s, bytes v) { (*s).digits = v; }
 ;;GETTER
 static inline TerminalPointerEvent TerminalInput_event(const TerminalInput *s) { return (*s).event; }
 ;;GETTER
-static inline TerminalPointerEvent *TerminalInput_eventMut(TerminalInput *s) { return &(*s).event; }
+static inline const TerminalPointerEvent *TerminalInput_eventConst(const TerminalInput *s) { return &(*s).event; }
 ;;SETTER
 static inline fn TerminalInput_setEvent(TerminalInput *s, TerminalPointerEvent v) { (*s).event = v; }
 ;;GETTER
 static inline bytes TerminalInput_field(const TerminalInput *s) { return (*s).field; }
-;;GETTER
-static inline bytes *TerminalInput_fieldMut(TerminalInput *s) { return &(*s).field; }
 ;;SETTER
 static inline fn TerminalInput_setField(TerminalInput *s, bytes v) { (*s).field = v; }
 ;;GETTER
 static inline bytes TerminalInput_malformed(const TerminalInput *s) { return (*s).malformed; }
-;;GETTER
-static inline bytes *TerminalInput_malformedMut(TerminalInput *s) { return &(*s).malformed; }
 ;;SETTER
 static inline fn TerminalInput_setMalformed(TerminalInput *s, bytes v) { (*s).malformed = v; }
 ;;GETTER
@@ -139,14 +105,10 @@ static inline bytes *TerminalInput_rawCountMut(TerminalInput *s) { return &(*s).
 static inline fn TerminalInput_setRawCount(TerminalInput *s, bytes v) { (*s).rawCount = v; }
 ;;GETTER
 static inline bool TerminalInput_ready(const TerminalInput *s) { return (*s).ready; }
-;;GETTER
-static inline bool *TerminalInput_readyMut(TerminalInput *s) { return &(*s).ready; }
 ;;SETTER
 static inline fn TerminalInput_setReady(TerminalInput *s, bool v) { (*s).ready = v; }
 ;;GETTER
 static inline TerminalInputState TerminalInput_state(const TerminalInput *s) { return (*s).state; }
-;;GETTER
-static inline TerminalInputState *TerminalInput_stateMut(TerminalInput *s) { return &(*s).state; }
 ;;SETTER
 static inline fn TerminalInput_setState(TerminalInput *s, TerminalInputState v) { (*s).state = v; }
 ;;GETTER
@@ -295,12 +257,14 @@ TerminalPointerEvent TerminalInput_getEvent(const TerminalInput *self) {
     return self != nullptr ? TerminalInput_event(self) : (TerminalPointerEvent) {0};
 }
 TerminalPointerKind TerminalInput_getKind(const TerminalInput *self) {
-    if (self == nullptr) return TERMINAL_POINTER_NONE;
+    if (self == nullptr)
+       return TERMINAL_POINTER_NONE;
     TerminalPointerEvent event = TerminalInput_event(self);
     return event.kind;
 }
 TerminalPointerButton TerminalInput_getButton(const TerminalInput *self) {
-    if (self == nullptr) return TERMINAL_BUTTON_NONE;
+    if (self == nullptr)
+       return TERMINAL_BUTTON_NONE;
     TerminalPointerEvent event = TerminalInput_event(self);
     return event.button;
 }
@@ -346,7 +310,7 @@ static const char *kindName(TerminalPointerKind kind) {
 TerminalProjection TerminalInput_toString(const TerminalInput *self) {
     if (self == nullptr)
         return TerminalProjection_format("nullptr");
-    const TerminalPointerEvent *event = TerminalInput_eventMut(self);
+    const TerminalPointerEvent *event = TerminalInput_eventConst(self);
     return TerminalProjection_format("TerminalInput{%s,button=%d,%zu,%zu,mods=%s%s%s,malformed=%zu}",
         kindName(TerminalPointerEvent_kind(event)), TerminalPointerEvent_button(event), TerminalPointerEvent_x(event), TerminalPointerEvent_y(event),
         TerminalPointerEvent_shift(event) ? "s" : "", TerminalPointerEvent_meta(event) ? "m" : "", TerminalPointerEvent_ctrl(event) ? "c" : "",
@@ -356,11 +320,11 @@ TerminalProjection TerminalInput_toString(const TerminalInput *self) {
 TerminalProjection TerminalInput_toStringStruct(const TerminalInput *self) {
     if (self == nullptr)
         return TerminalProjection_format("nullptr");
-    const TerminalPointerEvent *event = TerminalInput_eventMut(self);
+    const TerminalPointerEvent *event = TerminalInput_eventConst(self);
     return TerminalProjection_format(
         "TerminalInput{state=%d,rawCount=%zu,field=%zu,digits=%zu,values={%zu,%zu,%zu},malformed=%zu,event={kind=%s,button=%d,x=%zu,y=%zu,shift=%d,meta=%d,ctrl=%d},ready=%d}",
         TerminalInput_state(self), TerminalInput_rawCount(self), TerminalInput_field(self), TerminalInput_digits(self),
-        TerminalInput_valuesMut(self)[0], TerminalInput_valuesMut(self)[1], TerminalInput_valuesMut(self)[2], TerminalInput_malformed(self),
+        TerminalInput_values(self)[0], TerminalInput_values(self)[1], TerminalInput_values(self)[2], TerminalInput_malformed(self),
         kindName(TerminalPointerEvent_kind(event)), TerminalPointerEvent_button(event), TerminalPointerEvent_x(event), TerminalPointerEvent_y(event),
         TerminalPointerEvent_shift(event), TerminalPointerEvent_meta(event), TerminalPointerEvent_ctrl(event), TerminalInput_ready(self));
 }
