@@ -4,6 +4,7 @@
 #include "oop/oop.h"
 #include <string.h>
 #include <stdio.h>
+#include "core/determinant_memory.h"
 
 ;;DEFINITION
 /** The canonical code editor area (CodeArea). Manages line-indexed row storage,
@@ -117,7 +118,7 @@ static bool reserveLineCapacity(TerminalCodeEditor *self, bytes lineIndex, bytes
     bytes newCap = TerminalCodeEditor_lineCapacities(self)[lineIndex] * 2u;
     if (newCap < needed)
         newCap = needed + 32u;
-    char *newBuf = (char*) Memory_alloc(TYPE_BYTE_ARRAY, newCap);
+    char *newBuf = (char*) Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), newCap);
     if (newBuf == nullptr)
         return false;
     if (TerminalCodeEditor_lines(self)[lineIndex] != nullptr) {
@@ -140,9 +141,9 @@ static bool reserveArrayCapacity(TerminalCodeEditor *self, bytes needed) {
     if (newCap < needed)
         newCap = needed + 8u;
 
-    char **newLines = (char**) Memory_alloc(TYPE_BYTE_ARRAY, newCap * sizeof(char*));
-    bytes *newLengths = (bytes*) Memory_alloc(TYPE_BYTE_ARRAY, newCap * sizeof(bytes));
-    bytes *newCaps = (bytes*) Memory_alloc(TYPE_BYTE_ARRAY, newCap * sizeof(bytes));
+    char **newLines = (char**) Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), newCap * sizeof(char*));
+    bytes *newLengths = (bytes*) Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), newCap * sizeof(bytes));
+    bytes *newCaps = (bytes*) Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), newCap * sizeof(bytes));
 
     if (newLines == nullptr || newLengths == nullptr || newCaps == nullptr) {
         if (newLines != nullptr) Memory_free(newLines);
@@ -189,7 +190,7 @@ TerminalCodeEditor *TerminalCodeEditor_0() {
 }
 
 TerminalCodeEditor *TerminalCodeEditor_1(const char *initialText) {
-    TerminalCodeEditor *self = (TerminalCodeEditor*) Memory_alloc(TYPE_BYTE_ARRAY, sizeof(TerminalCodeEditor));
+    TerminalCodeEditor *self = (TerminalCodeEditor*) Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), sizeof(TerminalCodeEditor));
     if (self == nullptr)
         return nullptr;
     *self = (TerminalCodeEditor) {
@@ -213,7 +214,7 @@ TerminalCodeEditor *TerminalCodeEditor_1(const char *initialText) {
     } else {
         reserveArrayCapacity(self, TERMINAL_CODE_EDITOR_INIT_CAPACITY);
         TerminalCodeEditor_setLineCount(self, 1u);
-        TerminalCodeEditor_lines(self)[0] = (char*) Memory_alloc(TYPE_BYTE_ARRAY, TERMINAL_CODE_EDITOR_LINE_INIT_CAP);
+        TerminalCodeEditor_lines(self)[0] = (char*) Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), TERMINAL_CODE_EDITOR_LINE_INIT_CAP);
         TerminalCodeEditor_lines(self)[0][0] = '\0';
         TerminalCodeEditor_lineLengths(self)[0] = 0u;
         TerminalCodeEditor_lineCapacities(self)[0] = TERMINAL_CODE_EDITOR_LINE_INIT_CAP;
@@ -252,7 +253,7 @@ bool TerminalCodeEditor_setText(TerminalCodeEditor *self, const char *text) {
 
         bytes idx = TerminalCodeEditor_lineCount(self);
         bytes cap = lineLen + 16u;
-        char *buf = (char*) Memory_alloc(TYPE_BYTE_ARRAY, cap);
+        char *buf = (char*) Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), cap);
         if (buf == nullptr)
             return false;
         memcpy(buf, text + lineStart, lineLen);
@@ -314,7 +315,7 @@ bool TerminalCodeEditor_insertChar(TerminalCodeEditor *self, i32 character) {
         bytes rightLen = col < curLen ? (curLen - col) : 0u;
         bytes newRowLen = indent + rightLen;
         bytes newCap = newRowLen + 32u;
-        char *newBuf = (char*) Memory_alloc(TYPE_BYTE_ARRAY, newCap);
+        char *newBuf = (char*) Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), newCap);
         if (newBuf == nullptr)
             return false;
 
