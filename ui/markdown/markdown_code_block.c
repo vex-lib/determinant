@@ -3,6 +3,7 @@
 #include "nio/mem.h"
 #include "oop/oop.h"
 #include <string.h>
+#include "core/determinant_memory.h"
 
 ;;DEFINITION
 /** The laid-out fenced code blocks of one document, and the copy projection that
@@ -95,7 +96,7 @@ static bool grow(TerminalMarkdownCodeBlockPool *self) {
         return false;
     }
     TerminalMarkdownCodeBlock *grown =
-        Memory_alloc(TYPE_BYTE_ARRAY, next * sizeof(TerminalMarkdownCodeBlock));
+        Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), next * sizeof(TerminalMarkdownCodeBlock));
     if (grown == nullptr) {
         TerminalMarkdownCodeBlockPool_setRefusals(self, TerminalMarkdownCodeBlockPool_refusals(self) + 1u);
         THROW("TerminalMarkdownCodeBlockPool: allocation refused (%zu slots)", next);
@@ -112,7 +113,7 @@ static bool grow(TerminalMarkdownCodeBlockPool *self) {
 
 TerminalMarkdownCodeBlockPool *TerminalMarkdownCodeBlockPool_0() {
     TerminalMarkdownCodeBlockPool *self =
-        Memory_alloc(TYPE_BYTE_ARRAY, sizeof(TerminalMarkdownCodeBlockPool));
+        Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), sizeof(TerminalMarkdownCodeBlockPool));
     if (self == nullptr)
         return nullptr;
     *self = (TerminalMarkdownCodeBlockPool) {0};

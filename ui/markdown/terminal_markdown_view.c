@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <strings.h>
+#include "core/determinant_memory.h"
 
 ;;DEFINITION
 /** A rendered Markdown document in terminal cells. It exists because a README is
@@ -774,7 +775,7 @@ static bool growRows(TerminalMarkdownView *self) {
         refuse(self, "row capacity overflow");
         return false;
     }
-    MarkdownRow *grown = Memory_alloc(TYPE_BYTE_ARRAY, next * sizeof(MarkdownRow));
+    MarkdownRow *grown = Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), next * sizeof(MarkdownRow));
     if (grown == nullptr) {
         refuse(self, "row pool allocation refused");
         return false;
@@ -794,7 +795,7 @@ static bool growSegments(TerminalMarkdownView *self) {
         refuse(self, "segment capacity overflow");
         return false;
     }
-    MarkdownSegment *grown = Memory_alloc(TYPE_BYTE_ARRAY, next * sizeof(MarkdownSegment));
+    MarkdownSegment *grown = Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), next * sizeof(MarkdownSegment));
     if (grown == nullptr) {
         refuse(self, "segment pool allocation refused");
         return false;
@@ -2085,7 +2086,7 @@ static bool layout(TerminalMarkdownView *self) {
 }
 
 TerminalMarkdownView *TerminalMarkdownView_0() {
-    TerminalMarkdownView *self = Memory_alloc(TYPE_BYTE_ARRAY, sizeof(TerminalMarkdownView));
+    TerminalMarkdownView *self = Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), sizeof(TerminalMarkdownView));
     if (self == nullptr)
         return nullptr;
     *self = (TerminalMarkdownView) {0};
