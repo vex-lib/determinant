@@ -3,9 +3,8 @@
 // Input backing is caller-owned; no OS/stdin/threads or Unicode offered.
 
 #include "vex.h"
+#include "re.h"
 #include "cli/scanner.h"
-#include "primitive/vex-string.h"
-#include "nio/mem.h"
 #include "determinant/test/support.h"
 i32 main() {
     char small[4], medium[8], large[32];

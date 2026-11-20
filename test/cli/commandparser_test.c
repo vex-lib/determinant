@@ -7,6 +7,7 @@
 #include "oop/oop.h"
 #include "determinant/test/support.h"
 #include <stdlib.h>
+#include "core/determinant_memory.h"
 i32 main() {
     beginDiagnostics();
     assert(CommandParser_parse("") == nullptr);
@@ -44,7 +45,7 @@ i32 main() {
     any blocks[MAX_BLOCKS];
     bytes live = 0;
     while (live < MAX_BLOCKS) {
-        blocks[live] = Memory_alloc(TYPE_BYTE_ARRAY, BLOCK_BYTES);
+        blocks[live] = Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), BLOCK_BYTES);
         if (blocks[live] == nullptr)
             break;
         memset(blocks[live], (i32) live, BLOCK_BYTES);

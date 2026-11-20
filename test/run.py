@@ -31,7 +31,7 @@ def execute(argv, timeout=60):
 
 def main():
     failures = 0
-    sources = [*sorted(APP.rglob("*.c")), VEX / "primitive/vex-string.c",
+    sources = [*sorted(APP.rglob("*.c")), REL / "primitive/vex-string.c",
                REL / "atomic/spin_lock.c", REL / "nio/mem.c",
                REL / "io/file.c", REL / "io/logparser.c"]
     flags = ["-std=gnu23", "-Wall", "-Wextra", "-Werror", "-O2", "-UNDEBUG",

@@ -3,9 +3,8 @@
 // stale raw pointers are outside contract. R2 owns allocation exhaustion.
 
 #include "vex.h"
+#include "re.h"
 #include "cli/command.h"
-#include "primitive/vex-string.h"
-#include "nio/mem.h"
 #include "determinant/test/support.h"
 i32 main() {
     beginDiagnostics();
