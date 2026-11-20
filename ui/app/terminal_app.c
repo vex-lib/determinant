@@ -8,6 +8,7 @@
 #include <termios.h>
 #include <sys/ioctl.h>
 #include <signal.h>
+#include "core/determinant_memory.h"
 
 ;;DEFINITION
 /** The canonical terminal application runner. Owns the d64-buffered cell planes,
@@ -186,15 +187,15 @@ static fn freePlanes(TerminalApp *self) {
 
 static bool allocatePlanes(TerminalApp *self, bytes count) {
     freePlanes(self);
-    TerminalApp_setBackCells(self, (u32*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u32)));
-    TerminalApp_setBackStyles(self, (u16*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u16)));
-    TerminalApp_setBackFg(self, (u32*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u32)));
-    TerminalApp_setBackBg(self, (u32*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u32)));
+    TerminalApp_setBackCells(self, (u32*) Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), count * sizeof(u32)));
+    TerminalApp_setBackStyles(self, (u16*) Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), count * sizeof(u16)));
+    TerminalApp_setBackFg(self, (u32*) Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), count * sizeof(u32)));
+    TerminalApp_setBackBg(self, (u32*) Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), count * sizeof(u32)));
 
-    TerminalApp_setFrontCells(self, (u32*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u32)));
-    TerminalApp_setFrontStyles(self, (u16*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u16)));
-    TerminalApp_setFrontFg(self, (u32*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u32)));
-    TerminalApp_setFrontBg(self, (u32*) Memory_alloc(TYPE_BYTE_ARRAY, count * sizeof(u32)));
+    TerminalApp_setFrontCells(self, (u32*) Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), count * sizeof(u32)));
+    TerminalApp_setFrontStyles(self, (u16*) Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), count * sizeof(u16)));
+    TerminalApp_setFrontFg(self, (u32*) Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), count * sizeof(u32)));
+    TerminalApp_setFrontBg(self, (u32*) Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), count * sizeof(u32)));
 
     if (TerminalApp_backCells(self) == nullptr || TerminalApp_backStyles(self) == nullptr
         || TerminalApp_backFg(self) == nullptr || TerminalApp_backBg(self) == nullptr
@@ -242,12 +243,12 @@ TerminalApp *TerminalApp_0() {
 }
 
 TerminalApp *TerminalApp_1(TerminalPanel *root) {
-    TerminalApp *self = (TerminalApp*) Memory_alloc(TYPE_BYTE_ARRAY, sizeof(TerminalApp));
+    TerminalApp *self = (TerminalApp*) Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), sizeof(TerminalApp));
     if (self == nullptr)
         return nullptr;
 
     TerminalCompositor *comp = TerminalCompositor_0();
-    TerminalSurface *surf = (TerminalSurface*) Memory_alloc(TYPE_BYTE_ARRAY, sizeof(TerminalSurface));
+    TerminalSurface *surf = (TerminalSurface*) Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), sizeof(TerminalSurface));
     if (comp == nullptr || surf == nullptr) {
         if (comp != nullptr)
             TerminalCompositor_free(comp);
