@@ -1,9 +1,9 @@
 #include "vex.h"
+#include "re.h"
 #include "cli/commandparser.h"
-#include "primitive/vex-string.h"
-#include "nio/mem.h"
 #include "oop/oop.h"
 #include <string.h>
+#include "core/determinant_memory.h"
 
 ;;DEFINITION
 /** R3 cold whitespace tokenization over a caller-provided span. Complete byte
@@ -74,7 +74,7 @@ Command *CommandParser_parseBytes(const char *line, bytes length) {
         THROW("CommandParser parse: pointer directory overflow");
         return nullptr;
     }
-    u8 **parts = Memory_alloc(TYPE_BYTE_ARRAY, tokens * sizeof(u8*));
+    u8 **parts = Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), tokens * sizeof(u8*));
     if (parts == nullptr)
         return nullptr;
     bytes built = 0;
@@ -134,7 +134,7 @@ CommandChain *CommandParser_parseChainBytes(const char *line, bytes length) {
         THROW("CommandParser parseChain: pointer directory overflow");
         return nullptr;
     }
-    CommandInfo **infos = segments > 0 ? Memory_alloc(TYPE_BYTE_ARRAY, segments * sizeof(CommandInfo*)) : nullptr;
+    CommandInfo **infos = segments > 0 ? Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), segments * sizeof(CommandInfo*)) : nullptr;
     if (segments > 0 && infos == nullptr)
         return nullptr;
     bytes count = 0;

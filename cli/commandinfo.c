@@ -4,6 +4,7 @@
 #include "nio/mem.h"
 #include <string.h>
 #include <stdio.h>
+#include "core/determinant_memory.h"
 
 ;;DEFINITION
 /** A classified view over an owned Command. Callers build one through
@@ -909,7 +910,7 @@ CommandInfo *CommandInfo_3(CommandKind kind, CommandOperation operation, Command
         THROW("CommandInfo construct: kind or operation out of range");
         return nullptr;
     }
-    CommandInfo *self = Memory_alloc(TYPE_BYTE_ARRAY, sizeof(CommandInfo));
+    CommandInfo *self = Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), sizeof(CommandInfo));
     if (self == nullptr)
         return nullptr;
     CommandInfo_setKind(self, kind);

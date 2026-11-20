@@ -1,6 +1,6 @@
 #include "vex.h"
+#include "re.h"
 #include "cli/scanner.h"
-#include "primitive/vex-string.h"
 #include <string.h>
 #include <stdio.h>
 

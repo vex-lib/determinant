@@ -1,10 +1,10 @@
 #include "vex.h"
+#include "re.h"
 #include "cli/command.h"
-#include "primitive/vex-string.h"
-#include "nio/mem.h"
 #include "oop/oop.h"
 #include <string.h>
 #include <stdio.h>
+#include "core/determinant_memory.h"
 
 ;;DEFINITION
 /** An R3 parsed command owns R2 string blocks and one raw R2 byte allocation.
@@ -81,7 +81,7 @@ Command *Command_3(u8 *name, u8 **arguments, bytes count) {
             }
     }
     bytes bytes = sizeof(Command) + count * sizeof(u8*);
-    Command *self = Memory_alloc(TYPE_BYTE_ARRAY, bytes);
+    Command *self = Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), bytes);
     if (self == nullptr)
         return nullptr; // R2 owner reports/counts allocation exhaustion.
     Command_setName(self, name);

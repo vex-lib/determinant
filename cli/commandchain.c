@@ -1,10 +1,10 @@
 #include "vex.h"
+#include "re.h"
 #include "cli/commandinfo.h"
-#include "primitive/vex-string.h"
-#include "nio/mem.h"
 #include "oop/oop.h"
 #include <string.h>
 #include <stdio.h>
+#include "core/determinant_memory.h"
 
 ;;DEFINITION
 /** An ordered run of classified commands. Entries are borrowed pointers to
@@ -62,7 +62,7 @@ CommandChain *CommandChain_2(CommandInfo **entries, bytes count) {
             }
     }
     bytes bytes = sizeof(CommandChain) + count * sizeof(CommandInfo*);
-    CommandChain *self = Memory_alloc(TYPE_BYTE_ARRAY, bytes);
+    CommandChain *self = Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), bytes);
     if (self == nullptr)
         return nullptr;
     CommandChain_setCount(self, count);
