@@ -2,10 +2,11 @@
 #include "ui/compositor/terminal_compositor.h"
 #include "ui/surface/terminal_canvas.h"
 #include "nio/mem.h"
-#include "oop/oop.h"
+#include "type/re_type.h"
 #include <string.h>
 #include <stdio.h>
 #include <unistd.h>
+#include "core/determinant_memory.h"
 
 ;;DEFINITION
 /** The terminal output compositor. Consumes TerminalSurface delta runs, translates
@@ -37,85 +38,57 @@
 
 
 ;;GETTER
-static inline TerminalCompositorColorMode TerminalCompositor_colorMode(const TerminalCompositor *s) { return (*s).colorMode; }
-;;GETTER
-static inline TerminalCompositorColorMode *TerminalCompositor_colorModeMut(TerminalCompositor *s) { return &(*s).colorMode; }
+static inline TerminalCompositorColorMode Comp_colorMode(const TerminalCompositor *s) { return (*s).colorMode; }
 ;;SETTER
-static inline fn TerminalCompositor_setColorMode(TerminalCompositor *s, TerminalCompositorColorMode v) { (*s).colorMode = v; }
+static inline fn Comp_setColorMode(TerminalCompositor *s, TerminalCompositorColorMode v) { (*s).colorMode = v; }
 ;;GETTER
-static inline bytes TerminalCompositor_cursorColumn(const TerminalCompositor *s) { return (*s).cursorColumn; }
-;;GETTER
-static inline bytes *TerminalCompositor_cursorColumnMut(TerminalCompositor *s) { return &(*s).cursorColumn; }
+static inline bytes Comp_cursorColumn(const TerminalCompositor *s) { return (*s).cursorColumn; }
 ;;SETTER
-static inline fn TerminalCompositor_setCursorColumn(TerminalCompositor *s, bytes v) { (*s).cursorColumn = v; }
+static inline fn Comp_setCursorColumn(TerminalCompositor *s, bytes v) { (*s).cursorColumn = v; }
 ;;GETTER
-static inline bytes TerminalCompositor_cursorRow(const TerminalCompositor *s) { return (*s).cursorRow; }
-;;GETTER
-static inline bytes *TerminalCompositor_cursorRowMut(TerminalCompositor *s) { return &(*s).cursorRow; }
+static inline bytes Comp_cursorRow(const TerminalCompositor *s) { return (*s).cursorRow; }
 ;;SETTER
-static inline fn TerminalCompositor_setCursorRow(TerminalCompositor *s, bytes v) { (*s).cursorRow = v; }
+static inline fn Comp_setCursorRow(TerminalCompositor *s, bytes v) { (*s).cursorRow = v; }
 ;;GETTER
-static inline u32 TerminalCompositor_deviceBg(const TerminalCompositor *s) { return (*s).deviceBg; }
-;;GETTER
-static inline u32 *TerminalCompositor_deviceBgMut(TerminalCompositor *s) { return &(*s).deviceBg; }
+static inline u32 Comp_deviceBg(const TerminalCompositor *s) { return (*s).deviceBg; }
 ;;SETTER
-static inline fn TerminalCompositor_setDeviceBg(TerminalCompositor *s, u32 v) { (*s).deviceBg = v; }
+static inline fn Comp_setDeviceBg(TerminalCompositor *s, u32 v) { (*s).deviceBg = v; }
 ;;GETTER
-static inline i32 TerminalCompositor_fd(const TerminalCompositor *s) { return (*s).fd; }
-;;GETTER
-static inline i32 *TerminalCompositor_fdMut(TerminalCompositor *s) { return &(*s).fd; }
+static inline i32 Comp_fd(const TerminalCompositor *s) { return (*s).fd; }
 ;;SETTER
-static inline fn TerminalCompositor_setFd(TerminalCompositor *s, i32 v) { (*s).fd = v; }
+static inline fn Comp_setFd(TerminalCompositor *s, i32 v) { (*s).fd = v; }
 ;;GETTER
-static inline bool TerminalCompositor_inAlternate(const TerminalCompositor *s) { return (*s).inAlternate; }
-;;GETTER
-static inline bool *TerminalCompositor_inAlternateMut(TerminalCompositor *s) { return &(*s).inAlternate; }
+static inline bool Comp_inAlternate(const TerminalCompositor *s) { return (*s).inAlternate; }
 ;;SETTER
-static inline fn TerminalCompositor_setInAlternate(TerminalCompositor *s, bool v) { (*s).inAlternate = v; }
+static inline fn Comp_setInAlternate(TerminalCompositor *s, bool v) { (*s).inAlternate = v; }
 ;;GETTER
-static inline bool TerminalCompositor_inTransaction(const TerminalCompositor *s) { return (*s).inTransaction; }
-;;GETTER
-static inline bool *TerminalCompositor_inTransactionMut(TerminalCompositor *s) { return &(*s).inTransaction; }
+static inline bool Comp_inTransaction(const TerminalCompositor *s) { return (*s).inTransaction; }
 ;;SETTER
-static inline fn TerminalCompositor_setInTransaction(TerminalCompositor *s, bool v) { (*s).inTransaction = v; }
+static inline fn Comp_setInTransaction(TerminalCompositor *s, bool v) { (*s).inTransaction = v; }
 ;;GETTER
-static inline char *TerminalCompositor_outMut(TerminalCompositor *s) { return (*s).out; }
+static inline char *Comp_outMut(TerminalCompositor *s) { return (*s).out; }
 ;;GETTER
-static inline const char *TerminalCompositor_out(const TerminalCompositor *s) { return (*s).out; }
-;;GETTER
-static inline bool TerminalCompositor_outFailed(const TerminalCompositor *s) { return (*s).outFailed; }
-;;GETTER
-static inline bool *TerminalCompositor_outFailedMut(TerminalCompositor *s) { return &(*s).outFailed; }
+static inline bool Comp_outFailed(const TerminalCompositor *s) { return (*s).outFailed; }
 ;;SETTER
-static inline fn TerminalCompositor_setOutFailed(TerminalCompositor *s, bool v) { (*s).outFailed = v; }
+static inline fn Comp_setOutFailed(TerminalCompositor *s, bool v) { (*s).outFailed = v; }
 ;;GETTER
-static inline bytes TerminalCompositor_outLength(const TerminalCompositor *s) { return (*s).outLength; }
-;;GETTER
-static inline bytes *TerminalCompositor_outLengthMut(TerminalCompositor *s) { return &(*s).outLength; }
+static inline bytes Comp_outLength(const TerminalCompositor *s) { return (*s).outLength; }
 ;;SETTER
-static inline fn TerminalCompositor_setOutLength(TerminalCompositor *s, bytes v) { (*s).outLength = v; }
+static inline fn Comp_setOutLength(TerminalCompositor *s, bytes v) { (*s).outLength = v; }
 ;;GETTER
-static inline char *TerminalCompositor_penMut(TerminalCompositor *s) { return (*s).pen; }
+static inline char *Comp_penMut(TerminalCompositor *s) { return (*s).pen; }
 ;;GETTER
-static inline const char *TerminalCompositor_pen(const TerminalCompositor *s) { return (*s).pen; }
-;;GETTER
-static inline bytes TerminalCompositor_penLength(const TerminalCompositor *s) { return (*s).penLength; }
-;;GETTER
-static inline bytes *TerminalCompositor_penLengthMut(TerminalCompositor *s) { return &(*s).penLength; }
+static inline bytes Comp_penLength(const TerminalCompositor *s) { return (*s).penLength; }
 ;;SETTER
-static inline fn TerminalCompositor_setPenLength(TerminalCompositor *s, bytes v) { (*s).penLength = v; }
+static inline fn Comp_setPenLength(TerminalCompositor *s, bytes v) { (*s).penLength = v; }
 ;;GETTER
-static inline bool TerminalCompositor_penValid(const TerminalCompositor *s) { return (*s).penValid; }
-;;GETTER
-static inline bool *TerminalCompositor_penValidMut(TerminalCompositor *s) { return &(*s).penValid; }
+static inline bool Comp_penValid(const TerminalCompositor *s) { return (*s).penValid; }
 ;;SETTER
-static inline fn TerminalCompositor_setPenValid(TerminalCompositor *s, bool v) { (*s).penValid = v; }
+static inline fn Comp_setPenValid(TerminalCompositor *s, bool v) { (*s).penValid = v; }
 ;;GETTER
-static inline bytes TerminalCompositor_presentWidth(const TerminalCompositor *s) { return (*s).presentWidth; }
-;;GETTER
-static inline bytes *TerminalCompositor_presentWidthMut(TerminalCompositor *s) { return &(*s).presentWidth; }
+static inline bytes Comp_presentWidth(const TerminalCompositor *s) { return (*s).presentWidth; }
 ;;SETTER
-static inline fn TerminalCompositor_setPresentWidth(TerminalCompositor *s, bytes v) { (*s).presentWidth = v; }
+static inline fn Comp_setPresentWidth(TerminalCompositor *s, bytes v) { (*s).presentWidth = v; }
 
 static bytes utf8Encode(u32 glyph, char *bytes) {
     if (glyph < 0x80u) {
@@ -153,13 +126,13 @@ static i16 colorIndex256(u32 color) {
 }
 
 static fn compositorWriteRaw(TerminalCompositor *self, const char *data, bytes length) {
-    if (self == nullptr || length == 0u || TerminalCompositor_fd(self) < 0)
+    if (self == nullptr || length == 0u || Comp_fd(self) < 0)
         return;
     bytes written = 0u;
     while (written < length) {
-        ssize_t result = write(TerminalCompositor_fd(self), data + written, length - written);
+        ssize_t result = write(Comp_fd(self), data + written, length - written);
         if (result <= 0) {
-            TerminalCompositor_setOutFailed(self, true);
+            Comp_setOutFailed(self, true);
             return;
         }
         written += (bytes) result;
@@ -170,14 +143,14 @@ static fn compositorAppend(TerminalCompositor *self, const char *data, bytes len
     if (self == nullptr || data == nullptr || length == 0u)
         return;
     while (length != 0u) {
-        bytes room = sizeof ((TerminalCompositor){0}).out - TerminalCompositor_outLength(self);
+        bytes room = sizeof ((TerminalCompositor){0}).out - Comp_outLength(self);
         if (room == 0u) {
             TerminalCompositor_flush(self);
             room = sizeof ((TerminalCompositor){0}).out;
         }
         bytes count = length < room ? length : room;
-        memcpy(TerminalCompositor_outMut(self) + TerminalCompositor_outLength(self), data, count);
-        TerminalCompositor_setOutLength(self, TerminalCompositor_outLength(self) + (count));
+        memcpy(Comp_outMut(self) + Comp_outLength(self), data, count);
+        Comp_setOutLength(self, Comp_outLength(self) + count);
         data += count;
         length -= count;
     }
@@ -199,13 +172,13 @@ static bytes formatPenColor(TerminalCompositor *self, char *params, bytes capaci
         return at;
     i32 prefix = foreground ? 3 : 4;
     i32 written = 0;
-    if (TerminalCompositor_colorMode(self) == TERMINAL_COMPOSITOR_COLOR_TRUECOLOR) {
+    if (Comp_colorMode(self) == TERMINAL_COMPOSITOR_COLOR_TRUECOLOR) {
         written = snprintf(params + at, capacity - at, ";%d8;2;%u;%u;%u",
                            prefix,
                            (u32) TERMINAL_COLOR_RED(color),
                            (u32) TERMINAL_COLOR_GREEN(color),
                            (u32) TERMINAL_COLOR_BLUE(color));
-    } else if (TerminalCompositor_colorMode(self) == TERMINAL_COMPOSITOR_COLOR_256) {
+    } else if (Comp_colorMode(self) == TERMINAL_COMPOSITOR_COLOR_256) {
         i16 index = colorIndex256(color);
         if (index >= 0)
             written = snprintf(params + at, capacity - at, ";%d8;5;%d", prefix, (i32) index);
@@ -238,26 +211,26 @@ static bytes formatPenParams(TerminalCompositor *self, char *params, bytes capac
 static fn compositorPen(TerminalCompositor *self, u16 style, u32 fg, u32 bg) {
     char params[TERMINAL_COMPOSITOR_PEN_CAPACITY];
     bytes length = formatPenParams(self, params, sizeof(params), style, fg, bg);
-    if (TerminalCompositor_penValid(self) && length == TerminalCompositor_penLength(self)
-        && memcmp(TerminalCompositor_penMut(self), params, length) == 0)
+    if (Comp_penValid(self) && length == Comp_penLength(self)
+        && memcmp(Comp_penMut(self), params, length) == 0)
         return;
-    memcpy(TerminalCompositor_penMut(self), params, length);
-    TerminalCompositor_setPenLength(self, length);
-    TerminalCompositor_setPenValid(self, true);
+    memcpy(Comp_penMut(self), params, length);
+    Comp_setPenLength(self, length);
+    Comp_setPenValid(self, true);
     compositorText(self, "\033[");
     compositorAppend(self, params, length);
     compositorByte(self, 'm');
 }
 
 static fn compositorMove(TerminalCompositor *self, bytes column, bytes row) {
-    if (TerminalCompositor_cursorColumn(self) == column && TerminalCompositor_cursorRow(self) == row)
+    if (Comp_cursorColumn(self) == column && Comp_cursorRow(self) == row)
         return;
     char sequence[32];
     i32 written = snprintf(sequence, sizeof(sequence), "\033[%zu;%zuH", row + 1u, column + 1u);
     if (written > 0)
         compositorAppend(self, sequence, (bytes) written);
-    TerminalCompositor_setCursorColumn(self, column);
-    TerminalCompositor_setCursorRow(self, row);
+    Comp_setCursorColumn(self, column);
+    Comp_setCursorRow(self, row);
 }
 
 TerminalCompositor *TerminalCompositor_0() {
@@ -265,7 +238,7 @@ TerminalCompositor *TerminalCompositor_0() {
 }
 
 TerminalCompositor *TerminalCompositor_1(i32 fd) {
-    TerminalCompositor *self = (TerminalCompositor*) Memory_alloc(TYPE_BYTE_ARRAY, sizeof(TerminalCompositor));
+    TerminalCompositor *self = (TerminalCompositor*) Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), sizeof(TerminalCompositor));
     if (self == nullptr)
         return nullptr;
     *self = (TerminalCompositor) {
@@ -288,7 +261,7 @@ TerminalCompositor *TerminalCompositor_1(i32 fd) {
 fn TerminalCompositor_free(TerminalCompositor *self) {
     if (self == nullptr)
         return;
-    if (TerminalCompositor_inAlternate(self))
+    if (Comp_inAlternate(self))
         TerminalCompositor_leave(self);
     else
         TerminalCompositor_flush(self);
@@ -299,40 +272,38 @@ bool TerminalCompositor_enter(TerminalCompositor *self) {
     if (self == nullptr)
         return false;
     TerminalCompositor_forget(self);
-    TerminalCompositor_setOutLength(self, 0u);
-    TerminalCompositor_setOutFailed(self, false);
-    // Enter alternate screen, disable autowrap, hide cursor, clear screen, reset margin
+    Comp_setOutLength(self, 0u);
+    Comp_setOutFailed(self, false);
     compositorText(self, "\033[?1049h\033[?7l\033[?25l\033[H\033[2J\033[r");
     TerminalCompositor_flush(self);
-    TerminalCompositor_setInAlternate(self, true);
-    return !TerminalCompositor_outFailed(self);
+    Comp_setInAlternate(self, true);
+    return !Comp_outFailed(self);
 }
 
 bool TerminalCompositor_leave(TerminalCompositor *self) {
     if (self == nullptr)
         return false;
-    // Reset pen, enable autowrap, show cursor, exit alternate screen
     compositorText(self, "\033[0m\033[?7h\033[?25h\033[?1049l");
     TerminalCompositor_flush(self);
     TerminalCompositor_forget(self);
-    TerminalCompositor_setInAlternate(self, false);
-    return !TerminalCompositor_outFailed(self);
+    Comp_setInAlternate(self, false);
+    return !Comp_outFailed(self);
 }
 
 fn TerminalCompositor_flush(TerminalCompositor *self) {
-    if (self == nullptr || TerminalCompositor_outLength(self) == 0u)
+    if (self == nullptr || Comp_outLength(self) == 0u)
         return;
-    compositorWriteRaw(self, TerminalCompositor_outMut(self), TerminalCompositor_outLength(self));
-    TerminalCompositor_setOutLength(self, 0u);
+    compositorWriteRaw(self, Comp_outMut(self), Comp_outLength(self));
+    Comp_setOutLength(self, 0u);
 }
 
 fn TerminalCompositor_forget(TerminalCompositor *self) {
     if (self == nullptr)
         return;
-    TerminalCompositor_setCursorColumn(self, (bytes) -1);
-    TerminalCompositor_setCursorRow(self, (bytes) -1);
-    TerminalCompositor_setPenLength(self, 0u);
-    TerminalCompositor_setPenValid(self, false);
+    Comp_setCursorColumn(self, (bytes) -1);
+    Comp_setCursorRow(self, (bytes) -1);
+    Comp_setPenLength(self, 0u);
+    Comp_setPenValid(self, false);
 }
 
 fn TerminalCompositor_clear(TerminalCompositor *self) {
@@ -350,8 +321,8 @@ bool TerminalCompositor_blitRun(any context, TerminalRun run) {
     for (bytes i = 0u; i < run.length; ++i) {
         u32 glyph = run.cells != nullptr ? run.cells[i] : ' ';
         if (glyph == 0u) {
-            if (TerminalCompositor_cursorRow(self) != run.y || TerminalCompositor_cursorColumn(self) != run.x + i + 1u)
-                TerminalCompositor_setCursorColumn(self, (bytes) -1);
+            if (Comp_cursorRow(self) != run.y || Comp_cursorColumn(self) != run.x + i + 1u)
+                Comp_setCursorColumn(self, (bytes) -1);
             continue;
         }
         if (glyph > 0x10FFFFu || (glyph >= 0xD800u && glyph <= 0xDFFFu))
@@ -361,9 +332,9 @@ bool TerminalCompositor_blitRun(any context, TerminalRun run) {
         u32 bg = run.bg != nullptr ? run.bg[i] : TERMINAL_COLOR_DEFAULT;
 
         u32 cellBg = TERMINAL_COLOR_IS_SET(bg)
-                              ? TerminalColor_over(bg, TerminalCompositor_deviceBg(self))
+                              ? TerminalColor_over(bg, Comp_deviceBg(self))
                               : TERMINAL_COLOR_DEFAULT;
-        u32 backdrop = TERMINAL_COLOR_IS_SET(cellBg) ? cellBg : TerminalCompositor_deviceBg(self);
+        u32 backdrop = TERMINAL_COLOR_IS_SET(cellBg) ? cellBg : Comp_deviceBg(self);
         u32 cellFg = TERMINAL_COLOR_IS_SET(fg)
                               ? TerminalColor_over(fg, backdrop)
                               : TERMINAL_COLOR_DEFAULT;
@@ -372,7 +343,7 @@ bool TerminalCompositor_blitRun(any context, TerminalRun run) {
         bytes width = TerminalCanvas_widthOf(glyph);
         if (width == 0u)
             width = 1u;
-        if (TerminalCompositor_presentWidth(self) != 0u && column + width > TerminalCompositor_presentWidth(self)) {
+        if (Comp_presentWidth(self) != 0u && column + width > Comp_presentWidth(self)) {
             glyph = ' ';
             width = 1u;
         }
@@ -382,10 +353,10 @@ bool TerminalCompositor_blitRun(any context, TerminalRun run) {
         char encoded[4];
         bytes length = utf8Encode(glyph, encoded);
         compositorAppend(self, encoded, length);
-        TerminalCompositor_setCursorColumn(self, column + width);
-        TerminalCompositor_setCursorRow(self, run.y);
+        Comp_setCursorColumn(self, column + width);
+        Comp_setCursorRow(self, run.y);
     }
-    return !TerminalCompositor_outFailed(self);
+    return !Comp_outFailed(self);
 }
 
 fn TerminalCompositor_phase(any context, TerminalPresentPhase phase) {
@@ -394,11 +365,11 @@ fn TerminalCompositor_phase(any context, TerminalPresentPhase phase) {
         return;
     if (phase == TERMINAL_PRESENT_BEGIN) {
         compositorText(self, "\033[?2026h");
-        TerminalCompositor_setInTransaction(self, true);
+        Comp_setInTransaction(self, true);
     } else if (phase == TERMINAL_PRESENT_END) {
-        if (TerminalCompositor_inTransaction(self)) {
+        if (Comp_inTransaction(self)) {
             compositorText(self, "\033[?2026l");
-            TerminalCompositor_setInTransaction(self, false);
+            Comp_setInTransaction(self, false);
         }
         TerminalCompositor_flush(self);
     }
@@ -409,60 +380,60 @@ bool TerminalCompositor_setFd(TerminalCompositor *self, i32 fd) {
         THROW("TerminalCompositor: invalid fd");
         return false;
     }
-    TerminalCompositor_setFd(self, fd);
+    Comp_setFd(self, fd);
     return true;
 }
 
 i32 TerminalCompositor_getFd(const TerminalCompositor *self) {
-    return self != nullptr ? TerminalCompositor_fd(self) : -1;
+    return self != nullptr ? Comp_fd(self) : -1;
 }
 
 bool TerminalCompositor_setDeviceBackground(TerminalCompositor *self, u32 bg) {
     if (self == nullptr)
         return false;
-    TerminalCompositor_setDeviceBg(self, bg);
+    Comp_setDeviceBg(self, bg);
     return true;
 }
 
 u32 TerminalCompositor_getDeviceBackground(const TerminalCompositor *self) {
-    return self != nullptr ? TerminalCompositor_deviceBg(self) : TERMINAL_COLOR_DEFAULT;
+    return self != nullptr ? Comp_deviceBg(self) : TERMINAL_COLOR_DEFAULT;
 }
 
 bool TerminalCompositor_setPresentWidth(TerminalCompositor *self, bytes width) {
     if (self == nullptr)
         return false;
-    TerminalCompositor_setPresentWidth(self, width);
+    Comp_setPresentWidth(self, width);
     return true;
 }
 
 bytes TerminalCompositor_getPresentWidth(const TerminalCompositor *self) {
-    return self != nullptr ? TerminalCompositor_presentWidth(self) : 0u;
+    return self != nullptr ? Comp_presentWidth(self) : 0u;
 }
 
 bool TerminalCompositor_setColorMode(TerminalCompositor *self, TerminalCompositorColorMode mode) {
     if (self == nullptr)
         return false;
-    TerminalCompositor_setColorMode(self, mode);
+    Comp_setColorMode(self, mode);
     return true;
 }
 
 TerminalCompositorColorMode TerminalCompositor_getColorMode(const TerminalCompositor *self) {
-    return self != nullptr ? TerminalCompositor_colorMode(self) : TERMINAL_COMPOSITOR_COLOR_TRUECOLOR;
+    return self != nullptr ? Comp_colorMode(self) : TERMINAL_COMPOSITOR_COLOR_TRUECOLOR;
 }
 
 bool TerminalCompositor_getFailed(const TerminalCompositor *self) {
-    return self != nullptr && TerminalCompositor_outFailed(self);
+    return self != nullptr && Comp_outFailed(self);
 }
 
 bytes TerminalCompositor_getBufferedLength(const TerminalCompositor *self) {
-    return self != nullptr ? TerminalCompositor_outLength(self) : 0u;
+    return self != nullptr ? Comp_outLength(self) : 0u;
 }
 
 TerminalProjection TerminalCompositor_toString(const TerminalCompositor *self) {
     if (self == nullptr)
         return TerminalProjection_format("nullptr");
     return TerminalProjection_format("TerminalCompositor{fd=%d,colorMode=%d,inAlternate=%d,inTransaction=%d}",
-        TerminalCompositor_fd(self), TerminalCompositor_colorMode(self), TerminalCompositor_inAlternate(self), TerminalCompositor_inTransaction(self));
+        Comp_fd(self), Comp_colorMode(self), Comp_inAlternate(self), Comp_inTransaction(self));
 }
 
 TerminalProjection TerminalCompositor_toStringStruct(const TerminalCompositor *self) {
@@ -470,7 +441,7 @@ TerminalProjection TerminalCompositor_toStringStruct(const TerminalCompositor *s
         return TerminalProjection_format("nullptr");
     return TerminalProjection_format(
         "TerminalCompositor{fd=%d,colorMode=%d,deviceBg=0x%08X,presentWidth=%zu,cursorCol=%zu,cursorRow=%zu,inAlternate=%d,inTransaction=%d,outLength=%zu,outFailed=%d}",
-        TerminalCompositor_fd(self), TerminalCompositor_colorMode(self), TerminalCompositor_deviceBg(self), TerminalCompositor_presentWidth(self),
-        TerminalCompositor_cursorColumn(self), TerminalCompositor_cursorRow(self), TerminalCompositor_inAlternate(self), TerminalCompositor_inTransaction(self),
-        TerminalCompositor_outLength(self), TerminalCompositor_outFailed(self));
+        Comp_fd(self), Comp_colorMode(self), Comp_deviceBg(self), Comp_presentWidth(self),
+        Comp_cursorColumn(self), Comp_cursorRow(self), Comp_inAlternate(self), Comp_inTransaction(self),
+        Comp_outLength(self), Comp_outFailed(self));
 }
