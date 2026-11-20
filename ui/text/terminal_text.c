@@ -4,6 +4,7 @@
 #include "oop/oop.h"
 #include <string.h>
 #include <stdio.h>
+#include "core/determinant_memory.h"
 
 ;;DEFINITION
 /** The addressable leaf. A terminal interface is panels and text; this is the
@@ -127,7 +128,7 @@ static TerminalPen resolvePen(const TerminalPen *own, TerminalPen inherited) {
 }
 
 TerminalText *TerminalText_0() {
-    TerminalText *self = Memory_alloc(TYPE_BYTE_ARRAY, sizeof(TerminalText));
+    TerminalText *self = Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), sizeof(TerminalText));
     if (self == nullptr)
         return nullptr; // R2 owner reports/counts allocation exhaustion.
     *self = (TerminalText) { .glyphs = "", .length = 0, .pen = TerminalPen_0(),
