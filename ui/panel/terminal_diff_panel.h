@@ -77,6 +77,7 @@ typedef struct TerminalDiffTheme {
     bool useUnicodeBorder;
     bool showLineNumbers;
     bool showHeader;
+    bool showDiffIcons;
 } TerminalDiffTheme;
 
 typedef struct TerminalDiffPanel TerminalDiffPanel;
@@ -91,6 +92,7 @@ typedef fn (*TerminalDiffHeaderFn)(const TerminalDiffPanel *panel,
 struct TerminalDiffPanel {
     u32 columns;
     u32 sideBySideMinCols;
+    bytes scrollX;
     TerminalDiffLayoutMode layoutMode;
     TerminalDiffTheme theme;
     TerminalDiffHeaderFn headerHook;
@@ -103,6 +105,8 @@ fn TerminalDiffPanel_init(TerminalDiffPanel *panel);
 
 fn TerminalDiffPanel_setColumns(TerminalDiffPanel *panel, u32 columns);
 fn TerminalDiffPanel_setSideBySideMinCols(TerminalDiffPanel *panel, u32 minCols);
+fn TerminalDiffPanel_setScrollX(TerminalDiffPanel *panel, bytes scrollX);
+bytes TerminalDiffPanel_scrollX(const TerminalDiffPanel *panel);
 fn TerminalDiffPanel_setLayoutMode(TerminalDiffPanel *panel, TerminalDiffLayoutMode mode);
 TerminalDiffLayoutMode TerminalDiffPanel_layoutMode(const TerminalDiffPanel *panel);
 fn TerminalDiffPanel_setTheme(TerminalDiffPanel *panel, TerminalDiffTheme theme);

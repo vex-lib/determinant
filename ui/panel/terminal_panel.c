@@ -5,6 +5,7 @@
 #include "oop/oop.h"
 #include <string.h>
 #include <stdio.h>
+#include "core/determinant_memory.h"
 
 ;;DEFINITION
 /** The container. A panel holds children and arranges them, and that is all it
@@ -239,7 +240,7 @@ static bool growChildren(TerminalPanel *self) {
         refuse(self, "child capacity overflow");
         return false;
     }
-    TerminalChild *grown = Memory_alloc(TYPE_BYTE_ARRAY, next * sizeof(TerminalChild));
+    TerminalChild *grown = Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), next * sizeof(TerminalChild));
     if (grown == nullptr) {
         refuse(self, "child array allocation refused");
         return false;
@@ -308,7 +309,7 @@ static fn paintChildren(TerminalPanel *self, TerminalCanvas *canvas) {
 }
 
 TerminalPanel *TerminalPanel_0() {
-    TerminalPanel *self = Memory_alloc(TYPE_BYTE_ARRAY, sizeof(TerminalPanel));
+    TerminalPanel *self = Memory_alloc(TYPE_BYTE_ARRAY, Determinant_arena(), sizeof(TerminalPanel));
     if (self == nullptr)
         return nullptr; // R2 owner reports/counts allocation exhaustion.
     *self = (TerminalPanel) { .layout = TERMINAL_PANEL_FLEX, .pen = TerminalPen_0() };

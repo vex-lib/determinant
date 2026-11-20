@@ -53,6 +53,10 @@ static inline fn DiffPanel_setHeaderHookRaw(TerminalDiffPanel *p, TerminalDiffHe
 static inline any DiffPanel_headerUserdata(const TerminalDiffPanel *p) { return (*p).headerUserdata; }
 ;;SETTER
 static inline fn DiffPanel_setHeaderUserdataRaw(TerminalDiffPanel *p, any ud) { (*p).headerUserdata = ud; }
+;;GETTER
+static inline bytes DiffPanel_scrollX(const TerminalDiffPanel *p) { return (*p).scrollX; }
+;;SETTER
+static inline fn DiffPanel_setScrollXRaw(TerminalDiffPanel *p, bytes v) { (*p).scrollX = v; }
 
 ;;GETTER
 static inline const char *DiffMeta_path(const TerminalDiffMeta *m) { return (*m).path; }
@@ -147,8 +151,11 @@ static bool posInSpans(bytes pos, const TerminalDiffSpan *spans, bytes spanCount
 static bytes cleanLineLen(const char *text, bytes len) {
     if (!text)
         return 0;
-    if (len == 0)
-        len = strlen(text);
+    if (len == 0) {
+        while (text[len] != '\0' && text[len] != '\n' && text[len] != '\r')
+            len++;
+        return len;
+    }
     while (len > 0 && (text[len - 1u] == '\n' || text[len - 1u] == '\r'))
         len--;
     return len;
@@ -282,7 +289,8 @@ static fn renderHunkUnified(const TerminalDiffPanel *panel,
 
     const TerminalDiffLine *lines = DiffHunk_lines(hunk);
     bytes count = DiffHunk_lineCount(hunk);
-    u32 gutterCols = th.showLineNumbers ? 13u : 2u;
+    bool showMarker = th.showDiffIcons || !th.useColor;
+    u32 gutterCols = (showMarker ? 2u : 0u) + (th.showLineNumbers ? 12u : 2u);
     u32 textCols = columns > gutterCols ? columns - gutterCols : 20u;
 
     for (bytes i = 0; i < count; i++) {
@@ -308,6 +316,13 @@ static fn renderHunkUnified(const TerminalDiffPanel *panel,
             sbg = th.delSpanBg;
         }
 
+        if (showMarker) {
+            emitFg(out, th.useColor, fg);
+            emitBold(out, th.useColor);
+            fprintf(out, "%c ", marker);
+            emitReset(out, th.useColor);
+        }
+
         if (th.showLineNumbers) {
             emitFg(out, th.useColor, th.gutterFg);
             if (DiffLine_oldLine(line) > 0)
@@ -323,8 +338,7 @@ static fn renderHunkUnified(const TerminalDiffPanel *panel,
         }
 
         emitBg(out, th.useColor, bg);
-        emitFg(out, th.useColor, fg);
-        fprintf(out, " %c", marker);
+        fputc(' ', out);
         emitReset(out, th.useColor);
 
         emitStyledText(out, line, textCols, false, fg, bg, sfg, sbg, th.useColor);
@@ -338,8 +352,9 @@ static fn emitSplitCell(FILE *out,
                         bool isRight,
                         u32 halfCols,
                         TerminalDiffTheme th) {
-    u32 numCols = th.showLineNumbers ? 5u : 0u;
-    u32 prefixCols = numCols + 2u;
+    bool showMarker = th.showDiffIcons || !th.useColor;
+    const char *sep = th.useUnicodeBorder ? "│" : "|";
+    u32 prefixCols = (showMarker ? 2u : 0u) + (th.showLineNumbers ? 7u : 1u);
     u32 textCols = halfCols > prefixCols ? halfCols - prefixCols : 4u;
 
     if (!line) {
@@ -372,18 +387,24 @@ static fn emitSplitCell(FILE *out,
         sbg = th.delSpanBg;
     }
 
+    if (showMarker) {
+        emitFg(out, th.useColor, fg);
+        emitBold(out, th.useColor);
+        fprintf(out, "%c ", marker);
+        emitReset(out, th.useColor);
+    }
+
     if (th.showLineNumbers) {
         emitFg(out, th.useColor, th.gutterFg);
         if (lineNo > 0)
-            fprintf(out, "%4u ", (unsigned) lineNo);
+            fprintf(out, "%4u %s", (unsigned) lineNo, sep);
         else
-            fputs("     ", out);
+            fprintf(out, "     %s", sep);
         emitReset(out, th.useColor);
     }
 
     emitBg(out, th.useColor, bg);
-    emitFg(out, th.useColor, fg);
-    fprintf(out, "%c ", marker);
+    fputc(' ', out);
     emitReset(out, th.useColor);
 
     emitStyledText(out, line, textCols, true, fg, bg, sfg, sbg, th.useColor);
@@ -485,6 +506,7 @@ TerminalDiffTheme TerminalDiffPanel_defaultTheme() {
     t.useUnicodeBorder = true;
     t.showLineNumbers = true;
     t.showHeader = true;
+    t.showDiffIcons = false;
     return t;
 }
 
@@ -499,12 +521,24 @@ fn TerminalDiffPanel_init(TerminalDiffPanel *panel) {
     DiffPanel_setThemeRaw(panel, TerminalDiffPanel_defaultTheme());
     DiffPanel_setHeaderHookRaw(panel, nullptr);
     DiffPanel_setHeaderUserdataRaw(panel, nullptr);
+    DiffPanel_setScrollXRaw(panel, 0u);
 }
 
 /** Overrides target column width (0 restores live terminal width detection). */
 fn TerminalDiffPanel_setColumns(TerminalDiffPanel *panel, u32 columns) {
     if (panel)
         DiffPanel_setColumnsRaw(panel, columns);
+}
+
+/** Sets horizontal character scroll offset applied to code columns. */
+fn TerminalDiffPanel_setScrollX(TerminalDiffPanel *panel, bytes scrollX) {
+    if (panel)
+        DiffPanel_setScrollXRaw(panel, scrollX);
+}
+
+/** Returns the active horizontal character scroll offset. */
+bytes TerminalDiffPanel_scrollX(const TerminalDiffPanel *panel) {
+    return panel ? DiffPanel_scrollX(panel) : 0u;
 }
 
 /** Sets the minimum column width required for AUTO mode to pick side-by-side layout. */
@@ -650,6 +684,7 @@ static fn paintStyledTextCanvas(TerminalCanvas *canvas,
                                 bytes startX,
                                 bytes rowY,
                                 bytes maxCols,
+                                bytes scrollX,
                                 const TerminalDiffLine *line,
                                 u32 baseFg,
                                 u32 baseBg,
@@ -673,31 +708,37 @@ static fn paintStyledTextCanvas(TerminalCanvas *canvas,
     const TerminalDiffSpan *spans = DiffLine_spans(line);
     bytes spanCount = DiffLine_spanCount(line);
 
-    bytes written = 0;
+    bytes col = 0u;
+    bytes written = 0u;
     for (bytes i = 0; i < len && written < maxCols; i++) {
         bool inSpan = spanCount > 0 && posInSpans(i, spans, spanCount);
         TerminalPen pen = inSpan ? spanPen : basePen;
         unsigned char ch = (unsigned char) text[i];
         if (ch == '\t') {
-            bytes tabSpaces = 4u - (written % 4u);
+            bytes tabSpaces = 4u - (col % 4u);
             for (bytes s = 0; s < tabSpaces && written < maxCols; s++) {
-                TerminalCanvas_glyph(canvas, startX + written, rowY, (u32) ' ', pen);
+                if (col >= scrollX) {
+                    TerminalCanvas_glyph(canvas, startX + written, rowY, (u32) ' ', pen);
+                    written++;
+                }
+                col++;
+            }
+        } else {
+            if (col >= scrollX) {
+                u32 glyph = (ch < 0x20u || ch == 0x7Fu) ? (u32) ' ' : (u32) ch;
+                TerminalCanvas_glyph(canvas, startX + written, rowY, glyph, pen);
                 written++;
             }
-        } else if (ch < 0x20u || ch == 0x7Fu) {
-            TerminalCanvas_glyph(canvas, startX + written, rowY, (u32) ' ', pen);
-            written++;
-        } else {
-            TerminalCanvas_glyph(canvas, startX + written, rowY, (u32) ch, pen);
-            written++;
+            col++;
         }
     }
 }
 
-/** Paints a single unified diff line onto canvas rowY. */
+/** Paints a single unified diff line onto canvas rowY: [+/-] old new | code. */
 static fn paintUnifiedLineCanvas(TerminalCanvas *canvas,
                                  bytes rowY,
                                  bytes cols,
+                                 bytes scrollX,
                                  const TerminalDiffLine *line,
                                  TerminalDiffTheme th) {
     TerminalDiffLineKind kind = DiffLine_kind(line);
@@ -721,8 +762,18 @@ static fn paintUnifiedLineCanvas(TerminalCanvas *canvas,
         sbg = th.delSpanBg;
     }
 
+    bool showMarker = th.showDiffIcons || !th.useColor;
     bytes x = 0u;
-    if (th.showLineNumbers && cols > 14u) {
+    if (showMarker && x + 2u < cols) {
+        TerminalPen mPen = TerminalPen_3(TERMINAL_STYLE_BOLD,
+                                         th.useColor ? fg : TERMINAL_COLOR_DEFAULT,
+                                         TERMINAL_COLOR_DEFAULT);
+        TerminalCanvas_glyph(canvas, x, rowY, (u32) marker, mPen);
+        TerminalCanvas_glyph(canvas, x + 1u, rowY, (u32) ' ', mPen);
+        x += 2u;
+    }
+
+    if (th.showLineNumbers && cols > x + 13u) {
         TerminalPen gPen = TerminalPen_3(0u, th.useColor ? th.gutterFg : TERMINAL_COLOR_DEFAULT, TERMINAL_COLOR_DEFAULT);
         char numBuf[16];
         u32 ol = DiffLine_oldLine(line);
@@ -735,35 +786,28 @@ static fn paintUnifiedLineCanvas(TerminalCanvas *canvas,
             snprintf(numBuf, sizeof(numBuf), "     %4u ", (unsigned) nl);
         else
             snprintf(numBuf, sizeof(numBuf), "          ");
-        TerminalCanvas_text(canvas, 0u, rowY, numBuf, 10u, gPen);
-        TerminalCanvas_glyph(canvas, 10u, rowY, th.useUnicodeBorder ? 0x2502u : (u32) '|', gPen);
-        x = 11u;
+        TerminalCanvas_text(canvas, x, rowY, numBuf, 10u, gPen);
+        TerminalCanvas_glyph(canvas, x + 10u, rowY, th.useUnicodeBorder ? 0x2502u : (u32) '|', gPen);
+        x += 11u;
     }
 
-    TerminalPen mPen = TerminalPen_3(TERMINAL_STYLE_BOLD,
-                                     th.useColor ? fg : TERMINAL_COLOR_DEFAULT,
-                                     th.useColor ? bg : TERMINAL_COLOR_DEFAULT);
     if (x < cols) {
-        TerminalCanvas_glyph(canvas, x, rowY, (u32) ' ', mPen);
-        x++;
-    }
-    if (x < cols) {
-        TerminalCanvas_glyph(canvas, x, rowY, (u32) marker, mPen);
-        x++;
-    }
-    if (x < cols) {
-        TerminalCanvas_glyph(canvas, x, rowY, (u32) ' ', mPen);
+        TerminalPen padPen = TerminalPen_3(0u,
+                                           th.useColor ? fg : TERMINAL_COLOR_DEFAULT,
+                                           th.useColor ? bg : TERMINAL_COLOR_DEFAULT);
+        TerminalCanvas_glyph(canvas, x, rowY, (u32) ' ', padPen);
         x++;
     }
     if (x < cols)
-        paintStyledTextCanvas(canvas, x, rowY, cols - x, line, fg, bg, sfg, sbg, th.useColor);
+        paintStyledTextCanvas(canvas, x, rowY, cols - x, scrollX, line, fg, bg, sfg, sbg, th.useColor);
 }
 
-/** Paints one half-cell (left or right) of a side-by-side row onto canvas. */
+/** Paints one half-cell (left or right) of a side-by-side row onto canvas: [+/-] line | code. */
 static fn paintSplitCellCanvas(TerminalCanvas *canvas,
                                bytes startX,
                                bytes rowY,
                                bytes halfCols,
+                               bytes scrollX,
                                const TerminalDiffLine *line,
                                bool isRight,
                                TerminalDiffTheme th) {
@@ -796,31 +840,38 @@ static fn paintSplitCellCanvas(TerminalCanvas *canvas,
         sbg = th.delSpanBg;
     }
 
+    bool showMarker = th.showDiffIcons || !th.useColor;
     bytes x = 0u;
-    if (th.showLineNumbers && halfCols > 8u) {
+    if (showMarker && x + 2u < halfCols) {
+        TerminalPen mPen = TerminalPen_3(TERMINAL_STYLE_BOLD,
+                                         th.useColor ? fg : TERMINAL_COLOR_DEFAULT,
+                                         TERMINAL_COLOR_DEFAULT);
+        TerminalCanvas_glyph(canvas, startX + x, rowY, (u32) marker, mPen);
+        TerminalCanvas_glyph(canvas, startX + x + 1u, rowY, (u32) ' ', mPen);
+        x += 2u;
+    }
+
+    if (th.showLineNumbers && halfCols > x + 8u) {
         TerminalPen gPen = TerminalPen_3(0u, th.useColor ? th.gutterFg : TERMINAL_COLOR_DEFAULT, TERMINAL_COLOR_DEFAULT);
         char numBuf[12];
         if (lineNo > 0u)
             snprintf(numBuf, sizeof(numBuf), "%4u ", (unsigned) lineNo);
         else
             snprintf(numBuf, sizeof(numBuf), "     ");
-        TerminalCanvas_text(canvas, startX, rowY, numBuf, 5u, gPen);
-        x = 5u;
+        TerminalCanvas_text(canvas, startX + x, rowY, numBuf, 5u, gPen);
+        TerminalCanvas_glyph(canvas, startX + x + 5u, rowY, th.useUnicodeBorder ? 0x2502u : (u32) '|', gPen);
+        x += 6u;
     }
 
-    TerminalPen mPen = TerminalPen_3(TERMINAL_STYLE_BOLD,
-                                     th.useColor ? fg : TERMINAL_COLOR_DEFAULT,
-                                     th.useColor ? bg : TERMINAL_COLOR_DEFAULT);
     if (x < halfCols) {
-        TerminalCanvas_glyph(canvas, startX + x, rowY, (u32) marker, mPen);
-        x++;
-    }
-    if (x < halfCols) {
-        TerminalCanvas_glyph(canvas, startX + x, rowY, (u32) ' ', mPen);
+        TerminalPen padPen = TerminalPen_3(0u,
+                                           th.useColor ? fg : TERMINAL_COLOR_DEFAULT,
+                                           th.useColor ? bg : TERMINAL_COLOR_DEFAULT);
+        TerminalCanvas_glyph(canvas, startX + x, rowY, (u32) ' ', padPen);
         x++;
     }
     if (x < halfCols)
-        paintStyledTextCanvas(canvas, startX + x, rowY, halfCols - x, line, fg, bg, sfg, sbg, th.useColor);
+        paintStyledTextCanvas(canvas, startX + x, rowY, halfCols - x, scrollX, line, fg, bg, sfg, sbg, th.useColor);
 }
 
 /** Paints the diff onto a TerminalCanvas region starting at virtual row scrollOffset. */
@@ -843,6 +894,7 @@ bytes TerminalDiffPanel_paintCanvas(const TerminalDiffPanel *panel,
         cols = (u32) width;
     TerminalDiffLayoutMode layout = resolveLayoutForCols(panel, cols);
     TerminalDiffTheme th = DiffPanel_theme(panel);
+    bytes scrollX = DiffPanel_scrollX(panel);
     bytes vrow = 0u;
 
     if (th.showHeader) {
@@ -875,20 +927,33 @@ bytes TerminalDiffPanel_paintCanvas(const TerminalDiffPanel *panel,
     }
 
     bytes halfCols = cols > 3u ? (cols - 3u) / 2u : (cols / 2u);
-    TerminalPen hunkPen = TerminalPen_3(TERMINAL_STYLE_BOLD, th.useColor ? th.hunkFg : TERMINAL_COLOR_DEFAULT, TERMINAL_COLOR_DEFAULT);
+    TerminalPen hunkRowPen = TerminalPen_3(0u,
+                                           th.useColor ? th.gutterFg : TERMINAL_COLOR_DEFAULT,
+                                           th.useColor ? TERMINAL_RGB(20, 25, 34) : TERMINAL_COLOR_DEFAULT);
+    TerminalPen hunkPen = TerminalPen_3(TERMINAL_STYLE_BOLD,
+                                        th.useColor ? th.hunkFg : TERMINAL_COLOR_DEFAULT,
+                                        th.useColor ? TERMINAL_RGB(34, 44, 62) : TERMINAL_COLOR_DEFAULT);
     TerminalPen borderPen = TerminalPen_3(0u, th.useColor ? th.borderColor : TERMINAL_COLOR_DEFAULT, TERMINAL_COLOR_DEFAULT);
 
     for (bytes h = 0; h < hunkCount; h++) {
         const TerminalDiffHunk *hunk = &hunks[h];
         if (vrow >= scrollOffset && vrow - scrollOffset < height) {
+            bytes sy = vrow - scrollOffset;
+            for (bytes c = 0u; c < width; c++)
+                TerminalCanvas_glyph(canvas, c, sy, (u32) ' ', hunkRowPen);
             char hbuf[96];
-            i32 hn = snprintf(hbuf, sizeof(hbuf), "@@ -%u,%u +%u,%u @@",
+            i32 hn = snprintf(hbuf, sizeof(hbuf), " @@ -%u,%u +%u,%u @@ ",
                               (unsigned) DiffHunk_oldStart(hunk),
                               (unsigned) DiffHunk_oldCount(hunk),
                               (unsigned) DiffHunk_newStart(hunk),
                               (unsigned) DiffHunk_newCount(hunk));
-            if (hn > 0)
-                TerminalCanvas_text(canvas, 0u, vrow - scrollOffset, hbuf, (bytes) hn, hunkPen);
+            if (hn > 0) {
+                bytes hlen = (bytes) hn;
+                if (hlen > width)
+                    hlen = width;
+                bytes hx = (width - hlen) / 2u;
+                TerminalCanvas_text(canvas, hx, sy, hbuf, hlen, hunkPen);
+            }
         }
         vrow++;
 
@@ -898,7 +963,7 @@ bytes TerminalDiffPanel_paintCanvas(const TerminalDiffPanel *panel,
         if (layout != TERMINAL_DIFF_LAYOUT_SIDE_BY_SIDE) {
             for (bytes i = 0; i < count; i++) {
                 if (vrow >= scrollOffset && vrow - scrollOffset < height)
-                    paintUnifiedLineCanvas(canvas, vrow - scrollOffset, cols, &lines[i], th);
+                    paintUnifiedLineCanvas(canvas, vrow - scrollOffset, cols, scrollX, &lines[i], th);
                 vrow++;
             }
             continue;
@@ -909,9 +974,9 @@ bytes TerminalDiffPanel_paintCanvas(const TerminalDiffPanel *panel,
             if (DiffLine_kind(&lines[i]) == TERMINAL_DIFF_CONTEXT) {
                 if (vrow >= scrollOffset && vrow - scrollOffset < height) {
                     bytes sy = vrow - scrollOffset;
-                    paintSplitCellCanvas(canvas, 0u, sy, halfCols, &lines[i], false, th);
+                    paintSplitCellCanvas(canvas, 0u, sy, halfCols, scrollX, &lines[i], false, th);
                     TerminalCanvas_glyph(canvas, halfCols + 1u, sy, th.useUnicodeBorder ? 0x2502u : (u32) '|', borderPen);
-                    paintSplitCellCanvas(canvas, halfCols + 3u, sy, cols - (halfCols + 3u), &lines[i], true, th);
+                    paintSplitCellCanvas(canvas, halfCols + 3u, sy, cols - (halfCols + 3u), scrollX, &lines[i], true, th);
                 }
                 vrow++;
                 i++;
@@ -934,9 +999,9 @@ bytes TerminalDiffPanel_paintCanvas(const TerminalDiffPanel *panel,
                     bytes sy = vrow - scrollOffset;
                     const TerminalDiffLine *left = r < delCount ? &lines[delStart + r] : nullptr;
                     const TerminalDiffLine *right = r < addCount ? &lines[addStart + r] : nullptr;
-                    paintSplitCellCanvas(canvas, 0u, sy, halfCols, left, false, th);
+                    paintSplitCellCanvas(canvas, 0u, sy, halfCols, scrollX, left, false, th);
                     TerminalCanvas_glyph(canvas, halfCols + 1u, sy, th.useUnicodeBorder ? 0x2502u : (u32) '|', borderPen);
-                    paintSplitCellCanvas(canvas, halfCols + 3u, sy, cols - (halfCols + 3u), right, true, th);
+                    paintSplitCellCanvas(canvas, halfCols + 3u, sy, cols - (halfCols + 3u), scrollX, right, true, th);
                 }
                 vrow++;
             }
